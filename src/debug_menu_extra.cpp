@@ -955,16 +955,10 @@ inline int debug_render_get_max(int a1)
     return max_values()[a1];
 }
 
-void create_debug_render_menu(debug_menu *parent)
+static void populate_debug_render_menu(debug_menu_entry *entry)
 {
-    printf("create_debug_render_menu\n");
-
-    assert(parent != nullptr);
-
-    auto *debug_render_menu = create_menu("Debug Render", debug_menu::sort_mode_t::ascending);
-
-    auto *v4 = create_menu_entry(debug_render_menu);
-    parent->add_entry(v4);
+    auto *debug_render_menu = create_menu(entry->text, debug_menu::sort_mode_t::ascending);
+    entry->set_submenu(debug_render_menu);
 
     for (auto i = 0u; i < 51u; ++i) {
         auto *v5 = create_menu_entry((debug_render_items_names())[i]);
@@ -982,6 +976,14 @@ void create_debug_render_menu(debug_menu *parent)
     }
 
     create_ngl_menu(debug_render_menu);
+}
+
+void create_debug_render_menu(debug_menu *parent)
+{
+    debug_menu_entry entry{"Debug Render"};
+    entry.set_submenu(nullptr);
+    entry.set_game_flags_handler(populate_debug_render_menu);
+    parent->add_entry(&entry);
 }
 
 std::string camera_render_callback(debug_menu_entry *a2)

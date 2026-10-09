@@ -89,11 +89,6 @@ void nglBlendMorphs(nglMesh *Mesh, uint32_t a2, nglMorphEntry *Morphs)
 
         for (auto i = 0u; i < Mesh->NSections; ++i) {
             for (auto j = 0u; j < a2; ++j) {
-                assert(Mesh->Sections[i].Section->VertexDef != nullptr && "Mesh section is not morphable.");
-
-                assert((j == 0 || !Morphs[j].Morph->IsMeshMorph()) &&
-                       "Only the first blend entry can be a mesh morph.");
-
                 Morphs[j].Morph->Apply(Mesh->Sections[i].Section, i, Morphs[j].field_0, buf[j + a2 * i]);
             }
         }

@@ -312,7 +312,7 @@ float animation_controller::anim_ctrl_handle::get_anim_norm_time() const
 
 bool animation_controller::sub_49C180()
 {
-    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
     return func(this);
 }
 

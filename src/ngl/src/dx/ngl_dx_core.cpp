@@ -1,3 +1,4 @@
+#include "debug_menu.h"
 #include "ngl_dx_core.h"
 
 #include "geometry_manager.h"
@@ -601,6 +602,11 @@ void nglListSend(bool Flip)
             float v10[4]{0, 0, 1, 1};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90, v10, 1);
         }
+
+#if STANDALONE_SYSTEM
+        if (Flip)
+            debug_menu_render();
+#endif
 
         nglRenderDebug();
 

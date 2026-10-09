@@ -315,7 +315,7 @@ struct SimpleBuildingMaterial : ProcMaterial {
 static_assert(offsetof(SimpleBuildingMaterial, cull) == 0x7C);
 static_assert(offsetof(SimpleBuildingMaterial, bias) == 0x74);
 
-template <bool Windows>
+template <bool Windows, bool Glass = false>
 struct BuildingMeshNode : nglShaderNode {
     nglMaterialBase *material;
     nglTexture *textures[Windows ? 2 : 1];
@@ -342,7 +342,7 @@ struct BuildingMeshNode : nglShaderNode {
     }
     void Render()
     {
-        if (var<int>(Windows ? 0x00956FA4 : 0x00956D4C))
+        if (var<int>(Glass ? 0x00956FA8 : Windows ? 0x00956FA4 : 0x00956D4C))
             return;
         const auto &data = *reinterpret_cast<const ProcMaterial *>(material);
         auto &state = g_renderState();
@@ -385,12 +385,14 @@ struct BuildingMeshNode : nglShaderNode {
             IDirect3DDevice9_SetTransform(
                 g_Direct3DDevice, D3DTS_WORLD, reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
             if constexpr (Windows) {
-                auto scale = identity_matrix;
-                scale[0][0] = scale[1][1] = 0.2f;
-                IDirect3DDevice9_SetTransform(
-                    g_Direct3DDevice, D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX *>(&scale));
-                nglSetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-                nglSetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 0);
+                if constexpr (!Glass) {
+                    auto scale = identity_matrix;
+                    scale[0][0] = scale[1][1] = 0.2f;
+                    IDirect3DDevice9_SetTransform(
+                        g_Direct3DDevice, D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX *>(&scale));
+                    nglSetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+                    nglSetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 0);
+                }
                 nglSetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
                 nglSetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
                 nglSetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
@@ -408,22 +410,23 @@ struct BuildingMeshNode : nglShaderNode {
             }
         }
         nglSetStreamSourceAndDrawPrimitive(m_meshSection);
-        if constexpr (Windows) {
+        if constexpr (Windows && !Glass) {
             if (!EnableShader) {
                 nglSetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE);
                 nglSetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 1);
             }
-        } else if (reinterpret_cast<const SimpleBuildingMaterial *>(material)->bias) {
-            depth_bias(0.0f);
+        } else if constexpr (!Windows) {
+            if (reinterpret_cast<const SimpleBuildingMaterial *>(material)->bias)
+                depth_bias(0.0f);
         }
     }
 };
 
-template <bool Windows>
+template <bool Windows, bool Glass = false>
 struct BuildingMeshShader : nglShader {
     static void __fastcall Name(BuildingMeshShader *, void *, tlFixedString *out)
     {
-        *out = tlFixedString{Windows ? "USM_Building" : "USBuildingSimple"};
+        *out = tlFixedString{Glass ? "USBuildingGlass" : Windows ? "USM_Building" : "USBuildingSimple"};
     }
     static bool __fastcall Switchable(BuildingMeshShader *, void *)
     {
@@ -487,7 +490,7 @@ struct BuildingMeshShader : nglShader {
     }
     void Add(nglMeshNode *mesh, nglMeshSection *section, nglMaterialBase *material)
     {
-        using Node = BuildingMeshNode<Windows>;
+        using Node = BuildingMeshNode<Windows, Glass>;
         auto *node = new (nglListAlloc(sizeof(Node), 16)) Node{mesh, section, material};
         auto &params = mesh->field_8C;
         if (params.IsSetParam<nglTintParam>() &&
@@ -501,6 +504,49 @@ struct BuildingMeshShader : nglShader {
         }
     }
 };
+template <unsigned Kind>
+struct ProceduralMaterialShader : nglShader {
+    static void __fastcall Name(ProceduralMaterialShader *, void *, tlFixedString *out)
+    {
+        static const char *names[]{"USShadowVol", "SMLowlod", "SMProcBlg"};
+        *out = tlFixedString{names[Kind]};
+    }
+    static bool __fastcall Switchable(ProceduralMaterialShader *, void *)
+    {
+        return true;
+    }
+    ProceduralMaterialShader()
+    {
+        static void *table[]{func_address(&ProceduralMaterialShader::Register),
+                             reinterpret_cast<void *>(Name),
+                             func_address(&ProceduralMaterialShader::Add),
+                             func_address(&ProceduralMaterialShader::Material),
+                             func_address(&ProceduralMaterialShader::Material),
+                             func_address(&ProceduralMaterialShader::Rebase),
+                             func_address(&nglShader::_CheckMaterialVersion),
+                             func_address(&nglShader::_CheckVertexDefVersion),
+                             func_address(&nglShader::_BindSection),
+                             reinterpret_cast<void *>(Switchable),
+                             func_address(&ProceduralMaterialShader::Delete)};
+        m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
+    }
+    ProceduralMaterialShader *Delete(unsigned char flags)
+    {
+        if (flags & 1)
+            ::operator delete(this);
+        return this;
+    }
+    void Register()
+    {
+        nglShader::_Register();
+        if constexpr (Kind == 1)
+            shaders(false);
+    }
+
+    void Add(nglMeshNode *, nglMeshSection *, nglMaterialBase *) {}
+    void Material(nglMaterialBase *) {}
+    void Rebase(nglMaterialBase *, unsigned) {}
+};
 #endif
 }  // namespace
 
@@ -509,6 +555,10 @@ void initialize_building_mesh_shaders()
 {
     static BuildingMeshShader<false> simple;
     static BuildingMeshShader<true> windowed;
+    static BuildingMeshShader<true, true> glass;
+    static ProceduralMaterialShader<0> shadow;
+    static ProceduralMaterialShader<1> lowlod;
+    static ProceduralMaterialShader<2> procedural;
 }
 #endif
 

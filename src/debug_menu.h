@@ -40,8 +40,8 @@ extern std::string entry_render_callback_default(debug_menu_entry *entry);
 class script_instance;
 
 struct debug_menu_entry {
-    char text[MAX_CHARS];
-    debug_menu_entry_type entry_type;
+    char text[MAX_CHARS]{};
+    debug_menu_entry_type entry_type = dUNDEFINED;
     union {
         float fval;
         float *p_fval;
@@ -50,14 +50,14 @@ struct debug_menu_entry {
         int ival;
         int *p_ival;
         debug_menu *p_menu;
-    } m_value;
-    void *data1;
+    } m_value{};
+    void *data1 = nullptr;
     uint16_t m_id{0};
     std::string (*render_callback)(debug_menu_entry *) = entry_render_callback_default;
     void (*m_game_flags_handler)(debug_menu_entry *) = nullptr;
     void (*frame_advance_callback)(debug_menu_entry *) = entry_frame_advance_callback_default;
-    script_instance *field_14;
-    int field_18;
+    script_instance *field_14 = nullptr;
+    int field_18 = -1;
     struct {
         float m_min_value;
         float m_max_value;
@@ -66,6 +66,9 @@ struct debug_menu_entry {
     } field_20{0.f, 1.f, 0.1f, 10.f};
     bool m_value_initialized{false};
     void *m_data = nullptr;
+#if STANDALONE_SYSTEM
+    debug_menu_entry *script_source = nullptr;
+#endif
 
     void set_step_size(float a2)
     {
@@ -383,6 +386,12 @@ struct debug_menu {
 
     static inline bool physics_state_on_exit = true;
 };
+
+#if STANDALONE_SYSTEM
+bool debug_menu_input(const char *keys);
+bool debug_menu_blocks_window_input(UINT message, WPARAM key);
+void debug_menu_render();
+#endif
 
 extern void *add_debug_menu_entry(debug_menu *menu, debug_menu_entry *entry);
 

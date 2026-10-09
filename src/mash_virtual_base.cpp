@@ -731,9 +731,15 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
     case 493:
         return create_mash_class<als::begin_biped_physics>(type, storage, storage_size);
     case 496:
-        return create_mash_class<als::move_and_face>(type, storage, storage_size);
+        return create_mash_class<als::combat_move_and_face>(type, storage, storage_size);
     case 503:
         return create_mash_class<als::crawl_transition>(type, storage, storage_size);
+    case 508:
+        return create_mash_class<als::flight_mocomp>(type, storage, storage_size);
+    case 511:
+        return create_mash_class<als::move_and_face>(type, storage, storage_size);
+    case 513:
+        return create_mash_class<als::feed_mocomp>(type, storage, storage_size);
     case 514:
         return create_mash_class<als::null_mocomp>(type, storage, storage_size);
     case 516:
@@ -1187,8 +1193,11 @@ void mash_virtual_base::generate_vtable()
         vtable()[489] = als::als_meta_linear_blend::native_vtable();
         vtable()[490] = als::motion_compensator::native_vtable(490);
         vtable()[493] = native_mash_vtable<als::begin_biped_physics>();
-        vtable()[496] = als::move_and_face::native_vtable();
+        vtable()[496] = als::combat_move_and_face::native_vtable();
         vtable()[503] = als::crawl_transition::native_vtable();
+        vtable()[508] = als::flight_mocomp::native_vtable();
+        vtable()[511] = als::move_and_face::native_vtable();
+        vtable()[513] = als::feed_mocomp::native_vtable();
         vtable()[514] = als::motion_compensator::native_vtable(514);
         vtable()[516] = als::motion_compensator::native_vtable(516);
         vtable()[519] = als::set_orient_mocomp::native_vtable();

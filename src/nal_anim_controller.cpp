@@ -260,7 +260,7 @@ void *__fastcall pm_create(nal_anim_controller::std_play_method *self, void *, n
 
 void __fastcall pm_reference(anim_player::nalPlayMethod *, void *, anim_player::nalAnimState *) {}
 void __fastcall pm_release(anim_player::nalPlayMethod *, void *) {}
-}  // namespace
+}
 
 void *nal_anim_controller::native_vtable()
 {
@@ -518,7 +518,7 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool)
     TRACE("nal_anim_controller::frame_advance");
 
     {
-        if (!traffic::is_unanimated_car(this->field_4) && !this->field_4->is_ext_flagged(0x40000000u) &&
+        if (!traffic::is_unanimated_car(this->field_4) && !this->field_4->is_flagged(EFLAG_SUSPENDED) &&
             !this->field_50) {
             this->my_player.sub_4B06A0(a2);
             this->my_player.sub_4B0860(this->field_40);
@@ -619,7 +619,11 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
                         const ptr_to_po source{&v6->m, &inverse_parent.m};
                         new_po.set_from_ptr_to_po_world(source);
 
-                        child->set_abs_po(new_po);
+                        *child->my_rel_po = new_po;
+                        child->dirty_family(false);
+                        if (child->is_conglom_member() || child->is_a_conglomerate())
+                            child->dirty_model_po_family();
+                        child->po_changed();
 
                         child->get_abs_po();
                     }
@@ -650,7 +654,11 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
                 const vector3d translation{v30.field_10[0], v30.field_10[1], v30.field_10[2]};
                 po v32{translation, a2_12, 1.0};
 
-                this->field_4->set_abs_po(v32);
+                *this->field_4->my_rel_po = v32;
+                this->field_4->dirty_family(false);
+                if (this->field_4->is_conglom_member() || this->field_4->is_a_conglomerate())
+                    this->field_4->dirty_model_po_family();
+                this->field_4->po_changed();
             } else {
                 vector3d a2_12 = this->field_4->get_abs_position();
                 po a2_28{};

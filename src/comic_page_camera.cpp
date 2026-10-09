@@ -197,9 +197,9 @@ void page_camera::interpret_pose(nalGeneric::nalGenericPose &pose)
     flip[2][2] = -1.0f;
     field_4C = flip * field_4C;
     const auto size = ortho_size();
-    field_3C = {position.x - size.x, position.z - size.y, position.x + size.x, position.z + size.y};
-    field_4C = field_4C.inverse();
-    field_4C[3] = vector4d{position.x, position.z, -position.y, 1.0f};
+    const vector3d page_position{-100.0f * position.x, -100.0f * position.z, 100.0f * position.y};
+    field_3C = {page_position.x - size.x, page_position.y - size.y, page_position.x + size.x, page_position.y + size.y};
+    field_4C[3] = vector4d{page_position.x, page_position.y, page_position.z, 1.0f};
     field_8C = field_4C;
     field_4C = field_4C.inverse();
 }

@@ -24,7 +24,7 @@ VALIDATE_SIZE(simple_orientation, 0x14);
 VALIDATE_SIZE(simple_orientation_ped, 0x14);
 VALIDATE_SIZE(set_orient_mocomp, 0x14);
 
-float simple_orientation::get_turn_rate(float fallback) const
+float motion_compensator::get_turn_rate(float fallback) const
 {
     using optional_fn = float(__fastcall *)(state_machine *, void *, const string_hash &, Float, bool *);
     using required_fn = float(__fastcall *)(state_machine *, void *, string_hash);

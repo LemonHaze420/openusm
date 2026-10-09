@@ -6,6 +6,19 @@
 #include "string_hash.h"
 #include "vm_executable.h"
 
+#if STANDALONE_SYSTEM
+#include "debug_menu_extra.h"
+#include "debug_render.h"
+#include "devopt.h"
+#include "game.h"
+#include "ngl.h"
+#include "ngl_font.h"
+#include "ngl_scene.h"
+#include "os_developer_options.h"
+#include "variables.h"
+#include <dinput.h>
+#endif
+
 #include <algorithm>
 #include <cassert>
 #include <string>
@@ -70,9 +83,16 @@ typedef void (*menu_handler_function)(debug_menu_entry *, custom_key_type key_ty
 debug_menu *current_menu = nullptr;
 
 #if STANDALONE_SYSTEM
+namespace {
+bool menu_owns_pause = false;
+constexpr DWORD menu_page_size = 18;
+}
 void close_debug()
 {
     current_menu = nullptr;
+    if (menu_owns_pause && g_game_ptr != nullptr)
+        g_game_ptr->unpause();
+    menu_owns_pause = false;
 }
 
 namespace {
@@ -82,7 +102,7 @@ bool remove_entry_from_menu(debug_menu *menu, debug_menu_entry *entry)
         return false;
 
     for (DWORD index = 0; index < menu->used_slots; ++index) {
-        if (&menu->entries[index] == entry) {
+        if (&menu->entries[index] == entry || menu->entries[index].script_source == entry) {
             for (DWORD next = index + 1; next < menu->used_slots; ++next)
                 menu->entries[next - 1] = menu->entries[next];
             --menu->used_slots;
@@ -425,3 +445,318 @@ void handle_game_entry(debug_menu_entry *entry, custom_key_type key_type)
         entry->on_change(1.0, true);
     }
 }
+
+#if STANDALONE_SYSTEM
+namespace {
+void populate_saved_settings(debug_menu_entry *entry)
+{
+    auto *menu = create_menu(entry->text);
+    entry->set_submenu(menu);
+    create_gamefile_menu(menu);
+}
+
+void add_game_toggle(debug_menu *menu, const char *name, unsigned id, bool value)
+{
+    debug_menu_entry entry{name};
+    entry.set_id(id);
+    entry.set_bval(value);
+    entry.set_game_flags_handler(game_flags_handler);
+    menu->add_entry(&entry);
+}
+
+void populate_game_menu(debug_menu_entry *entry)
+{
+    auto *menu = create_menu(entry->text);
+    entry->set_submenu(menu);
+    add_game_toggle(menu, "Physics Enabled", 0, g_game_ptr->is_physics_enabled());
+    add_game_toggle(
+        menu, "Slow Motion Enabled", 2, os_developer_options::instance->get_int(mString{"FRAME_LOCK"}) == 120);
+    add_game_toggle(menu, "Show Districts", 6, os_developer_options::instance->get_flag(mString{"SHOW_STREAMER_INFO"}));
+    add_game_toggle(
+        menu, "Show Hero Position", 7, os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_INFO"}));
+    add_game_toggle(menu, "Show FPS", 8, os_developer_options::instance->get_flag(mString{"SHOW_FPS"}));
+    debug_menu_entry saved{"Saved Game Settings"};
+    saved.set_submenu(nullptr);
+    saved.set_game_flags_handler(populate_saved_settings);
+    menu->add_entry(&saved);
+}
+
+void add_lazy_menu(debug_menu *parent, const char *name, void (*populate)(debug_menu_entry *))
+{
+    debug_menu_entry entry{name};
+    entry.set_submenu(nullptr);
+    entry.set_game_flags_handler(populate);
+    parent->add_entry(&entry);
+}
+
+void destroy_menu(debug_menu *menu)
+{
+    if (menu == nullptr)
+        return;
+    for (DWORD i = 0; i < menu->used_slots; ++i) {
+        if (menu->entries[i].entry_type == POINTER_MENU)
+            destroy_menu(menu->entries[i].m_value.p_menu);
+    }
+    free(menu->entries);
+    free(menu);
+}
+
+void move_selection(int direction)
+{
+    auto &menu = *current_menu;
+    if (!menu.used_slots)
+        return;
+    const auto selected = menu.window_start + menu.cur_index;
+    const DWORD next =
+        direction > 0 ? (selected + 1) % menu.used_slots : (selected + menu.used_slots - 1) % menu.used_slots;
+    if (next < menu.window_start)
+        menu.window_start = next;
+    else if (next >= menu.window_start + menu_page_size)
+        menu.window_start = next - menu_page_size + 1;
+    menu.cur_index = next - menu.window_start;
+}
+
+void normalize_selection()
+{
+    auto &menu = *current_menu;
+    if (!menu.used_slots) {
+        menu.window_start = menu.cur_index = 0;
+        return;
+    }
+    const DWORD selected = std::min(menu.window_start + menu.cur_index, menu.used_slots - 1);
+    menu.window_start = std::min(menu.window_start, selected);
+    if (selected >= menu.window_start + menu_page_size)
+        menu.window_start = selected - menu_page_size + 1;
+    menu.cur_index = selected - menu.window_start;
+}
+
+void format_entry(debug_menu_entry &entry, char (&text)[256])
+{
+    auto &source = entry.script_source != nullptr ? *entry.script_source : entry;
+    const auto value = source.render_callback(&source);
+    if (value.empty())
+        snprintf(text, sizeof(text), "%s", source.text);
+    else
+        snprintf(text, sizeof(text), "%s: %s", source.text, value.c_str());
+}
+}
+
+void debug_menu::init()
+{
+    if (root_menu != nullptr)
+        return;
+    root_menu = create_menu("Debug Menu");
+    add_lazy_menu(root_menu, "Game", populate_game_menu);
+    create_camera_menu_items(root_menu);
+    create_warp_menu(root_menu);
+    create_debug_district_variants_menu(root_menu);
+    script_menu = create_menu("Script");
+    progression_menu = create_menu("Progression");
+    root_menu->add_entry(script_menu);
+    root_menu->add_entry(progression_menu);
+
+    auto *options = create_menu("Devopts");
+    for (int i = 0; i < 226; ++i) {
+        const auto *option = get_option(i);
+        debug_menu_entry entry{option->m_name};
+        if (option->m_type == game_option_t::FLAG_OPTION)
+            entry.set_pt_bval(reinterpret_cast<bool *>(option->m_value.p_bval));
+        else if (option->m_type == game_option_t::INT_OPTION) {
+            entry.set_p_ival(option->m_value.p_ival);
+            entry.set_min_value(-1000);
+            entry.set_max_value(1000);
+        }
+        options->add_entry(&entry);
+    }
+    root_menu->add_entry(options);
+    constexpr const char *render_names[]{"CAPSULE_HISTORY",
+                                         "LIGHTS",
+                                         "BOX_TRIGGERS",
+                                         "WATER_EXCLUSION_TRIGGERS",
+                                         "POINT_TRIGGERS",
+                                         "ENTITY_TRIGGERS",
+                                         "INTERACTABLE_TRIGGERS",
+                                         "OCCLUSION",
+                                         "LEGOS",
+                                         "REGION_MESHES",
+                                         "ENTITIES",
+                                         "LOW_LODS",
+                                         "ACTIVITY_INFO",
+                                         "RENDER_INFO",
+                                         "COLLIDE_INFO",
+                                         "MARKERS",
+                                         "PARKING_MARKERS",
+                                         "WATER_EXIT_MARKERS",
+                                         "MISSION_MARKERS",
+                                         "PATHS",
+                                         "GLASS_HOUSE",
+                                         "OBBS",
+                                         "TRAFFIC_PATHS",
+                                         "MINI_GAME",
+                                         "BRAINS",
+                                         "VOICE",
+                                         "PATROLS",
+                                         "PAUSE_TIMERS",
+                                         "ANIM_INFO",
+                                         "SCENE_ANIM_INFO",
+                                         "TARGETING",
+                                         "VIS_SPHERES",
+                                         "LADDERS",
+                                         "COLLISIONS",
+                                         "BRAINS_ENABLED",
+                                         "ANCHORS",
+                                         "LINE_INFO",
+                                         "SUBDIVISION",
+                                         "SKELETONS",
+                                         "SOUND_STREAM_USAGE",
+                                         "SPHERES",
+                                         "LINES",
+                                         "CYLINDERS",
+                                         "DGRAPH",
+                                         "PEDS",
+                                         "TRAFFIC",
+                                         "ALS",
+                                         "AI_COVER_MARKERS",
+                                         "LIMBO_GLOW",
+                                         "BIPED_COLL_VOLUMES",
+                                         "DECALS"};
+    static_assert(std::size(render_names) == DEBUG_RENDER_ITEMS_COUNT);
+    for (unsigned i = 0; i < std::size(render_names); ++i)
+        debug_render_items_names()[i] = mString{render_names[i]};
+    create_debug_render_menu(root_menu);
+}
+
+bool debug_menu_input(const char *keys)
+{
+    constexpr unsigned codes[]{DIK_INSERT, DIK_RETURN, DIK_ESCAPE, DIK_UP, DIK_DOWN, DIK_LEFT, DIK_RIGHT};
+    static unsigned held[std::size(codes)]{};
+    static bool drain_keys = false;
+    for (unsigned i = 0; i < std::size(codes); ++i)
+        held[i] = keys[codes[i]] ? held[i] + 1 : 0;
+    const bool any_held = std::any_of(std::begin(held), std::end(held), [](unsigned count) { return count != 0; });
+    bool consumed = current_menu != nullptr || drain_keys;
+    if (drain_keys) {
+        drain_keys = any_held;
+        return true;
+    }
+    if (g_game_ptr == nullptr)
+        return consumed;
+    const auto state = g_game_ptr->get_cur_state();
+    if (current_menu != nullptr && state != game_state::RUNNING && state != game_state::PAUSED) {
+        close_debug();
+        drain_keys = any_held;
+        return consumed;
+    }
+    if (held[0] == 1) {
+        if (current_menu != nullptr) {
+            close_debug();
+            drain_keys = true;
+        } else if (state == game_state::RUNNING || state == game_state::PAUSED) {
+            debug_menu::init();
+            const bool was_paused = g_game_ptr->flag.game_paused;
+            if (!was_paused)
+                g_game_ptr->pause();
+            if (g_game_ptr->flag.game_paused) {
+                menu_owns_pause = !was_paused;
+                current_menu = debug_menu::root_menu;
+                consumed = true;
+            }
+        }
+        return consumed;
+    }
+    if (current_menu == nullptr)
+        return consumed;
+    normalize_selection();
+    const auto repeat = [](unsigned count) {
+        return count == 1 || (count >= 5 && count % 5 == 0);
+    };
+    if (held[2] == 1) {
+        current_menu->go_back();
+        drain_keys = current_menu == nullptr;
+    } else if (repeat(held[4]))
+        move_selection(1);
+    else if (repeat(held[3]))
+        move_selection(-1);
+    else if (current_menu->used_slots) {
+        auto &stored = current_menu->entries[current_menu->window_start + current_menu->cur_index];
+        auto &entry = stored.script_source != nullptr ? *stored.script_source : stored;
+        if (held[1] == 1) {
+            if (entry.entry_type == POINTER_MENU && entry.m_game_flags_handler != nullptr) {
+                destroy_menu(entry.m_value.p_menu);
+                entry.m_value.p_menu = nullptr;
+            }
+            entry.on_select(1);
+        } else if (held[5] == 1)
+            entry.on_change(-1, false);
+        else if (held[6] == 1)
+            entry.on_change(1, true);
+    }
+    if (current_menu != nullptr && current_menu->used_slots) {
+        normalize_selection();
+        auto &stored = current_menu->entries[current_menu->window_start + current_menu->cur_index];
+        auto &entry = stored.script_source != nullptr ? *stored.script_source : stored;
+        entry.frame_advance_callback(&entry);
+    }
+    return true;
+}
+
+bool debug_menu_blocks_window_input(UINT message, WPARAM key)
+{
+    static bool captured_keys[256]{};
+    if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
+        auto &captured = captured_keys[key & 0xFFu];
+        captured = captured || current_menu != nullptr;
+        return captured;
+    }
+    if (message == WM_KEYUP || message == WM_SYSKEYUP) {
+        auto &captured = captured_keys[key & 0xFFu];
+        const bool consume = captured || current_menu != nullptr;
+        captured = false;
+        return consume;
+    }
+    if (message == WM_KILLFOCUS)
+        std::fill_n(captured_keys, std::size(captured_keys), false);
+    return current_menu != nullptr &&
+           ((message >= WM_KEYFIRST && message <= WM_KEYLAST) || (message >= WM_MOUSEFIRST && message <= WM_MOUSELAST));
+}
+
+void debug_menu_render()
+{
+    if (current_menu == nullptr || nglSysFont() == nullptr || nglRootScene == nullptr)
+        return;
+    normalize_selection();
+    auto *previous_scene = nglCurScene;
+    nglCurScene = nglRootScene;
+    const DWORD count = std::min(menu_page_size, current_menu->used_slots - current_menu->window_start);
+    uint32_t width = 0, line_height = 0;
+    nglGetStringDimensions(nglSysFont(), &width, &line_height, "%s", current_menu->title);
+    char labels[menu_page_size][256];
+    for (DWORD i = 0; i < count; ++i) {
+        format_entry(current_menu->entries[current_menu->window_start + i], labels[i]);
+        uint32_t row_width, row_height;
+        nglGetStringDimensions(nglSysFont(), &row_width, &row_height, "%s", labels[i]);
+        width = std::max(width, row_width);
+        line_height = std::max(line_height, row_height);
+    }
+    nglQuad background;
+    nglInitQuad(&background);
+    nglSetQuadRect(&background, 20, 40, 20 + width + 24, 40 + line_height * (count + 3) + 18);
+    nglSetQuadColor(&background, 0xBE0A0A0A);
+    nglSetQuadZ(&background, 0.5f);
+    nglListAddQuad(&background);
+    float y = 52;
+    nglListAddString(nglSysFont(), 28, y, 0.2f, 0xFF00FF00, 1, 1, "%s", current_menu->title);
+    y += line_height;
+    if (current_menu->window_start)
+        nglListAddString(nglSysFont(), 28, y, 0.2f, 0xFFFF00FF, 1, 1, " ^ ^ ^ ");
+    y += line_height;
+    for (DWORD i = 0; i < count; ++i) {
+        nglListAddString(
+            nglSysFont(), 28, y, 0.2f, i == current_menu->cur_index ? 0xFFFFFF00 : 0xFFFFFFFF, 1, 1, "%s", labels[i]);
+        y += line_height;
+    }
+    if (current_menu->window_start + count < current_menu->used_slots)
+        nglListAddString(nglSysFont(), 28, y, 0.2f, 0xFFFF00FF, 1, 1, " v v v ");
+    nglCurScene = previous_scene;
+}
+#endif

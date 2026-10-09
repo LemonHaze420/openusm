@@ -12,7 +12,6 @@ struct set_orient_mocomp : motion_compensator {
 struct simple_orientation : motion_compensator {
     void post_anim_action(Float elapsed);
     void get_directions(animation_logic_system *, state_machine *, vector3d &, vector3d &);
-    float get_turn_rate(float fallback) const;
     static void *native_vtable();
 };
 

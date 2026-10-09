@@ -64,7 +64,12 @@ struct move_and_face_no_anim_movement : motion_compensator {
     void unmash(mash_info_struct *, void *);
 };
 
-struct move_and_face : move_and_face_no_anim_movement {
+struct combat_move_and_face : move_and_face_no_anim_movement {
+    void activate(animation_logic_system *);
+    static void *native_vtable();
+};
+
+struct feed_mocomp : move_and_face_no_anim_movement {
     void activate(animation_logic_system *);
     static void *native_vtable();
 };
@@ -76,6 +81,51 @@ struct constant_move_and_face : move_and_face_no_anim_movement {
 
 struct crawl_transition : constant_move_and_face {
     void activate(animation_logic_system *);
+    static void *native_vtable();
+};
+
+struct move_and_face : motion_compensator {
+    vector3d animation_target_offset;
+    bool grounded;
+    char pad_21[3];
+    vector3d velocity;
+    vector3d acceleration;
+    vector3d added_velocity;
+    bool has_target;
+    bool target_initialized;
+    char pad_4A[2];
+    vector3d target;
+    vector3d initial_target;
+    float target_cheat_k;
+    bool reverse_facing;
+    char pad_69[3];
+    float land_max_slowdown_rate;
+    bool saved_collision;
+    bool saved_gravity;
+    bool saved_motion;
+    char pad_73;
+
+    void activate(animation_logic_system *);
+    void deactivate();
+    void post_anim_action(Float);
+    static void *native_vtable();
+};
+
+struct flight_mocomp : motion_compensator {
+    vector3d destination;
+    vector3d target_offset;
+    vector3d target_direction;
+    vector3d target_facing;
+    float target_cheat_k;
+    float restore_visible_timer;
+    bool restored_visible;
+    bool saved_collision;
+    bool saved_gravity;
+    bool saved_motion;
+
+    void activate(animation_logic_system *);
+    void deactivate();
+    void post_anim_action(Float);
     static void *native_vtable();
 };
 

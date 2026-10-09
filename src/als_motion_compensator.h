@@ -48,6 +48,8 @@ struct motion_compensator : mash_virtual_base {
 
     double get_anim_playback_speed_param();
 
+    float get_turn_rate(float fallback) const;
+
     static void *native_vtable(uint32_t type);
 };
 

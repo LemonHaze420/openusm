@@ -13,3 +13,7 @@ struct US_Decal3DShader : nglShader {
 };
 
 extern void us_decal_patch();
+
+#if STANDALONE_SYSTEM
+void initialize_decal_material_shader();
+#endif

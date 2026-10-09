@@ -554,8 +554,8 @@ void ai_core::frame_advance(Float elapsed)
     if (auto *controller = field_64->get_player_controller()) {
         controller->frame_advance(elapsed);
     }
-    if ((!field_64->is_in_limbo() && field_64->get_primary_region() != nullptr) || field_64->is_ext_flagged(8u)) {
-        if (field_64->is_ext_flagged(0x40000000u) && elapsed > EPSILON) {
+    if ((!field_64->is_in_limbo() && field_64->get_primary_region() != nullptr) || field_64->is_flagged(8u)) {
+        if (field_64->is_flagged(EFLAG_SUSPENDED) && elapsed > EPSILON) {
             return;
         }
     } else {

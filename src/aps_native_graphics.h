@@ -90,3 +90,7 @@ void aps_native_graphics_fixup(void *object, unsigned type);
 unsigned aps_native_graphics_type(const void *object);
 unsigned aps_native_graphics_format(const void *object);
 void aps_native_graphics_render(void *object, aeps::GroupRenderInfo *info);
+
+#if STANDALONE_SYSTEM
+void initialize_aeps_material_shader();
+#endif

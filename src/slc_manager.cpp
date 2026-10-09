@@ -2447,8 +2447,13 @@ struct slf__destroy_debug_menu_entry__debug_menu_entry__t : script_library_class
     {
         TRACE("slf__destroy_debug_menu_entry__debug_menu_entry__t::operator()");
 
+#if STANDALONE_SYSTEM
+        stack.pop(4);
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006794C0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -10314,144 +10319,137 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_handler, 0x0089C744)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    auto *result = stack.get_thread()->install_temp_string("");
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_id, 0x0089C734)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_max_value, 0x0089C784)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_min_value, 0x0089C774)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_name, 0x0089C724)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    auto *result = stack.get_thread()->install_temp_string("");
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_step_scale, 0x0089C7A4)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_step_size, 0x0089C794)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_value, 0x0089C754)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, get_value_type, 0x0089C764)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(4);
+    stack.push(0.0f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_handler__str, 0x0089C74C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_id__num, 0x0089C73C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_max_value__num, 0x0089C78C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_min_value__num, 0x0089C77C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_name__str, 0x0089C72C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_step_scale__num, 0x0089C7AC)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_step_size__num, 0x0089C79C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_value__num, 0x0089C75C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(debug_menu_entry, set_value_type__num, 0x0089C76C)
 {
-    (void)stack;
-    (void)entry;
+    stack.pop(8);
     return true;
 }
 DECLARE_SLF_END()
@@ -10466,16 +10464,22 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(district, district__num, 0x0089C7F0)
 {
-    (void)stack;
     (void)entry;
+    const int id = static_cast<int>(static_cast<uint64_t>(stack.pop_num()));
+    auto *terrain = g_world_ptr->the_terrain;
+    auto *result = terrain != nullptr ? terrain->get_district(id) : nullptr;
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(district, district__str, 0x0089C7F8)
 {
-    (void)stack;
     (void)entry;
+    const string_hash name{stack.pop_str()};
+    auto *terrain = g_world_ptr->the_terrain;
+    auto *result = terrain != nullptr ? terrain->find_region(name) : nullptr;
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
@@ -10594,9 +10598,9 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(district, wait_for_load, 0x0089C830)
 {
-    (void)stack;
     (void)entry;
-    return true;
+    auto *district = static_cast<region *>(stack.pop_addr());
+    return district == nullptr || (district->flags & 0x10u) != 0;
 }
 DECLARE_SLF_END()
 

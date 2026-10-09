@@ -667,6 +667,8 @@ void cpu_combat_state::_activate(ai::ai_state_machine *machine, const ai::mashed
         controller->pending_trigger = 0;
         controller->level_time = g_world_ptr->time_manager.get_level_time();
         controller->engage_current_move();
+        if (!call<bool>(combat, 0xB4))
+            call<bool>(combat, 0x9C);
         ai::universal_soldier_inode::redeem_attack_token(static_cast<ai::universal_soldier_inode *>(
             core->get_info_node(ai::universal_soldier_inode::default_id, false)));
     }

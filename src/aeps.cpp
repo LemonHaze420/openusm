@@ -258,7 +258,7 @@ void aeps::FrameSetupRenderAndThenRender()
         }
     }
     auto &entities = s_entityFx();
-    const auto &fade_distances = var<float[16]>(0x0095BB40);
+    static constexpr float fade_distances[]{0.0f, 1.0f, 9.0f, 36.0f, 144.0f, 576.0f};
     for (unsigned i = entities.size(); i != 0; --i) {
         auto &effect = *entities[i - 1];
         if (!effect.render_seen || !effect.initialized) {

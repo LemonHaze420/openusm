@@ -21,6 +21,9 @@
 #include "ngl_dx_palette.h"
 #include "ngl_dx_texture.h"
 #include "ngl_font.h"
+#if STANDALONE_SYSTEM
+#include "ngl_sys_font_data.h"
+#endif
 #include "ngl_lighting.h"
 #include "ngl_mesh.h"
 #include "ngl_morph.h"
@@ -54,6 +57,7 @@
 #include "vtbl.h"
 
 #include "gen_building.h"
+#include "aps_native_graphics.h"
 #include <us_frontend.h>
 #include <us_outline.h>
 #include <us_pcuv_shader.h>
@@ -63,6 +67,8 @@
 #include <us_lod.h>
 #include <us_colorvol.h>
 #include <us_tentacle.h>
+#include <us_decal.h>
+#include "usocean2shader.h"
 #include "ngl_builtin_shader_programs.h"
 
 #include <ngl_dx_shader.h>
@@ -1118,12 +1124,16 @@ math::VecClass<3, 1> nglProjectPoint(math::VecClass<3, 1> a2)
 {
     nglCalculateMatrices(false);
     const auto view = nglCurScene->WorldToView * vector3d{a2[0], a2[1], a2[2]};
-    const auto transformed = nglCurScene->field_C * view;
+    const auto &perspective = nglCurScene->field_C;
+    float transformed[4]{};
+    for (unsigned axis = 0; axis < 4; ++axis)
+        transformed[axis] = perspective[0][axis] * view.x + perspective[1][axis] * view.y +
+                            perspective[2][axis] * view.z + perspective[3][axis];
     const auto &projection = nglCurScene->field_4C;
     float clip[4]{};
     for (unsigned axis = 0; axis < 4; ++axis)
-        clip[axis] = projection[0][axis] * transformed.x + projection[1][axis] * transformed.y +
-                     projection[2][axis] * transformed.z + projection[3][axis];
+        clip[axis] = projection[0][axis] * transformed[0] + projection[1][axis] * transformed[1] +
+                     projection[2][axis] * transformed[2] + projection[3][axis] * transformed[3];
     const float inverse = 1.0f / clip[3];
     auto *texture = nglCurScene->field_334;
     const float width = texture->field_34 & 4 ? nglGetScreenWidth() : texture->m_width;
@@ -4022,8 +4032,6 @@ nglTexture *nglLoadTexture(const tlFixedString &a1)
 {
     TRACE("nglLoadTexture", a1.to_string());
 
-    assert(a1.GetHash() != 0);
-
     if constexpr (1) {
         nglTexture *tex = nglTextureDirectory->Find(a1);
         if (tex == nullptr) {
@@ -6061,6 +6069,15 @@ void nglInit(HWND hWnd)
         sub_7726B0(true);
         nglTextureInit();
 #if STANDALONE_SYSTEM
+        const tlFixedString system_font_name{"nglSysFont"};
+        auto *system_font_texture = nglLoadTextureInPlace(system_font_name,
+                                                          static_cast<nglTextureFileFormat>(0),
+                                                          nglSysFontTextureData,
+                                                          sizeof(nglSysFontTextureData));
+        system_font_texture->field_34 |= 2u;
+        nglSysFont() = create_and_parse_fdf(system_font_name, nglSysFontDefinition);
+        nglFontDirectory()->_Add(nglSysFont());
+        nglSysFont()->field_50 = 1;
         (void)getPCUV_Shader();
         nglRegisterPCUVVertexDef();
         nglRegisterPersonVertexDefs();
@@ -6078,6 +6095,10 @@ void nglInit(HWND hWnd)
         initialize_world_material_shaders();
         initialize_building_mesh_shaders();
         initialize_shiny_material_shader();
+        initialize_decal_material_shader();
+        initialize_ocean_material_shader();
+        initialize_aeps_material_shader();
+        initialize_debug_material_shader();
         (void)USColorVolShaderSpace::getUSColorVolShader();
         (void)getTentacle_Shader();
 #endif

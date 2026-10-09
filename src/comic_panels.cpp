@@ -26,10 +26,10 @@
 #include "ngl_mesh.h"
 #include <algorithm>
 #include "glam_camera.h"
+#include "marky_camera.h"
 #include "quaternion.h"
 #include "string_hash.h"
 #include "component.h"
-#include <cfloat>
 #include "shadow.h"
 #include "potential_shadow.h"
 #include <cmath>
@@ -268,20 +268,6 @@ rectangle intersect_rect(rectangle a, const rectangle &b)
     }
     return a;
 }
-rectangle transform_rect(const math::MatClass<4, 3> &transform, const rectangle &rect)
-{
-    rectangle result{vector2d{FLT_MAX, FLT_MAX}, vector2d{-FLT_MAX, -FLT_MAX}};
-    const auto &matrix = reinterpret_cast<const matrix4x4 &>(transform);
-    for (unsigned corner = 0; corner < 4; ++corner) {
-        const vector3d position{rect.field_0[corner & 1][0], rect.field_0[(corner >> 1) & 1][1], 0.0f};
-        const auto point = matrix * position;
-        for (int axis = 0; axis < 2; ++axis) {
-            result.field_0[0][axis] = std::min(result.field_0[0][axis], point[axis]);
-            result.field_0[1][axis] = std::max(result.field_0[1][axis], point[axis]);
-        }
-    }
-    return result;
-}
 rectangle page_bounds{vector2d{0.0f, 0.0f}, vector2d{640.0f, 480.0f}};
 rectangle page_rectangle()
 {
@@ -468,7 +454,7 @@ struct animation_component {
                              reinterpret_cast<void *>(component_unused),
                              reinterpret_cast<void *>(render),
                              reinterpret_cast<void *>(capture),
-                             reinterpret_cast<void *>(component_unused),
+                             Kind == 1 ? reinterpret_cast<void *>(render) : reinterpret_cast<void *>(component_unused),
                              reinterpret_cast<void *>(resources)};
         return reinterpret_cast<std::intptr_t>(value);
     }
@@ -781,7 +767,7 @@ void __fastcall animation_component<Kind>::render(void *self, void *, panel_comp
     if constexpr (Kind == 1) {
         auto area = field<rectangle>(self, 8);
         if (!field<bool>(self, 40)) {
-            const auto bounds = transform_rect(info->field_0, field<rectangle>(self, 24));
+            const auto bounds = project_panel_rectangle(info->field_0, field<rectangle>(self, 24));
             for (int axis = 0; axis < 2; ++axis)
                 for (int corner = 0; corner < 2; ++corner)
                     area.field_0[corner][axis] =
@@ -794,8 +780,8 @@ void __fastcall animation_component<Kind>::render(void *self, void *, panel_comp
         } else
             area = normalize_rect(area, page_rectangle());
         info->field_124 = intersect_rect(area, {vector2d{-1.0f, -1.0f}, vector2d{1.0f, 1.0f}});
-        if (info->field_124.field_0[1][0] - info->field_124.field_0[0][0] < 2.0f / 640.0f ||
-            info->field_124.field_0[1][1] - info->field_124.field_0[0][1] < 2.0f / 480.0f)
+        if (info->field_124.field_0[1][0] - info->field_124.field_0[0][0] < 4.0f / 640.0f ||
+            info->field_124.field_0[1][1] - info->field_124.field_0[0][1] < 4.0f / 480.0f)
             info->field_142 = true;
         else
             nglSetScissor(info->field_124.field_0[0][0],
@@ -1026,6 +1012,12 @@ void init()
     current_view_camera() = nullptr;
     world_has_been_rendered = false;
     sub_7315A0();
+    auto &cameras = var<fixed_vector<marky_camera *, 10>>(0x0096FAD4);
+    cameras = {};
+    for (unsigned index = 0; index < 10; ++index) {
+        const mString name = mString{"CAMERA0"} + mString{static_cast<int>(index)};
+        cameras.push_back(new marky_camera{string_hash{name.c_str()}});
+    }
     const char *names[]{"GLAMCAM0", "GLAMCAM1", "GLAMCAM2", "GLAMCAM3"};
     for (unsigned index = 0; index < 4; ++index)
         glamour_cams[index] = new glam_camera{names[index]};
@@ -1068,7 +1060,7 @@ void setup_main_scene()
             matrix4x4 scale{identity_matrix};
             scale[0][0] = 1.0f / size.x;
             scale[1][1] = 1.0f / size.y;
-            nglSetWorldToViewMatrix({scale * camera->field_4C});
+            nglSetWorldToViewMatrix({camera->field_4C * scale});
             nglSetAspectRatio(1.0f);
             nglSetOrthoMatrix(page_near, page_far);
         } else {
@@ -1783,7 +1775,7 @@ void panel_component_camera::_capture(panel_component::render_info &info)
     scale[3][0] = -(local.field_0[1][0] + local.field_0[0][0]) * .5f / half_width;
     scale[3][1] = (local.field_0[1][1] + local.field_0[0][1]) * .5f / half_height;
     nglListBeginScene(static_cast<nglSceneParamType>(1));
-    nglSetWorldToViewMatrix({scale * panel_view});
+    nglSetWorldToViewMatrix({panel_view * scale});
     nglSetAspectRatio(1.0f);
     nglSetOrthoMatrix(page_near, page_far);
     nglCalculateMatrices(false);

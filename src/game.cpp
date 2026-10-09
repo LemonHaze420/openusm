@@ -674,6 +674,9 @@ void game::render_world()
 
         nglSetClearFlags(0);
         nglListBeginScene(static_cast<nglSceneParamType>(1));
+        sub_5935D0();
+        nglListEndScene();
+        nglListBeginScene(static_cast<nglSceneParamType>(1));
         view_camera->adjust_geometry_pipe(false);
         geometry_manager::set_far_plane(view_camera->get_far_plane_factor() * 10000.0f);
         nglCalculateMatrices(false);
@@ -2563,145 +2566,35 @@ float game::get_script_game_clock_timer() const
     }
 }
 
-//TODO
 void game::render_ui()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         nglListBeginScene(static_cast<nglSceneParamType>(1));
-        render_motion_blur();
-        nglListEndScene();
-
-        nglListBeginScene(static_cast<nglSceneParamType>(1));
-
-        static bool &g_preserve_z_buffer = var<bool>(0x0095C878);
-        nglSetClearFlags(g_preserve_z_buffer ? 0 : 6);
-        nglListEndScene();
-
-        static bool &g_disable_interface = var<bool>(0x0095C879);
-
-        if (g_disable_interface || !this->flag.level_is_loaded ||
-            os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"})) {
-            if (this->flag.level_is_loaded) {
-                if (!EnableShader) {
-                    matrix4x4 a1;
-                    a1.arr[0][0] = 0.003125;
-                    a1.arr[0][1] = 0.0;
-                    a1.arr[0][2] = 0.0;
-                    a1.arr[0][3] = 0.0;
-                    a1.arr[1][0] = 0.0;
-                    a1.arr[1][1] = 0.004166666;
-                    a1.arr[1][2] = 0.0;
-                    a1.arr[1][3] = 0.0;
-                    a1.arr[2][0] = 0.0;
-                    a1.arr[2][1] = 0.0;
-                    a1.arr[2][2] = -1.0;
-                    a1.arr[2][3] = 0.0;
-                    a1.arr[3][0] = -1.0;
-                    a1.arr[3][1] = -1.0;
-                    a1.arr[3][2] = 0.0;
-                    a1.arr[3][3] = 1.0;
-                    nglSetWorldToViewMatrix({a1});
-                    nglSetAspectRatio(1.0);
-                    nglSetOrthoMatrix(1000.0, 10000.0);
-                    nglCalculateMatrices(false);
-                }
-
-                mission_manager::s_inst->render_fade();
-            } else {
-                g_femanager.RenderLoadMeter(true);
-            }
-        } else {
-            g_femanager.Draw();
-        }
-
-        nglListBeginScene(static_cast<nglSceneParamType>(1));
-        nglSetClearFlags(g_preserve_z_buffer ? 0 : 6);
-        sub_769DE0(7);
+        nglSetClearFlags(var<bool>(0x0095C878) ? 0 : 6);
+        nglSetFBWriteMask(7);
         if (!EnableShader) {
-            matrix4x4 v5;
-            v5.arr[0][0] = 0.003125;
-            v5.arr[0][1] = 0.0;
-            v5.arr[0][2] = 0.0;
-            v5.arr[0][3] = 0.0;
-            v5.arr[1][0] = 0.0;
-            v5.arr[1][1] = 0.004166666;
-            v5.arr[1][2] = 0.0;
-            v5.arr[1][3] = 0.0;
-            v5.arr[2][0] = 0.0;
-            v5.arr[2][1] = 0.0;
-            v5.arr[2][2] = -1.0;
-            v5.arr[2][3] = 0.0;
-            v5.arr[3][0] = -1.0;
-            v5.arr[3][1] = -1.0;
-            v5.arr[3][2] = 0.0;
-            v5.arr[3][3] = 1.0;
-            nglSetWorldToViewMatrix({v5});
-            nglSetAspectRatio(1.0);
-            nglSetOrthoMatrix(1000.0, 10000.0);
-            nglCalculateMatrices(0);
+            matrix4x4 view{identity_matrix};
+            view[0][0] = 2.0f / 640.0f;
+            view[1][1] = 2.0f / 480.0f;
+            view[2][2] = -1.0f;
+            view[3] = {-1.0f, -1.0f, 0.0f, 1.0f};
+            nglSetWorldToViewMatrix({view});
+            nglSetAspectRatio(1.0f);
+            nglSetOrthoMatrix(1000.0f, 10000.0f);
+            nglCalculateMatrices(false);
         }
-
-        if (!g_disable_interface) {
-            render_interface();
-        }
-
-        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(107))) {
-            auto v2 = g_game_ptr->get_script_game_clock_timer();
-
-            mString v8{0, "%d:%.02d", (int)v2 / 3600, (int)v2 / 60 % 60};
-            auto *v3 = v8.c_str();
-
-            mString v6{v3};
-
-            render_text(v8, vector2di{520, 30}, color32{255, 255, 255, 255}, 1.0, 0.80000001);
-        }
-
-        if constexpr (1) {
-            if constexpr (disable_console) {
-                g_console->render();
+        if (!var<bool>(0x0095C879)) {
+            if (flag.level_is_loaded) {
+                if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index >= 0 &&
+                    !os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"}))
+                    g_femanager.Draw();
+                render_interface();
+            } else if (g_femanager.m_fe_menu_system != nullptr) {
+                g_femanager.m_fe_menu_system->RenderLoadMeter(true);
             }
-
-#if defined(ENABLE_DEBUG_MENU) && DEBUG_MENU_REIMPL != 1
-            debug_menu::render_active();
-#endif
         }
-
+        mission_manager::s_inst->render_fade();
         nglListEndScene();
-        if (!spider_monkey::is_running()) {
-            if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(26)) == 1 &&
-                byte_965BF5) {
-                SYSTEMTIME SystemTime;
-                GetLocalTime(&SystemTime);
-
-                char Dest[256];
-                sprintf(Dest,
-                        "%s\\screenshot_%4d-%02d-%02d-%02d%02d%02d",
-                        byte_9659B8,
-                        SystemTime.wYear,
-                        SystemTime.wMonth,
-                        SystemTime.wDay,
-                        SystemTime.wHour,
-                        SystemTime.wMinute,
-                        SystemTime.wSecond);
-                nglScreenShot(Dest);
-                byte_965BF5 = false;
-            }
-
-            auto ALLOW_SCREENSHOT = os_developer_options::instance->get_int(mString{"ALLOW_SCREENSHOT"});
-            if (ALLOW_SCREENSHOT == 2 && this->field_80.is_triggered()) {
-                static bool &capturing = var<bool>(0x00960B47);
-
-                if (capturing) {
-                    app::instance->field_4.end_screen_recording();
-                } else {
-                    mString v7{"L3ScreenShot"};
-
-                    app::instance->field_4.begin_screen_recording(v7, 30);
-                }
-
-                capturing = !capturing;
-            }
-        }
     } else {
         THISCALL(0x0052B250, this);
     }

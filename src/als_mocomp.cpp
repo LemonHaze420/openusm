@@ -19,6 +19,8 @@
 #include "custom_math.h"
 #include "mash_info_struct.h"
 #include "memory.h"
+#include "ai_std_combat_target.h"
+#include "base_ai_core.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -109,7 +111,10 @@ float begin_biped_physics::activate(animation_logic_system *a1)
 VALIDATE_SIZE(move_and_face_no_anim_movement, 0x74);
 VALIDATE_SIZE(constant_move_and_face, 0x74);
 VALIDATE_SIZE(crawl_transition, 0x74);
+VALIDATE_SIZE(combat_move_and_face, 0x74);
 VALIDATE_SIZE(move_and_face, 0x74);
+VALIDATE_SIZE(flight_mocomp, 0x50);
+VALIDATE_SIZE(feed_mocomp, 0x74);
 VALIDATE_OFFSET(crawl_transition, translation_disabled, 0x5C);
 VALIDATE_OFFSET(crawl_transition, orientation_disabled, 0x60);
 VALIDATE_OFFSET(crawl_transition, remaining_time, 0x64);
@@ -192,7 +197,7 @@ void constant_move_and_face::activate(animation_logic_system *system)
     turn_rate =
         optional(field_8, nullptr, string_hash{int(to_hash("turn_rate"))}, 720.0f, nullptr) * (3.1415927f / 180.0f);
 }
-void move_and_face::activate(animation_logic_system *system)
+void combat_move_and_face::activate(animation_logic_system *system)
 {
     move_face::activate(system);
     turn_rate = field_8->get_optional_pb_float(string_hash{"turn_rate"}, 720.0f, nullptr) * (3.1415927f / 180.0f);
@@ -532,22 +537,22 @@ void __fastcall move_arrive(move_face *self, void *, Float dt)
 {
     self->face_and_arrive_by(dt);
 }
-void *__fastcall arrive_delete(move_and_face *self, void *, unsigned char flags)
+void *__fastcall arrive_delete(combat_move_and_face *self, void *, unsigned char flags)
 {
-    self->~move_and_face();
+    self->~combat_move_and_face();
     if (flags & 1)
         mem_dealloc(self, sizeof(*self));
     return self;
 }
-int __fastcall arrive_type(move_and_face *, void *)
+int __fastcall arrive_type(combat_move_and_face *, void *)
 {
     return 496;
 }
-bool __fastcall arrive_parent(move_and_face *, void *, uint32_t type)
+bool __fastcall arrive_parent(combat_move_and_face *, void *, uint32_t type)
 {
     return type == 512 || type == 490 || type == 573;
 }
-void __fastcall arrive_activate(move_and_face *self, void *, animation_logic_system *system)
+void __fastcall arrive_activate(combat_move_and_face *self, void *, animation_logic_system *system)
 {
     self->activate(system);
 }
@@ -618,7 +623,7 @@ void *crawl_transition::native_vtable()
     }();
     return table.data();
 }
-void *move_and_face::native_vtable()
+void *combat_move_and_face::native_vtable()
 {
     static auto table = [] {
         std::array<void *, 43> result;
@@ -636,6 +641,378 @@ void *move_and_face::native_vtable()
         return result;
     }();
     return table.data();
+}
+
+void feed_mocomp::activate(animation_logic_system *)
+{
+    move_and_face_no_anim_movement::activate(field_4);
+    expired_translation_mode = expired_orientation_mode = 0;
+}
+
+namespace {
+int __fastcall feed_type(feed_mocomp *, void *)
+{
+    return 513;
+}
+void __fastcall feed_activate(feed_mocomp *self, void *, animation_logic_system *system)
+{
+    self->activate(system);
+}
+}
+
+void *feed_mocomp::native_vtable()
+{
+    static auto table = [] {
+        std::array<void *, 43> result;
+        std::copy_n(static_cast<void **>(combat_move_and_face::native_vtable()), result.size(), result.begin());
+        result[3] = reinterpret_cast<void *>(&feed_type);
+        result[6] = reinterpret_cast<void *>(&feed_activate);
+        result[24] = reinterpret_cast<void *>(&move_reset_destination);
+        return result;
+    }();
+    return table.data();
+}
+
+namespace {
+void suppress_motion_physics(physical_interface *physical)
+{
+    physical->field_C &= ~0x200u;
+    physical->set_gravity(false);
+    physical->field_C |= 0x800u;
+}
+
+void restore_motion_physics(actor *owner, bool collision, bool gravity, bool motion)
+{
+    auto *physical = owner->physical_ifc();
+    physical->enable(true);
+    physical->field_C = collision ? physical->field_C | 0x200u : physical->field_C & ~0x200u;
+    physical->set_gravity(gravity);
+    physical->field_C = motion ? physical->field_C | 0x800u : physical->field_C & ~0x800u;
+    physical->set_velocity(ZEROVEC, false);
+}
+
+void update_playback_speed(motion_compensator *self)
+{
+    using get_fn = double(__fastcall *)(motion_compensator *, void *);
+    using set_fn = void(__fastcall *)(motion_compensator *, void *, Float);
+    const float speed = reinterpret_cast<get_fn>(get_vfunc(self->m_vtbl, 0x48))(self, nullptr);
+    reinterpret_cast<set_fn>(get_vfunc(self->m_vtbl, 0x40))(self, nullptr, speed);
+}
+
+bool set_motion_position(motion_compensator *self, vector3d &position)
+{
+    using fn = bool(__fastcall *)(motion_compensator *, void *, vector3d *);
+    return reinterpret_cast<fn>(get_vfunc(self->m_vtbl, 0x30))(self, nullptr, &position);
+}
+
+void apply_motion_offset(motion_compensator *self, po &offset)
+{
+    using fn = void(__fastcall *)(motion_compensator *, void *, actor *, po *);
+    reinterpret_cast<fn>(get_vfunc(self->m_vtbl, 0x2C))(self, nullptr, self->the_actor, &offset);
+}
+
+void face_motion_direction(motion_compensator *self, const vector3d &direction, Float dt)
+{
+    using fn = void(__fastcall *)(motion_compensator *, void *, actor *, vector3d, vector3d, Float, Float, Float);
+    reinterpret_cast<fn>(get_vfunc(self->m_vtbl, 0x34))(self,
+                                                        nullptr,
+                                                        self->the_actor,
+                                                        self->the_actor->get_abs_po().get_z_facing(),
+                                                        direction,
+                                                        self->get_turn_rate(10.0f),
+                                                        std::cos(0.08726646502812704),
+                                                        dt);
+}
+
+vhandle_type<actor> flight_target(actor *owner, bool *has_node = nullptr)
+{
+    auto *node = owner->get_ai_core()->get_info_node(ai::combat_target_inode::default_id, true);
+    if (has_node)
+        *has_node = node != nullptr;
+    if (node == nullptr)
+        return {};
+    using fn = vhandle_type<actor> *(__fastcall *)(ai::info_node *, void *, vhandle_type<actor> *);
+    vhandle_type<actor> result;
+    reinterpret_cast<fn>(get_vfunc(node->m_vtbl, 0x38))(node, nullptr, &result);
+    return result;
+}
+
+template <typename T, unsigned Type>
+int __fastcall motion_type(T *, void *)
+{
+    return Type;
+}
+
+template <typename T>
+int __fastcall motion_size(T *, void *)
+{
+    return sizeof(T);
+}
+
+template <typename T>
+void *__fastcall motion_delete(T *self, void *, unsigned flags)
+{
+    self->~T();
+    if (flags & 1)
+        mem_dealloc(self, sizeof(T));
+    return self;
+}
+
+template <typename T>
+void __fastcall motion_activate(T *self, void *, animation_logic_system *system)
+{
+    self->activate(system);
+}
+
+template <typename T>
+void __fastcall motion_deactivate(T *self, void *)
+{
+    self->deactivate();
+}
+
+template <typename T>
+void __fastcall motion_post(T *self, void *, Float dt)
+{
+    self->post_anim_action(dt);
+}
+
+template <typename T, unsigned Type>
+void *movement_vtable()
+{
+    static auto table = [] {
+        std::array<void *, 20> result;
+        std::copy_n(static_cast<void **>(motion_compensator::native_vtable(490)), result.size(), result.begin());
+        result[2] = reinterpret_cast<void *>(&motion_delete<T>);
+        result[3] = reinterpret_cast<void *>(&motion_type<T, Type>);
+        result[6] = reinterpret_cast<void *>(&motion_activate<T>);
+        result[7] = reinterpret_cast<void *>(&motion_deactivate<T>);
+        result[9] = reinterpret_cast<void *>(&motion_post<T>);
+        result[19] = reinterpret_cast<void *>(&motion_size<T>);
+        return result;
+    }();
+    return table.data();
+}
+}
+
+void *move_and_face::native_vtable()
+{
+    return movement_vtable<move_and_face, 511>();
+}
+
+void move_and_face::activate(animation_logic_system *system)
+{
+    motion_compensator::activate(system);
+    reverse_facing = field_8->get_optional_pb_int(string_hash{int(to_hash("reverse_facing"))}, 0, nullptr) != 0;
+    land_max_slowdown_rate =
+        field_8->get_optional_pb_float(string_hash{int(to_hash("land_max_slowdown_rate"))}, 500.0f, nullptr);
+    target = field_8->get_vector_param(system, 33);
+    has_target = target != ZEROVEC;
+    target_initialized = has_target;
+    if (has_target)
+        initial_target = target;
+    if (the_actor->has_physical_ifc()) {
+        auto *physical = the_actor->physical_ifc();
+        saved_collision = (physical->field_C & 0x200u) != 0;
+        saved_gravity = (physical->field_C & 4u) != 0;
+        saved_motion = (physical->field_C & 0x800u) != 0;
+        suppress_motion_physics(physical);
+        velocity = added_velocity = ZEROVEC;
+        acceleration = {0.0f, g_gravity * physical->m_gravity_multiplier, 0.0f};
+    }
+    if (field_8->does_parameter_exist(string_hash{int(to_hash("target_cheat_k"))}))
+        animation_target_offset.z = field_8->get_pb_float(string_hash{int(to_hash("target_cheat_k"))});
+    else
+        target_cheat_k = 200.0f;
+    grounded = false;
+}
+
+void move_and_face::deactivate()
+{
+    if (the_actor->has_physical_ifc())
+        restore_motion_physics(the_actor, saved_collision, saved_gravity, saved_motion);
+}
+
+void move_and_face::post_anim_action(Float dt)
+{
+    update_playback_speed(this);
+    auto *physical = the_actor->physical_ifc();
+    physical->enable(false);
+    suppress_motion_physics(physical);
+    acceleration = {0.0f, -9.81f * physical->m_gravity_multiplier, 0.0f};
+    if (!grounded)
+        velocity += acceleration * dt;
+    const auto external_velocity = field_8->get_vector_param(field_4, 83);
+    if (external_velocity != added_velocity) {
+        added_velocity = external_velocity;
+        velocity += external_velocity;
+    }
+    const auto before = the_actor->get_abs_position();
+    po offset{};
+    field_4->get_animation_controller()->get_curr_po_offset(offset);
+    apply_motion_offset(this, offset);
+    auto position = the_actor->get_abs_position() + velocity * dt;
+    grounded = set_motion_position(this, position);
+    the_actor->set_frame_delta_trans(the_actor->get_abs_position() - before, dt);
+    physical->set_velocity(velocity, false);
+    if (grounded) {
+        if (added_velocity == ZEROVEC) {
+            velocity = ZEROVEC;
+        } else {
+            const float change = dt * land_max_slowdown_rate;
+            if (std::fabs(velocity.y) >= land_max_slowdown_rate)
+                velocity.y -= velocity.y > 0.0f ? change : -change;
+            else
+                velocity.y = 0.0f;
+            const float horizontal2 = velocity.x * velocity.x + velocity.z * velocity.z;
+            if (change * change <= horizontal2) {
+                const float fraction = change / std::sqrt(horizontal2);
+                velocity.x -= velocity.x * fraction;
+                velocity.z -= velocity.z * fraction;
+            } else {
+                velocity.x = velocity.z = 0.0f;
+            }
+        }
+        return;
+    }
+    target = field_8->get_vector_param(field_4, 33);
+    has_target = target != ZEROVEC;
+    if (has_target) {
+        if (!target_initialized) {
+            initial_target = target;
+            target_initialized = true;
+        }
+        const float radius = field_8->get_param(field_4, 61);
+        auto distance = target - initial_target;
+        if (radius > 0.0f && distance.length2() > radius * radius) {
+            distance.set_length(radius);
+            target = initial_target + distance;
+        }
+        animation_target_offset = ZEROVEC;
+        if (field_8->does_parameter_exist(string_hash{int(to_hash("delta_pos_z"))}))
+            animation_target_offset.z = field_8->get_pb_float(string_hash{int(to_hash("delta_pos_z"))});
+        const auto origin = the_actor->get_abs_po().slow_xform(animation_target_offset);
+        const double quadratic = -0.5 * g_gravity * physical->m_gravity_multiplier;
+        const double constant = origin.y - target.y;
+        const double discriminant = velocity.y * velocity.y - 4.0 * quadratic * constant;
+        double time = -1.0;
+        if (std::not_equal_to<double>{}(quadratic, 0.0) && discriminant >= 0.0) {
+            const double root = std::sqrt(discriminant);
+            time = std::max((-velocity.y - root) / (2.0 * quadratic), (root - velocity.y) / (2.0 * quadratic));
+        }
+        const float error_x = target.x - (origin.x + velocity.x * time);
+        const float error_z = target.z - (origin.z + velocity.z * time);
+        if (time > 0.1 && error_x * error_x + error_z * error_z > 0.1f) {
+            vector3d correction{error_x / static_cast<float>(time), 0.0f, error_z / static_cast<float>(time)};
+            const float maximum = dt * target_cheat_k;
+            if (correction.length2() > maximum * maximum)
+                correction.set_length(maximum);
+            velocity += correction;
+        }
+    }
+    if (velocity.x * velocity.x + velocity.z * velocity.z > 1.0f)
+        face_motion_direction(this, velocity * (reverse_facing ? -1.0f : 1.0f), dt);
+}
+
+void *flight_mocomp::native_vtable()
+{
+    return movement_vtable<flight_mocomp, 508>();
+}
+
+void flight_mocomp::activate(animation_logic_system *system)
+{
+    motion_compensator::activate(system);
+    target_offset = {field_8->get_optional_pb_float(string_hash{int(to_hash("target_offset_x"))}, 0.0f, nullptr),
+                     field_8->get_optional_pb_float(string_hash{int(to_hash("target_offset_y"))}, 0.0f, nullptr),
+                     field_8->get_optional_pb_float(string_hash{int(to_hash("target_offset_z"))}, 0.0f, nullptr)};
+    var<vector3d>(0x009595D4) = target_offset;
+    target_cheat_k = std::clamp(
+        field_8->get_optional_pb_float(string_hash{int(to_hash("target_cheat_k"))}, 0.25f, nullptr), 0.0001f, 1.0f);
+    restore_visible_timer =
+        field_8->get_optional_pb_float(string_hash{int(to_hash("restore_visible_timer"))}, 0.0f, nullptr);
+    restored_visible = false;
+    const auto target_handle = flight_target(the_actor);
+    if (target_handle.get_volatile_ptr())
+        the_actor->add_collision_ignorance(target_handle.field_0);
+    if (the_actor->has_physical_ifc()) {
+        auto *physical = the_actor->physical_ifc();
+        saved_collision = (physical->field_C & 0x200u) != 0;
+        saved_gravity = (physical->field_C & 4u) != 0;
+        saved_motion = (physical->field_C & 0x800u) != 0;
+        suppress_motion_physics(physical);
+    }
+}
+
+void flight_mocomp::deactivate()
+{
+    the_actor->set_visible(true, false);
+    if (the_actor->get_ai_core()) {
+        const auto target_handle = flight_target(the_actor);
+        if (target_handle.get_volatile_ptr())
+            the_actor->remove_collision_ignorance(target_handle.field_0);
+    }
+    if (the_actor->has_physical_ifc())
+        restore_motion_physics(the_actor, saved_collision, saved_gravity, saved_motion);
+}
+
+void flight_mocomp::post_anim_action(Float dt)
+{
+    if (restored_visible) {
+        update_playback_speed(this);
+        const auto before = the_actor->get_abs_position();
+        po offset{};
+        field_4->get_animation_controller()->get_curr_po_offset(offset);
+        offset.set_from_ptr_to_po_world({&offset.m, &the_actor->get_rel_po().m});
+        offset.sub_48D840();
+        the_actor->get_rel_po() = offset;
+        the_actor->dirty_family(false);
+        if (the_actor->is_ext_flagged(0x8004u))
+            the_actor->dirty_model_po_family();
+        the_actor->po_changed();
+        the_actor->set_frame_delta_trans(the_actor->get_abs_position() - before, dt);
+        return;
+    }
+    auto *physical = the_actor->physical_ifc();
+    physical->enable(false);
+    suppress_motion_physics(physical);
+    if (restore_visible_timer > 0.0f) {
+        restore_visible_timer -= dt;
+        if (restore_visible_timer <= 0.0f) {
+            restored_visible = true;
+            the_actor->set_visible(true, false);
+            if (the_actor->has_physical_ifc()) {
+                restore_motion_physics(the_actor, saved_collision, saved_gravity, saved_motion);
+                return;
+            }
+        } else {
+            the_actor->set_visible(false, false);
+        }
+    }
+    bool has_node;
+    const auto target_handle = flight_target(the_actor, &has_node);
+    if (has_node) {
+        if (auto *target_actor = target_handle.get_volatile_ptr()) {
+            destination = target_actor->get_abs_po().slow_xform(target_offset);
+            target_direction = destination - the_actor->get_abs_position();
+            target_facing = -target_actor->get_abs_po().get_z_facing();
+            if (target_direction.length2() > 1.0f)
+                target_direction.normalize();
+            else
+                target_direction *= 0.0f;
+        } else {
+            destination = the_actor->get_abs_position();
+            target_facing = the_actor->get_abs_po().get_z_facing();
+        }
+    }
+    const auto before = the_actor->get_abs_position();
+    auto position = before + (destination - before) * target_cheat_k;
+    const auto distance = before - destination;
+    if (distance.x * distance.x + distance.z * distance.z < 0.25f)
+        the_actor->set_visible(false, false);
+    set_motion_position(this, position);
+    const auto translation = position - before;
+    the_actor->set_frame_delta_trans(translation, dt);
+    physical->set_velocity(translation / dt, false);
+    face_motion_direction(this, target_facing, dt);
 }
 
 }  // namespace als

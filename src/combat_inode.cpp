@@ -1802,11 +1802,11 @@ bool combat_inode::set_attack(string_hash attack)
             string_hash category;
             field_28->get_known_combat_signal_time_and_category(time, category);
             field_28->get_category_id(static_cast<als::layer_types>(0));
-            field_1C = 1;
+            field_7C = 1;
             return true;
         }
     }
-    field_74 = field_70 = field_1C = 0;
+    field_74 = field_70 = field_7C = 0;
     return false;
 }
 
@@ -1865,13 +1865,13 @@ bool combat_inode::choose_attack(actor *target)
             }
     }
     if (selected < 0) {
-        field_74 = field_70 = field_1C = 0;
+        field_74 = field_70 = field_7C = 0;
         return false;
     }
     auto *chain = system->field_14.m_data[static_cast<uint16_t>(selected)];
     field_74 = reinterpret_cast<int>(chain);
     field_70 = chain->field_14.source_hash_code;
-    field_1C = 1;
+    field_7C = 1;
     return true;
 }
 

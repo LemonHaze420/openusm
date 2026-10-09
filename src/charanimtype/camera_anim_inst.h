@@ -31,5 +31,7 @@ struct nalCamBaseInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
 
 struct nalCamInstance : nalCamBaseInstance {
     nalCamInstance(nalCamAnim *a2, nalCamSkeleton *a3);
+    void *decoder;
+    const uint8_t *codecs;
 };
 }  // namespace nalCam

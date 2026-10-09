@@ -479,7 +479,9 @@ void actor::bind_to_scene_anim()
     if (!anim_ctrl) {
         const bool has_logic = (field_4 & 4u) && static_cast<conglomerate *>(this)->field_114 &&
                                static_cast<conglomerate *>(this)->field_114->field_8;
-        allocate_anim_controller(has_logic ? 0u : 2u, nullptr);
+        auto allocate = reinterpret_cast<void(__fastcall *)(actor *, void *, unsigned int, nalBaseSkeleton *)>(
+            get_vfunc(m_vtbl, 0x214));
+        allocate(this, nullptr, has_logic ? 0u : 2u, nullptr);
     }
     auto begin =
         reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *)>(get_vfunc(anim_ctrl->m_vtbl, 0x20));

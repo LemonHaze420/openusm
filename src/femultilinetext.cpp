@@ -515,10 +515,9 @@ void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, F
     }
 
     if constexpr (STANDALONE_SYSTEM) {
-        this->sub_60A4A0(*bit_cast<mString *>(&a2));
-        auto v12 = *bit_cast<mString *>(&a2);
-        auto v5 = FEMultiLineText::ReplaceEndlines(v12);
-        a2 = *bit_cast<string *>(&v5);
+        mString text{*bit_cast<const mString *>(&a2)};
+        this->sub_60A4A0(text);
+        auto v5 = FEMultiLineText::ReplaceEndlines(text);
         auto v6 = a7;
         const bool v7 = std::equal_to<float>{}(a8, -1.0f);
         auto v8 = this->field_3C;
@@ -529,7 +528,7 @@ void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, F
             a5 = a8;
         }
 
-        auto v9 = this->MakeBox(a2.guts, a2.m_size, v6, a5, scale_y, true);
+        auto v9 = this->MakeBox(v5.data(), v5.size(), v6, a5, scale_y, true);
         this->field_80 = std::min(v9, this->line_avail_num);
         field_1C = lines[0].field_10;
         this->AdjustForJustification();

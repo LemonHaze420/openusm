@@ -4,6 +4,7 @@
 #include "common.h"
 #include "ngl.h"
 #include "nglsortinfo.h"
+#include "nglshader.h"
 #include "variables.h"
 #include <ngl_dx_scene.h>
 #include <ngl_dx_shader.h>
@@ -682,7 +683,50 @@ const GraphicsVtable tables[]{make_table<0>(),
                               make_table<5>(),
                               make_table<6>(),
                               make_table<7>()};
+#if STANDALONE_SYSTEM
+struct AepsShader : nglShader {
+    static void __fastcall Name(AepsShader *, void *, tlFixedString *out)
+    {
+        *out = tlFixedString{"AEPS"};
+    }
+    static bool __fastcall Switchable(AepsShader *, void *)
+    {
+        return false;
+    }
+    void Add(nglMeshNode *, nglMeshSection *, nglMaterialBase *) {}
+    void Material(nglMaterialBase *) {}
+    void Rebase(nglMaterialBase *, unsigned) {}
+    AepsShader *Delete(unsigned char flags)
+    {
+        if (flags & 1)
+            ::operator delete(this);
+        return this;
+    }
+    AepsShader()
+    {
+        static void *table[]{func_address(&nglShader::_Register),
+                             reinterpret_cast<void *>(Name),
+                             func_address(&AepsShader::Add),
+                             func_address(&AepsShader::Material),
+                             func_address(&AepsShader::Material),
+                             func_address(&AepsShader::Rebase),
+                             func_address(&nglShader::_CheckMaterialVersion),
+                             func_address(&nglShader::_CheckVertexDefVersion),
+                             func_address(&nglShader::_BindSection),
+                             reinterpret_cast<void *>(Switchable),
+                             func_address(&AepsShader::Delete)};
+        m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
+    }
+};
+#endif
 }  // namespace
+
+#if STANDALONE_SYSTEM
+void initialize_aeps_material_shader()
+{
+    static AepsShader shader;
+}
+#endif
 
 void aps_native_graphics_fixup(void *object, unsigned type)
 {

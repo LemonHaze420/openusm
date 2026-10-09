@@ -9,3 +9,7 @@ struct nglDebugShader : nglShader {
     //virtual
     int Register();
 };
+
+#if STANDALONE_SYSTEM
+void initialize_debug_material_shader();
+#endif

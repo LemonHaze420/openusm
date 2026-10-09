@@ -79,7 +79,7 @@ void init_shadow_targets()
 {
     TRACE("init_shadow_targets");
 
-#if defined(ENABLE_DEBUG_MENU) && DEBUG_MENU_REIMPL == 0
+#if STANDALONE_SYSTEM || (defined(ENABLE_DEBUG_MENU) && DEBUG_MENU_REIMPL == 0)
     debug_menu::init();
 #endif
 
@@ -300,7 +300,7 @@ void app::tick()
 {
     TRACE("app::tick");
 
-    {
+    if constexpr (!STANDALONE_SYSTEM) {
         float time_inc = 0.0f;
         do {
             time_inc = this->field_34.elapsed();
@@ -326,24 +326,11 @@ void app::tick()
         limited_timer_base total_timer;
         total_timer.reset();
 
-        const auto render_frame = [](bool paused) {
-            if (g_game_ptr->flag.level_is_loaded &&
-                (!paused || !g_game_ptr->field_165 ||
-                 os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66)))) {
-                nglListInit();
-                nglSetClearFlags(7);
-                nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-                nglListBeginScene(static_cast<nglSceneParamType>(1));
-                nglSetClearFlags(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL);
-                nglListEndScene();
-                g_game_ptr->render_world();
-                if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index >= 0 &&
-                    !var<bool>(0x0095C879) && !os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"}))
-                    g_femanager.Draw();
-                if (!var<bool>(0x0095C879))
-                    g_game_ptr->render_interface();
-                nglListSend(true);
+        const auto render_frame = []() {
+            if ((g_game_ptr->flag.level_is_loaded && !g_game_ptr->field_165) ||
+                (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->sub_60C230() &&
+                 g_cut_scene_player()->is_playing())) {
+                comic_panels::render();
             } else if (g_femanager.m_fe_menu_system != nullptr &&
                        !os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66))) {
                 g_femanager.m_fe_menu_system->RenderLoadMeter(false);
@@ -367,7 +354,7 @@ void app::tick()
             if (g_smoke_test() != nullptr)
                 g_smoke_test()->frame_advance();
 
-            render_frame(true);
+            render_frame();
 
             this->field_4.sub_5B8670();
             actor::swap_all_mesh_buffers();
@@ -391,12 +378,7 @@ void app::tick()
             resource_manager::frame_advance(time_inc);
             link_system::frame_advance(time_inc);
             this->m_game->frame_advance(time_inc);
-            render_frame(false);
             byte_9682F0 = false;
-        }
-
-        if (os_developer_options::instance->get_int(mString{"FRAME_LIMIT"})) {
-            while (local_timer.elapsed() < 0.033333335) {}
         }
 
         this->m_game->field_278 = total_timer.elapsed();

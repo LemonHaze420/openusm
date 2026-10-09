@@ -517,7 +517,6 @@ bool sub_5A3AA0(const char *a1, [[maybe_unused]] char *a2)
 #else
     bool(__cdecl * func)(const char *a1, char *a2) = CAST(func, 0x005A3AA0);
     return func(a1, a2);
-
 #endif
 }
 
@@ -974,6 +973,10 @@ static Var<char[65536]> byte_88CC68 = {0x0088CC68};
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
+#if STANDALONE_SYSTEM
+    if (debug_menu_blocks_window_input(Msg, wParam))
+        return 0;
+#endif
     if constexpr (1) {
         LRESULT result;
 

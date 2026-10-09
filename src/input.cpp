@@ -1,3 +1,4 @@
+#include "debug_menu.h"
 #include "input.h"
 
 #include "common.h"
@@ -972,6 +973,19 @@ void Input::poll()
 
             ++v44;
         }
+
+#if STANDALONE_SYSTEM
+        if (debug_menu_input(this->m_state_keys)) {
+            std::memset(this->m_state_keys, 0, sizeof(this->m_state_keys));
+            std::memset(this->m_old_state_keys, 0, sizeof(this->m_old_state_keys));
+            std::memset(&this->m_mouse_state, 0, sizeof(this->m_mouse_state));
+            std::memset(&this->m_old_mouse_state, 0, sizeof(this->m_old_mouse_state));
+            for (auto &joystick : this->field_4F8) {
+                std::memset(&joystick, 0, sizeof(joystick));
+                std::fill_n(joystick.rgdwPOV, 4, 0xFFFFFFFFu);
+            }
+        }
+#endif
 
         if (this->field_8) {
             auto *v16 = this->field_24EC;

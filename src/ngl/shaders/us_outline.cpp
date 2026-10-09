@@ -27,6 +27,7 @@ extern void sub_413850(nglMaterialBase *, nglParamSet<nglShaderParamSet_Pool> *,
 extern nglDirLightInfo *nglGetLightAsDirLight(nglDirLightInfo *, nglLightNode *, math::VecClass<3, 1>);
 
 namespace {
+void initialize_outline_material_shaders();
 
 struct ShinyMaterial {
     uint8_t header[0x1C];
@@ -38,6 +39,10 @@ struct ShinyMaterial {
     tlFixedString *shine_name;
     nglTexture *shine;
     uint32_t cull;
+    bool tod_frames() const
+    {
+        return animate_per_time_of_day != 0;
+    }
 };
 static_assert(sizeof(ShinyMaterial) == 0x78);
 static_assert(offsetof(ShinyMaterial, texture_name) == 0x60);
@@ -46,6 +51,23 @@ static_assert(offsetof(ShinyMaterial, blend) == 0x68);
 static_assert(offsetof(ShinyMaterial, shine_name) == 0x6C);
 static_assert(offsetof(ShinyMaterial, shine) == 0x70);
 static_assert(offsetof(ShinyMaterial, cull) == 0x74);
+
+struct ShinyInteriorMaterial {
+    uint8_t header[0x1C];
+    tlFixedString *texture_name;
+    nglTexture *texture;
+    uint32_t blend;
+    tlFixedString *shine_name;
+    nglTexture *shine;
+    uint32_t cull;
+    bool tod_frames() const
+    {
+        return false;
+    }
+};
+static_assert(offsetof(ShinyInteriorMaterial, cull) == 0x30);
+template <bool Interior>
+using ShinyPayload = std::conditional_t<Interior, ShinyInteriorMaterial, ShinyMaterial>;
 
 
 constexpr D3DVERTEXELEMENT9 shiny_elements[] = {
@@ -198,6 +220,7 @@ void shinyChromeVertices(nglMeshSection *section, const vector4d &light, const v
     IDirect3DVertexBuffer9_Unlock(buffer);
 }
 
+template <bool Interior>
 struct ShinyNode : nglShaderNode {
     nglMaterialBase *material;
     nglTexture *texture;
@@ -205,14 +228,14 @@ struct ShinyNode : nglShaderNode {
     ShinyNode(nglMeshNode *mesh, nglMeshSection *section, nglMaterialBase *mat)
         : nglShaderNode(mesh, section), material(mat)
     {
-        const auto &data = *reinterpret_cast<ShinyMaterial *>(mat);
+        const auto &data = *reinterpret_cast<ShinyPayload<Interior> *>(mat);
         texture = data.texture;
         if ((texture->m_format & 0xFFu) == 16) {
             auto &params = mesh->field_8C;
             const uint32_t frame = params.IsSetParam<nglTextureFrameParam>()
                                        ? params.Get<nglTextureFrameParam>()->field_0
-                                   : data.animate_per_time_of_day ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
-                                                                  : nglCurScene->IFLFrame;
+                                   : data.tod_frames() ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
+                                                       : nglCurScene->IFLFrame;
             texture = texture->Frames[frame % texture->m_num_palettes];
         }
         static void *table[]{
@@ -229,9 +252,10 @@ struct ShinyNode : nglShaderNode {
     }
     void Render()
     {
-        if (suppress_shiny())
+        static Var<int> suppress_interior{0x956FF0};
+        if (Interior ? suppress_interior() : suppress_shiny())
             return;
-        const auto &data = *reinterpret_cast<const ShinyMaterial *>(material);
+        const auto &data = *reinterpret_cast<const ShinyPayload<Interior> *>(material);
         auto &state = g_renderState();
         state.setCullingMode(data.cull == 2 ? D3DCULL_NONE : D3DCULL_CW);
         vector4d localLight, localView;
@@ -242,7 +266,7 @@ struct ShinyNode : nglShaderNode {
             localView = sub_414360(nglCurScene->ViewPos, inverse);
         }
         if (EnableShader) {
-            nglSetVertexDeclarationAndShader(&shiny_programs().vertex[0]);
+            nglSetVertexDeclarationAndShader(&shiny_programs().vertex[Interior ? 1 : 0]);
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 0, &m_meshNode->WorldToLocal[0][0], 4);
             localLight.w = 0.0f;
             localView.w = 1.0f;
@@ -257,7 +281,16 @@ struct ShinyNode : nglShaderNode {
         }
         state.setBlending(static_cast<nglBlendModeType>(data.blend), 0, 128);
         color constant;
-        sub_413850(material, &m_meshNode->field_8C, &constant);
+        if constexpr (Interior) {
+            constant = {1, 1, 1, 1};
+            auto &params = m_meshNode->field_8C;
+            if (params.IsSetParam<nglTintParam>()) {
+                const auto &tint = *params.Get<nglTintParam>()->field_0;
+                constant = {tint.x, tint.y, tint.z, tint.w};
+            }
+        } else {
+            sub_413850(material, &m_meshNode->field_8C, &constant);
+        }
         if (EnableShader) {
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 4, &constant.r, 1);
         } else {
@@ -326,12 +359,14 @@ struct ShinyNode : nglShaderNode {
             nglSetTextureStageState(0, D3DTSS_RESULTARG, D3DTA_CURRENT);
     }
 };
-static_assert(sizeof(ShinyNode) == 0x1C);
+static_assert(sizeof(ShinyNode<false>) == 0x1C);
 
+template <bool Interior = false, bool Morphable = false>
 struct ShinyShader : nglShader {
     static void __fastcall Name(ShinyShader *, void *, tlFixedString *out)
     {
-        *out = tlFixedString{"SMShiny"};
+        *out = tlFixedString{Interior ? (Morphable ? "USMShinyMorphableInterior" : "USShinyInterior")
+                                      : (Morphable ? "USMShinyMorphable" : "SMShiny")};
     }
     static bool __fastcall Switchable(ShinyShader *, void *)
     {
@@ -362,9 +397,11 @@ struct ShinyShader : nglShader {
     {
         nglShader::_Register();
         if (EnableShader) {
-            nglCreateVertexDeclarationAndShader(&shiny_programs().vertex[0], shiny_elements, shiny_vertex);
-            nglCreateVertexDeclarationAndShader(&shiny_programs().vertex[1], shiny_elements, shiny_vertex_linear);
-            CreatePixelShader(&shiny_pixel_shader(), shiny_pixel);
+            if (!shiny_programs().vertex[0].field_0) {
+                nglCreateVertexDeclarationAndShader(&shiny_programs().vertex[0], shiny_elements, shiny_vertex);
+                nglCreateVertexDeclarationAndShader(&shiny_programs().vertex[1], shiny_elements, shiny_vertex_linear);
+                CreatePixelShader(&shiny_pixel_shader(), shiny_pixel);
+            }
         } else if (!dword_9738E0[10]) {
             IDirect3DDevice9_CreateVertexDeclaration(
                 g_Direct3DDevice, ChromeEffect ? shiny_chrome_elements : shiny_fixed_elements, &dword_9738E0[10]);
@@ -372,13 +409,13 @@ struct ShinyShader : nglShader {
     }
     void Bind(nglMaterialBase *material)
     {
-        auto &data = *reinterpret_cast<ShinyMaterial *>(material);
+        auto &data = *reinterpret_cast<ShinyPayload<Interior> *>(material);
         data.texture = nglLoadTexture(*data.texture_name);
         data.shine = nglLoadTexture(*data.shine_name);
     }
     void Release(nglMaterialBase *material)
     {
-        auto &data = *reinterpret_cast<ShinyMaterial *>(material);
+        auto &data = *reinterpret_cast<ShinyPayload<Interior> *>(material);
         nglReleaseTexture(data.texture);
         data.texture = nullptr;
         nglReleaseTexture(data.shine);
@@ -386,7 +423,7 @@ struct ShinyShader : nglShader {
     }
     void Rebase(nglMaterialBase *material, unsigned int offset)
     {
-        auto &data = *reinterpret_cast<ShinyMaterial *>(material);
+        auto &data = *reinterpret_cast<ShinyPayload<Interior> *>(material);
         if (data.texture_name)
             data.texture_name = reinterpret_cast<tlFixedString *>(reinterpret_cast<char *>(data.texture_name) + offset);
         if (data.shine_name)
@@ -394,19 +431,23 @@ struct ShinyShader : nglShader {
     }
     void Add(nglMeshNode *mesh, nglMeshSection *section, nglMaterialBase *material)
     {
-        auto *node = new (nglListAlloc(sizeof(ShinyNode), 16)) ShinyNode{mesh, section, material};
+        auto *node = new (nglListAlloc(sizeof(ShinyNode<Interior>), 16)) ShinyNode<Interior>{mesh, section, material};
         node->m_tex = reinterpret_cast<nglTexture *>(uint32_t(material->m_shader->field_8) << 24);
         node->m_next_node = nglCurScene->OpaqueNodes;
         nglCurScene->OpaqueNodes = node;
         ++nglCurScene->OpaqueListCount;
     }
 };
-static_assert(sizeof(ShinyShader) == 0xC);
+static_assert(sizeof(ShinyShader<>) == 0xC);
 }  // namespace
 
 void initialize_shiny_material_shader()
 {
-    static ShinyShader shiny;
+    static ShinyShader<> shiny;
+    static ShinyShader<true> shiny_interior;
+    static ShinyShader<false, true> shiny_morphable;
+    static ShinyShader<true, true> shiny_morphable_interior;
+    initialize_outline_material_shaders();
 }
 #endif
 static Var<IDirect3DPixelShader9 *> dword_970770{0x00970770};
@@ -438,8 +479,19 @@ static Var<IDirect3DPixelShader9 *> dword_970774{0x00970774};
 
 double calc_outline_thickness(const math::VecClass<3, 1> &a1)
 {
+#if STANDALONE_SYSTEM
+    const auto &view = nglCurScene->ViewPos;
+    const float x = a1[0] - view.x, y = a1[1] - view.y, z = a1[2] - view.z;
+    const double distance = std::sqrt(z * z + y * y + x * x);
+    if (distance > 14.0)
+        return 14.0 * 0.1f * 0.0025f;
+    if (distance >= 0.5)
+        return distance * (0.8f + 0.1f - 0.8f * distance * (1.0f / 14.0f)) * 0.0025f;
+    return 0.5 * 0.8f * 0.0025f;
+#else
     double (*func)(const void *) = CAST(func, 0x00406B60);
     return func(&a1);
+#endif
 }
 
 namespace USOutlineShaderSpace {
@@ -576,11 +628,34 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
     }
 }
 
-vector4d sub_41BA70(nglMaterialBase *a1, int *a2, unsigned int a4)
+vector4d sub_41BA70([[maybe_unused]] nglMaterialBase *a1, int *a2, unsigned int a4)
 {
+#if STANDALONE_SYSTEM
+    auto &params = *reinterpret_cast<nglParamSet<nglShaderParamSet_Pool> *>(a2);
+    vector4d result{1, 1, 1, 1};
+    if (params.IsSetParam<nglTintParam>())
+        result = *params.Get<nglTintParam>()->field_0;
+    if (EnableShader) {
+        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a4, &result.x, 1);
+    } else {
+        const auto byte = [](float value) {
+            return uint32_t(value * 255.0f) & 255u;
+        };
+        const uint32_t packed =
+            byte(result.z) | (byte(result.y) << 8) | (byte(result.x) << 16) | (byte(result.w) << 24);
+        if (g_renderState().field_9C != packed) {
+            IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_TEXTUREFACTOR, packed);
+            g_renderState().field_9C = packed;
+        }
+    }
+    g_renderState().setBlending(std::not_equal_to<float>{}(result.w, 1.0f) ? NGLBM_BLEND : NGLBM_OPAQUE, 0, 128);
+    g_renderState().setColourBufferWriteEnabled(7);
+    return result;
+#else
     vector4d result;
     CDECL_CALL(0x0041BA70, &result, a1, a2, a4);
     return result;
+#endif
 }
 
 template <>
@@ -706,6 +781,127 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
 }
 
 }  // namespace USOutlineShaderSpace
+
+#if STANDALONE_SYSTEM
+namespace {
+constexpr DWORD outline_vertex[] = {
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x80000003,
+    0x900F0002, 0x00000001, 0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001, 0xA0AA005B, 0x00000009, 0xC0010000,
+    0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001, 0x00000009, 0xC0040000, 0x90E40000,
+    0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000001, 0xE00F0000, 0x90E40001, 0x0000FFFF,
+};
+constexpr DWORD outline_expanded_vertex[] = {
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x80000003,
+    0x900F0002, 0x00000001, 0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001, 0xA0AA005B, 0x00000001, 0x800F0000,
+    0x90E40002, 0x00000004, 0x800F0002, 0x80A40000, 0xA0FF0008, 0x90E40000, 0x00000001, 0x80080002, 0x90FF0000,
+    0x00000009, 0xC0010000, 0x80E40002, 0xA0E40000, 0x00000009, 0xC0020000, 0x80E40002, 0xA0E40001, 0x00000009,
+    0xC0040000, 0x80E40002, 0xA0E40002, 0x00000009, 0xC0080000, 0x80E40002, 0xA0E40003, 0x0000FFFF,
+};
+constexpr D3DVERTEXELEMENT9 outline_elements[] = {
+    {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+    {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+    {0, 20, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0},
+    D3DDECL_END(),
+};
+template <bool Interior>
+struct OutlineMaterialShader : nglShader {
+    using Payload = std::conditional_t<Interior, ShinyInteriorMaterial, ShinyMaterial>;
+    using Node =
+        USOutlineShaderSpace::Outline_ShaderNode<std::conditional_t<Interior, USInteriorMaterial, USExteriorMaterial>>;
+    static void __fastcall Name(OutlineMaterialShader *, void *, tlFixedString *out)
+    {
+        *out = tlFixedString{Interior ? "USOutlineInterior" : "US_Outline"};
+    }
+    static bool __fastcall Switchable(OutlineMaterialShader *, void *)
+    {
+        return true;
+    }
+    static void __fastcall Sort(Node *, void *, nglSortInfo &) {}
+    static Node *__fastcall DeleteNode(Node *node, void *, unsigned char flags)
+    {
+        if (flags & 1)
+            ::operator delete(node);
+        return node;
+    }
+    OutlineMaterialShader()
+    {
+        static void *table[]{func_address(&OutlineMaterialShader::Register),
+                             reinterpret_cast<void *>(Name),
+                             func_address(&OutlineMaterialShader::Add),
+                             func_address(&OutlineMaterialShader::Bind),
+                             func_address(&OutlineMaterialShader::Release),
+                             func_address(&OutlineMaterialShader::Rebase),
+                             func_address(&nglShader::_CheckMaterialVersion),
+                             func_address(&nglShader::_CheckVertexDefVersion),
+                             func_address(&nglShader::_BindSection),
+                             reinterpret_cast<void *>(Switchable),
+                             func_address(&OutlineMaterialShader::Delete)};
+        m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
+    }
+    OutlineMaterialShader *Delete(unsigned char flags)
+    {
+        if (flags & 1)
+            ::operator delete(this);
+        return this;
+    }
+    void Register()
+    {
+        nglShader::_Register();
+        if (EnableShader) {
+            if (!stru_970760().field_0) {
+                nglCreateVertexDeclarationAndShader(&stru_970760(), outline_elements, outline_vertex);
+                nglCreateVertexDeclarationAndShader(&stru_970768(), outline_elements, outline_expanded_vertex);
+                sub_411830();
+            }
+        } else if (!dword_9738E0[9])
+            IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, outline_elements, &dword_9738E0[9]);
+    }
+    void Bind(nglMaterialBase *material)
+    {
+        auto &data = *reinterpret_cast<Payload *>(material);
+        data.texture = nglLoadTexture(*data.texture_name);
+    }
+    void Release(nglMaterialBase *material)
+    {
+        auto &data = *reinterpret_cast<Payload *>(material);
+        nglReleaseTexture(data.texture);
+        data.texture = nullptr;
+    }
+    void Rebase(nglMaterialBase *material, unsigned int offset)
+    {
+        auto &name = reinterpret_cast<Payload *>(material)->texture_name;
+        if (name)
+            name = reinterpret_cast<tlFixedString *>(reinterpret_cast<char *>(name) + offset);
+    }
+    void Add(nglMeshNode *mesh, nglMeshSection *section, nglMaterialBase *material)
+    {
+        const auto &data = *reinterpret_cast<Payload *>(material);
+        auto *texture = data.texture;
+        if ((texture->m_format & 0xFFu) == 16) {
+            auto &params = mesh->field_8C;
+            const uint32_t frame = params.IsSetParam<nglTextureFrameParam>()
+                                       ? params.Get<nglTextureFrameParam>()->field_0
+                                   : data.tod_frames() ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
+                                                       : nglCurScene->IFLFrame;
+            texture = texture->Frames[frame % texture->m_num_palettes];
+        }
+        auto *node = new (nglListAlloc(sizeof(Node), 16)) Node{nglShaderNode{mesh, section}, material, texture};
+        static void *table[]{
+            func_address(&Node::Render), reinterpret_cast<void *>(Sort), reinterpret_cast<void *>(DeleteNode)};
+        node->m_vtbl = reinterpret_cast<decltype(node->m_vtbl)>(table);
+        node->m_tex = reinterpret_cast<nglTexture *>(uint32_t(field_8) << 24);
+        node->m_next_node = nglCurScene->OpaqueNodes;
+        nglCurScene->OpaqueNodes = node;
+        ++nglCurScene->OpaqueListCount;
+    }
+};
+void initialize_outline_material_shaders()
+{
+    static OutlineMaterialShader<false> exterior;
+    static OutlineMaterialShader<true> interior;
+}
+}
+#endif
 
 void us_outline_patch()
 {

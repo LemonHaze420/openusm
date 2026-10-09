@@ -17,3 +17,7 @@ struct USOcean2Shader {
 
     static Var<nglMesh *> OceanMesh;
 };
+
+#if STANDALONE_SYSTEM
+void initialize_ocean_material_shader();
+#endif

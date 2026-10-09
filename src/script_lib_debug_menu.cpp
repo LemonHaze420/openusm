@@ -45,6 +45,9 @@ void vm_debug_menu_entry_garbage_collection_callback(script_executable *, _std::
 
         // script_menu->remove_entry(entry);
         remove_debug_menu_entry(entry);
+#if STANDALONE_SYSTEM
+        delete entry;
+#endif
     }
 }
 
@@ -85,6 +88,9 @@ bool slf__create_debug_menu_entry__str__t::operator()(
 
     mString label{parms->str0};
     auto *result = new debug_menu_entry{label};
+#if STANDALONE_SYSTEM
+    result->script_source = result;
+#endif
 
     auto *thread = stack.get_thread();
     auto *script = thread->get_executable()->get_owner()->get_parent();
@@ -127,6 +133,9 @@ bool slf__create_debug_menu_entry__str__str__t::operator()(
 
         mString v14{parms->str0};
         auto *result = new debug_menu_entry{v14};
+#if STANDALONE_SYSTEM
+        result->script_source = result;
+#endif
 
         mString v15{parms->str1};
         auto *nt = stack.get_thread();
@@ -176,9 +185,20 @@ bool slf__create_progression_menu_entry__str__str__t::operator()(
         SLF_DONE;
     }
 
+#if STANDALONE_SYSTEM
+    auto *menu_entry = new debug_menu_entry{parms->str0};
+    menu_entry->script_source = menu_entry;
+    auto *thread = stack.get_thread();
+    menu_entry->set_script_handler(thread->get_instance(), mString{parms->str1});
+    auto *script = thread->get_executable()->get_owner()->get_parent();
+    script->add_allocated_stuff(
+        vm_debug_menu_entry_garbage_collection_id, reinterpret_cast<uint32_t>(menu_entry), mString{});
+    progression_menu->add_entry(menu_entry);
+#else
     debug_menu_entry menu_entry{parms->str0};
     menu_entry.set_script_handler(stack.get_thread()->get_instance(), mString{parms->str1});
     progression_menu->add_entry(&menu_entry);
+#endif
 
     int result = 0;
     SLF_RETURN;
