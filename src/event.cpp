@@ -75,3 +75,14 @@ void event::_finalize(bool release)
     void(__fastcall * func)(void *, void *, bool) = CAST(func, get_vfunc(m_vtbl, 0x8));
     func(this, nullptr, release);
 }
+
+void event::raise()
+{
+    void(__fastcall * func)(void *, void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    func(this, nullptr);
+}
+
+void event::_raise()
+{
+    this->field_8 = g_world_ptr->time_manager.field_C;
+}

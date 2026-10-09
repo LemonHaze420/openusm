@@ -1450,7 +1450,7 @@ bool entity_base::event_raised_last_frame(string_hash a2)
         if (recipient == nullptr)
             return false;
         const int ticks = g_world_ptr->time_manager.field_C;
-        return recipient->field_24 == ticks - 1 || (recipient->field_24 != ticks && recipient->field_20 == ticks - 1);
+        return recipient->event_raised_last_frame(ticks);
     } else {
         return (bool)THISCALL(0x004F3800, this, a2);
     }

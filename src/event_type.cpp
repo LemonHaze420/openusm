@@ -2,8 +2,10 @@
 
 #include "binary_search_array_cmp.h"
 #include "common.h"
+#include "code_event_callback.h"
 #include "event.h"
 #include "event_callback.h"
+#include "event_manager.h"
 #include "event_recipient_entry.h"
 #include "event_type.h"
 #include "func_wrapper.h"
@@ -11,25 +13,6 @@
 #include "wds.h"
 #include <new>
 
-namespace {
-void dispatch_callbacks(_std::list<event_callback *> &callbacks, event *payload, entity_base_vhandle handle)
-{
-    for (auto it = callbacks.begin(); it != callbacks.end();) {
-        auto *callback = *it;
-        if (!callback->field_C) {
-            void(__fastcall * spawn)(event_callback *, void *, event *, entity_base_vhandle) =
-                CAST(spawn, get_vfunc(callback->m_vtbl, 4));
-            spawn(callback, nullptr, payload, handle);
-        }
-        if (!callback->field_C && callback->field_D) {
-            callback->_finalize(true);
-            it = callbacks.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-}  // namespace
 
 VALIDATE_SIZE(event_type, 0x2C);
 
@@ -97,7 +80,7 @@ void event_type::clear_callbacks()
 
         for (auto &cb : this->field_1C) {
             if (cb != nullptr) {
-                cb->_finalize(true);
+                cb->finalize(true);
             }
         }
 
@@ -112,7 +95,7 @@ event_recipient_entry *event_type::find_recipient_entry(entity_base_vhandle a2)
     int a5 = -1;
     if (!this->field_18) {
         std::sort(this->field_8.begin(), this->field_8.end(), [](const auto *left, const auto *right) {
-            return left->field_0.field_0 < right->field_0.field_0;
+            return left->get_my_vhandle().field_0 < right->get_my_vhandle().field_0;
         });
         this->field_18 = true;
     }
@@ -151,23 +134,26 @@ event_recipient_entry *event_type::create_recipient_entry(entity_base_vhandle a2
 
 void event_type::raise_event(entity_base_vhandle a2, event *a3)
 {
-    if constexpr (STANDALONE_SYSTEM) {
-        event *payload = a3 != nullptr ? a3 : event_to_raise;
-        auto *recipient = find_recipient_entry(a2);
-        if (recipient == nullptr && field_28)
-            recipient = create_recipient_entry(a2);
-        if (recipient != nullptr) {
-            recipient->clean_up_callbacks();
-            void(__fastcall * raise)(event *, void *) = CAST(raise, get_vfunc(payload->m_vtbl, 0x18));
-            raise(payload, nullptr);
-            const int ticks = g_world_ptr->time_manager.field_C;
-            if (recipient->field_24 != ticks) {
-                recipient->field_20 = recipient->field_24;
-                recipient->field_24 = ticks;
-            }
-            dispatch_callbacks(recipient->field_4, payload, a2);
+    TRACE("event_type::raise_event");
+
+    if constexpr (1) {
+        auto *the_event = a3;
+        if (a3 == nullptr) {
+            the_event = this->event_to_raise;
         }
-        dispatch_callbacks(field_1C, payload, a2);
+
+        auto *recipient_entry = this->find_recipient_entry(a2);
+        if (recipient_entry == nullptr && this->field_28) {
+            recipient_entry = this->create_recipient_entry(a2);
+        }
+
+        if (recipient_entry != nullptr) {
+            recipient_entry->sub_4DB840(the_event);
+        }
+
+        if (!this->field_1C.empty()) {
+            process_event_callbacks(the_event, a2, &this->field_1C);
+        }
     } else {
         THISCALL(0x004EE6C0, this, a2, a3);
     }
@@ -200,7 +186,7 @@ void event_type::remove_default_callback(unsigned int a2)
         for (auto it = field_1C.begin(); it != field_1C.end();) {
             auto *callback = *it;
             if (static_cast<unsigned int>(callback->id) == a2) {
-                callback->_finalize(true);
+                callback->finalize(true);
                 it = field_1C.erase(it);
             } else {
                 ++it;
@@ -214,7 +200,7 @@ void event_type::remove_default_callback(unsigned int a2)
 void event_type::clear_script_callbacks(entity_base_vhandle a2, script_executable *a3)
 {
     for (auto &v1 : this->field_8) {
-        if (v1->field_0 == a2) {
+        if (v1->get_my_vhandle() == a2) {
             v1->clear_script_callbacks(a3);
         }
     }
@@ -230,4 +216,12 @@ bool event_type::garbage_collect()
         bool(__fastcall * func)(void *) = CAST(func, 0x004D65B0);
         return func(this);
     }
+}
+
+int event_type::add_default_callback(void (*cb)(event *, entity_base_vhandle, void *), void *a2, bool a3)
+{
+    auto *v6 = new code_event_callback(cb, a2, a3);
+
+    this->field_1C.push_back(v6);
+    return v6->get_id();
 }

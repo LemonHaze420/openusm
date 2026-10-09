@@ -21,7 +21,6 @@ VALIDATE_SIZE(nalCharPose, 0x10);
 #if !STANDALONE_SYSTEM
 
 int &nalCharSkeleton::vtbl_ptr = var<int>(0x0096AB90);
-
 #endif
 
 nalCharPose::nalCharPose(const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)

@@ -117,7 +117,7 @@ state_trans_action signal_enhanced_state::check_transition(Float time)
             if (recipient == nullptr)
                 continue;
             const int ticks = g_world_ptr->time_manager.field_C;
-            if (recipient->field_24 == ticks - 1 || (recipient->field_24 != ticks && recipient->field_20 == ticks - 1))
+            if (recipient->event_raised_last_frame(ticks))
                 return base_state::process_message(time, static_cast<state_trans_messages>(transition.message));
         }
     }

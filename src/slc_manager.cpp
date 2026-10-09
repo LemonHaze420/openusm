@@ -12370,22 +12370,9 @@ DECLARE_SLF_BEGIN(signaller, clear_callback__str, 0x0089B7F0)
     const string_hash function{parms->function};
     for (auto *type : event_manager::event_types) {
         for (auto *recipient : type->field_8) {
-            if (recipient->field_0 != parms->signaller)
+            if (recipient->get_my_vhandle() != parms->signaller)
                 continue;
-            for (auto it = recipient->field_4.begin(); it != recipient->field_4.end();) {
-                auto *callback = *it;
-                auto is_script =
-                    reinterpret_cast<bool(__fastcall *)(event_callback *, void *)>(get_vfunc(callback->m_vtbl, 0xC));
-                if (is_script(callback, nullptr)) {
-                    auto *script_callback = static_cast<script_event_callback *>(callback);
-                    if (script_callback->instance && script_callback->executable->get_fullname() == function) {
-                        it = recipient->field_4.erase(it);
-                        callback->_finalize(true);
-                        continue;
-                    }
-                }
-                ++it;
-            }
+            recipient->clear_script_callback(function);
         }
     }
     return true;

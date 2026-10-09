@@ -76,7 +76,7 @@ void raise_all_signals(vm_thread *, string_hash signal)
     if (auto *type = event_manager::get_event_type(signal)) {
         const auto count = type->field_8.size();
         for (unsigned index = 0; index < count; ++index)
-            type->raise_event(type->field_8[index]->field_0, nullptr);
+            type->raise_event(type->field_8[index]->get_my_vhandle(), nullptr);
     }
 }
 }

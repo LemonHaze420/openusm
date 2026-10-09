@@ -5,7 +5,7 @@
 
 struct event;
 struct event_callback;
-struct event_recipient_entry;
+class event_recipient_entry;
 struct script_executable;
 
 struct event_type {
@@ -48,4 +48,7 @@ struct event_type {
     void clear_script_callbacks(entity_base_vhandle a2, script_executable *a3);
 
     bool garbage_collect();
+
+    //0x004D6470
+    int add_default_callback(void (*cb)(event *, entity_base_vhandle, void *), void *a2, bool a3);
 };

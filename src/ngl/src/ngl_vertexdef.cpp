@@ -450,7 +450,6 @@ void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bones, ma
 
     if constexpr (1) {
         nglMeshAllocFn() = ((Flags & 0x40000) != 0 ? nglMeshScratchAlloc : nglMeshMemAlloc);
-        ;
         auto *Mesh = static_cast<nglMesh *>(nglMeshAllocFn()(sizeof(nglMesh), 16, 0));
 
 #if 1

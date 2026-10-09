@@ -48,10 +48,11 @@ int compare_resource_key_resource_pack_location(const resource_key &a1, const re
 template <>
 int compare_deref(entity_base_vhandle &a1, event_recipient_entry *&a2)
 {
-    if (a1 < a2->field_0)
+    if (a1 < a2->get_my_vhandle()) {
         return -1;
-    else
-        return (a1 > a2->field_0);
+    } else {
+        return (a1 > a2->get_my_vhandle());
+    }
 }
 
 template <>

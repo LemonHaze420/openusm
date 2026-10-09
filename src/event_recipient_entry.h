@@ -10,13 +10,14 @@ struct script_executable;
 class script_instance;
 struct vm_executable;
 
-struct event_recipient_entry {
+class event_recipient_entry {
     entity_base_vhandle field_0;
-    _std::list<event_callback *> field_4;
+    _std::list<event_callback *> m_callbacks;
     _std::vector<void *> field_10;
     int field_20;
     int field_24;
 
+public:
     event_recipient_entry(entity_base_vhandle a2, bool a3);
 
     ~event_recipient_entry();
@@ -24,6 +25,11 @@ struct event_recipient_entry {
     void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
+
+    auto get_my_vhandle() const
+    {
+        return this->field_0;
+    }
 
     void clear();
 
@@ -39,10 +45,20 @@ struct event_recipient_entry {
 
     void remove_callback(unsigned int a2);
 
-    void clean_up_callbacks();
+    void clear_stale_callbacks();
 
     void clear_script_callbacks(script_executable *a2);
 
+    void clear_script_callback(string_hash function);
 
     bool does_script_have_callbacks(const script_executable *executable) const;
+
+    bool event_raised_last_frame(int ticks) const
+    {
+        return field_24 == ticks - 1 || (field_24 != ticks && field_20 == ticks - 1);
+    }
+
+    bool garbage_collect();
+
+    void sub_4DB840(event *the_event);
 };
