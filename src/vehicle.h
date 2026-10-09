@@ -84,11 +84,11 @@ struct vehicle : vehicle_sounds {
     void reset();
 
     void update_part_cache();
+    void update_part_visibility();
 
     void sub_6D7EA0();
 
     vector3d sub_6DA250();
-
 
     void drive(Float dt, float throttle, float steering, bool traction, bool animate_parts, bool dynamics);
     void drive_to(Float dt, float speed, const vector3d &target, bool a7, bool filtered);

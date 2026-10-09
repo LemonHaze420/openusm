@@ -30,7 +30,6 @@ struct begin_biped_physics : motion_compensator {
     static inline string_hash rotate_xz_ang_param_hash{int(to_hash("rotate_xz_ang"))};
 };
 
-
 struct move_and_face_no_anim_movement : motion_compensator {
     vector3d initial_position;
     vector3d destination;
@@ -63,7 +62,6 @@ struct move_and_face_no_anim_movement : motion_compensator {
     void destruct_mashed_class();
     void unmash(mash_info_struct *, void *);
 };
-
 struct combat_move_and_face : move_and_face_no_anim_movement {
     void activate(animation_logic_system *);
     static void *native_vtable();
@@ -74,13 +72,17 @@ struct feed_mocomp : move_and_face_no_anim_movement {
     static void *native_vtable();
 };
 
-
 struct constant_move_and_face : move_and_face_no_anim_movement {
     void activate(animation_logic_system *);
 };
 
 struct crawl_transition : constant_move_and_face {
     void activate(animation_logic_system *);
+    static void *native_vtable();
+};
+
+struct crawl_orient : motion_compensator {
+    void post_anim_action(Float);
     static void *native_vtable();
 };
 

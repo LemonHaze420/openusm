@@ -35,6 +35,7 @@ struct thug_health {
     int create();
     void destroy(int index);
     void set_entity(int index, entity_base *owner);
+    void draw();
 };
 
 extern void thug_health_patch();

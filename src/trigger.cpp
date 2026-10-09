@@ -6,6 +6,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "trace.h"
+#include "event.h"
 #include <algorithm>
 
 #include "vtbl.h"
@@ -52,46 +53,77 @@ trigger::~trigger()
 void trigger::update(trigger_struct *subjects, int subject_count)
 {
 #if STANDALONE_SYSTEM
-    if (subjects == nullptr || subject_count <= 0) {
-        field_4C = {0};
+    if ((field_4 & 0x2000u) == 0 || subjects == nullptr || subject_count <= 0)
         return;
-    }
-    if (trigger_current_entities == nullptr) {
-        trigger_current_entities = new _std::list<vhandle_type<entity>>{};
-    }
-    field_4C = {0};
-    for (int index = 0; index < subject_count; ++index) {
-        auto &subject = subjects[index];
-        auto *candidate = subject.handle.get_volatile_ptr();
-        if (candidate == nullptr || !subject.field_10) {
-            continue;
-        }
-        bool inside = false;
-        if (m_vtbl == 0x0088A0B8) {
-            auto *box = static_cast<box_trigger *>(this);
-            box->update_center();
-            inside = box->triggered(subject.position);
-        } else if (m_vtbl == 0x00889F30) {
-            auto *point = static_cast<point_trigger *>(this);
-            inside = (subject.position - point->field_58).length2() < field_48 * field_48;
-        } else if (m_vtbl == 0x0088A240) {
-            auto *entity_trigger_ptr = static_cast<entity_trigger *>(this);
-            auto *center_entity = entity_trigger_ptr->get_ent();
-            if (center_entity != nullptr) {
-                const auto center = center_entity->get_abs_position() + entity_trigger_ptr->field_5C;
-                inside = (subject.position - center).length2() < field_48 * field_48;
-            }
-        }
 
-        auto existing = std::find(trigger_current_entities->begin(), trigger_current_entities->end(), subject.handle);
-        if (inside) {
-            field_4C = subject.handle;
-            if (existing == trigger_current_entities->end()) {
-                trigger_current_entities->push_back(subject.handle);
+    if (is_box_trigger())
+        static_cast<box_trigger *>(this)->update_center();
+    const bool multiple = (field_4 & 0x20u) != 0;
+    const int count = (field_4 & 0x10u) != 0 ? subject_count : 1;
+    bool entered = false;
+    bool left = false;
+    for (int index = 0; index < count && !entered && !left; ++index) {
+        auto &subject = subjects[index];
+        const bool eligible = (subject.field_10 || (field_4 & 0x20000u) != 0) && !subject.field_11;
+        bool inside = false;
+        if (eligible) {
+            if (is_box_trigger()) {
+                inside = static_cast<box_trigger *>(this)->triggered(subject.position);
+            } else if (is_point_trigger()) {
+                inside =
+                    (subject.position - static_cast<point_trigger *>(this)->field_58).length2() < field_48 * field_48;
+            } else if (is_entity_trigger()) {
+                auto *attached = static_cast<entity_trigger *>(this);
+                if (auto *owner = attached->get_ent())
+                    inside = (subject.position - (owner->get_abs_position() + attached->field_5C)).length2() <
+                             field_48 * field_48;
             }
-        } else if (existing != trigger_current_entities->end()) {
-            trigger_current_entities->erase(existing);
         }
+        bool already_inside = false;
+        if (multiple && trigger_current_entities != nullptr) {
+            for (auto it = trigger_current_entities->begin(); it != trigger_current_entities->end();) {
+                if (it->get_volatile_ptr() == nullptr) {
+                    it = trigger_current_entities->erase(it);
+                } else {
+                    already_inside |= *it == subject.handle;
+                    ++it;
+                }
+            }
+        }
+        if (inside && (!multiple || !already_inside)) {
+            field_4C = subject.handle;
+            entered = true;
+        } else if (!inside && multiple && already_inside) {
+            field_4C = subject.handle;
+            left = true;
+        }
+    }
+
+    if (multiple) {
+        assert(trigger_current_entities != nullptr);
+        if (entered) {
+            trigger_current_entities->push_back(field_4C);
+            raise_event(event::ENTER);
+        } else if (left) {
+            for (auto it = trigger_current_entities->begin(); it != trigger_current_entities->end();) {
+                if (*it == field_4C || it->get_volatile_ptr() == nullptr)
+                    it = trigger_current_entities->erase(it);
+                else
+                    ++it;
+            }
+            raise_event(event::LEAVE);
+        } else {
+            return;
+        }
+        field_4 = trigger_current_entities->empty() ? field_4 & ~0x1000u : field_4 | 0x1000u;
+    } else if (entered) {
+        if ((field_4 & 0x1000u) == 0) {
+            raise_event(event::ENTER);
+            field_4 |= 0x1000u;
+        }
+    } else if ((field_4 & 0x1000u) != 0) {
+        raise_event(event::LEAVE);
+        field_4 &= ~0x1000u;
     }
 #else
     THISCALL(0x0053C470, this, subjects, subject_count);

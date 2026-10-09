@@ -465,8 +465,7 @@ void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float blend, cons
         for (; i < a6; ++i) {
             auto v13 = math::Slerp(blend, *static_cast<const vector4d *>(a4), *static_cast<const vector4d *>(a5));
 
-            vector3d *v14 = static_cast<vector3d *>(a1);
-            *v14 = v13;
+            *static_cast<vector4d *>(a1) = v13;
 
             a1 = static_cast<char *>(a1) + 16;
             a4 = static_cast<const char *>(a4) + 16;

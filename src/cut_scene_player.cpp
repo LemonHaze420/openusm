@@ -423,7 +423,6 @@ void cut_scene_player::clear_panels()
     panels.count = 0;
 }
 
-
 cut_scene_panel_state *cut_scene_player::get_panel_entry(string_hash id, bool create)
 {
     auto **link = &panels.root;
@@ -488,7 +487,6 @@ cut_scene_panel_state *cut_scene_player::get_panel_entry(string_hash id, bool cr
     return state;
 }
 
-
 nalClientSceneAnim *cut_scene_player::find_scene_anim_entries(const tlFixedString &name)
 {
     const char *text = name.to_string();
@@ -527,9 +525,8 @@ nalClientSceneAnim *cut_scene_player::find_scene_anim_entries(const tlFixedStrin
             return nullptr;
     }
     if (auto *entry = get_entity_entry(entity->get_id()))
-        if (entry->field_20 != string_hash{} && (entity->field_4 & 4))
-            if (auto *variant = entity->variant_ifc())
-                variant->apply_variant(entry->field_20);
+        if (entry->field_20 != string_hash{} && (entity->field_4 & 4) && entity->has_variant_ifc())
+            entity->variant_ifc()->apply_variant(entry->field_20);
     if (entity->has_physical_ifc())
         entity->physical_ifc()->set_control_parent(nullptr);
     if (owned_camera)
@@ -542,7 +539,6 @@ nalClientSceneAnim *cut_scene_player::find_scene_anim_entries(const tlFixedStrin
         reinterpret_cast<nalClientSceneAnim *(__fastcall *)(struct entity *, void *)>(get_vfunc(entity->m_vtbl, 0x218));
     return bind(entity, nullptr);
 }
-
 
 void cut_scene_player::setup_tracking_panels()
 {
@@ -617,7 +613,6 @@ void cut_scene_player::setup_tracking_panels()
     }
 }
 
-
 void cut_scene_player::activate_current_segment()
 {
     resource_manager::push_resource_context(current_cut_scene->field_50);
@@ -689,7 +684,6 @@ void cut_scene_player::activate_current_segment()
     resource_manager::pop_resource_context();
 }
 
-
 entity *cut_scene_player::create_entity(resource_key key)
 {
     auto *entry = get_entity_entry(key.m_hash);
@@ -741,7 +735,6 @@ entity *cut_scene_player::create_entity(resource_key key)
     return entity;
 }
 
-
 entity_class_entry *cut_scene_player::get_entity_entry(string_hash id)
 {
     auto find = [id](mAvlTree<entity_class_entry> &tree) -> entity_class_entry * {
@@ -763,7 +756,6 @@ entity_class_entry *cut_scene_player::get_entity_entry(string_hash id)
     return find(current_cut_scene->field_0);
 }
 
-
 string_hash cut_scene_player::resolve_entity_name(const char *name)
 {
     const auto *entry = get_entity_entry(string_hash{name});
@@ -779,7 +771,6 @@ string_hash cut_scene_player::resolve_entity_name(const char *name)
     return string_hash{name};
 }
 
-
 unsigned char *cut_scene_player::get_heap_slot_datum()
 {
     auto *segment = *current_segment;
@@ -789,7 +780,6 @@ unsigned char *cut_scene_player::get_heap_slot_datum()
     return slots[segment->field_AC]->get_header_mem_addr();
 }
 
-
 int cut_scene_player::get_heap_slot_size()
 {
     auto *segment = *current_segment;
@@ -798,7 +788,6 @@ int cut_scene_player::get_heap_slot_size()
     auto &slots = resource_manager::get_partition_pointer(RESOURCE_PARTITION_DISTRICT)->get_pack_slots();
     return slots[segment->field_AC]->get_slot_size();
 }
-
 
 bool cut_scene_player::wait_for_regions(float dt)
 {
@@ -811,7 +800,6 @@ bool cut_scene_player::wait_for_regions(float dt)
     }
     return true;
 }
-
 
 bool cut_scene_player::wait_for_heap_slot(float dt)
 {
@@ -834,7 +822,6 @@ bool cut_scene_player::wait_for_heap_slot(float dt)
         ->is_empty();
 }
 
-
 void cut_scene_player::start_lip_syncing()
 {
     visit_entity_entries((*current_segment)->field_84, [](entity_class_entry &entry) {
@@ -850,7 +837,6 @@ void cut_scene_player::start_lip_syncing()
     });
 }
 
-
 void cut_scene_player::stop_lip_syncing()
 {
     visit_entity_entries((*current_segment)->field_84, [](entity_class_entry &entry) {
@@ -862,7 +848,6 @@ void cut_scene_player::stop_lip_syncing()
             lip->stop_all();
     });
 }
-
 
 nalClientSceneAnim *cut_scene_player::scene_anim_callback(const tlFixedString &name, void *context)
 {

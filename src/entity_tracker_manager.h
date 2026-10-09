@@ -28,6 +28,7 @@ struct entity_tracker_manager {
     // 0x0063A270
     void destroy_entity_tracker(uint32_t id);
     void set_entity(uint32_t id, entity *owner);
+    void frame_advance(Float elapsed);
 
     //0x0062EE10
     bool get_the_arrow_target_pos(vector3d *);

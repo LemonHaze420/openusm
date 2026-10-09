@@ -6,9 +6,22 @@
 #include "vector3d.h"
 #include <list.hpp>
 
+struct PanelQuad;
 struct zoom_map_ui {
-    int field_0[143];
-    _std::list<int> field_23C;
+    struct marker {
+        int id;
+        vector3d position;
+        int type;
+        float depth;
+        PanelQuad *large;
+        PanelQuad *small_quad;
+        PanelQuad *overlay;
+        uint32_t color;
+        float alpha;
+    };
+    int field_0[143]{};
+    _std::list<marker> field_23C;
+    void Draw();
 };
 
 struct IGOZoomPOI {
@@ -67,6 +80,7 @@ struct IGOZoomOutMap {
 
     ~IGOZoomOutMap();
     void UpdateInScene();
+    void Draw();
     // 0x006386E0
     void UpdateSelectButton();
 

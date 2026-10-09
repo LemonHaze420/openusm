@@ -24,7 +24,6 @@ VALIDATE_SIZE(vehicle, 0x130);
 VALIDATE_OFFSET(vehicle_model, refcount, 0x14);
 VALIDATE_SIZE(vehicle_model, 0x1C);
 
-
 static const color32 car_colors[] = {
     0xFFFFFFFFu,
     0xFF323232u,
@@ -113,7 +112,6 @@ void __fastcall native_vehicle_set_actor(vehicle *self, void *, vhandle_type<ent
 {
     self->set_actor(handle);
 }
-
 void __fastcall native_vehicle_out_of_world(vehicle *, void *) {}
 }  // namespace
 
@@ -242,6 +240,37 @@ void vehicle::update_part_cache()
         field_120 = member("TAXI_LIGHTCONES");
         field_124 = field_128 = body;
     }
+}
+
+void vehicle::update_part_visibility()
+{
+    if (bodytype != 1)
+        return;
+    field_5C = field_60 = 3;
+    auto *owner = get_my_actor();
+    const auto member = [owner](string_hash name) -> entity_base * {
+        return owner->is_a_conglomerate() ? static_cast<conglomerate *>(owner)->get_member(name, true) : nullptr;
+    };
+    const auto visible = [&member](string_hash name) {
+        auto *part = member(name);
+        return part != nullptr && (part->field_4 & 0x200u) != 0;
+    };
+    static constexpr int nose_indices[] = {0, 1, 4};
+    for (int i = 0; i < 3; ++i) {
+        if (visible(s_car_nose_parts[nose_indices[i]][0])) {
+            field_5C = i;
+            break;
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        if (visible(s_tail_parts[i].first)) {
+            field_60 = i;
+            field_128 = static_cast<actor *>(member(s_tail_parts[i].second));
+            break;
+        }
+    }
+    if (field_5C < 3)
+        field_64 = get_part_color(s_car_nose_parts[nose_indices[field_5C]][0]);
 }
 
 static const char *const off_937FD4[6] = {"FW1", "FB1", "FW2", "MB1", "MW1", "MW2"};
@@ -995,7 +1024,6 @@ void vehicle::manage_vehicle_height(bool)
 }
 
 namespace {
-
 float vehicle_steering_sine(float angle)
 {
     const float phase = -std::fabs(angle + 4.71238899230957f) * 0.15915493667125702f;
@@ -1022,7 +1050,6 @@ void rotate_vehicle_pose(po &transform, int first, int second, float angle)
         transform[row][second] = old_second * cosine + old_first * sine;
     }
 }
-
 
 void set_vehicle_tire_pose(actor *part, float steering, float rotation)
 {
@@ -1192,7 +1219,6 @@ void vehicle::drive_to(Float dt, float speed, const vector3d &target, bool, bool
     transform.set_po(forward, field_BC, position + forward * distance);
     if (!(field_70 == transform))
         entity_set_abs_po(owner, transform);
-
     finish_vehicle_motion(owner, field_B0, dt);
 }
 

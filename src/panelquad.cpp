@@ -75,12 +75,6 @@ PanelQuad::PanelQuad(from_mash_in_place_constructor *a2) : pqs(a2), field_3C(a2)
         field_4 = 1.0f;
         m_vtbl = 0x0087B990;
         (void)a2;
-        if (pqs.m_data != nullptr) {
-            for (int i = 0; i < pqs.m_size; ++i) {
-                if (pqs.m_data[i] != nullptr)
-                    new (pqs.m_data[i]) PanelQuadSection();
-            }
-        }
         field_3C.field_C = nullptr;
         if (pmesh != nullptr) {
             new (pmesh) PanelMeshSection();

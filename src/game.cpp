@@ -229,7 +229,6 @@ void construct_script_controllers()
     }
 }
 
-
 void destruct_script_controllers()
 {
     delete[] script_pad;
@@ -240,7 +239,6 @@ void init_subdivision()
 {
     init_proximity_map_stacks();
 }
-
 
 void term_subdivision()
 {
@@ -2572,6 +2570,32 @@ void game::render_ui()
         nglListBeginScene(static_cast<nglSceneParamType>(1));
         nglSetClearFlags(var<bool>(0x0095C878) ? 0 : 6);
         nglSetFBWriteMask(7);
+        nglListEndScene();
+        if (!var<bool>(0x0095C879) && flag.level_is_loaded &&
+            !os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"})) {
+            g_femanager.Draw();
+        } else if (!flag.level_is_loaded) {
+            if (g_femanager.m_fe_menu_system != nullptr)
+                g_femanager.m_fe_menu_system->RenderLoadMeter(true);
+        } else {
+            nglListBeginScene(static_cast<nglSceneParamType>(0));
+            if (!EnableShader) {
+                matrix4x4 view{};
+                view[0].x = 0.003125f;
+                view[1].y = 0.004166666f;
+                view[2].z = -1.0f;
+                view[3] = {-1.0f, -1.0f, 0.0f, 1.0f};
+                nglSetWorldToViewMatrix({view});
+                nglSetAspectRatio(1.0f);
+                nglSetOrthoMatrix(1000.0f, 10000.0f);
+                nglCalculateMatrices(false);
+            }
+            mission_manager::s_inst->render_fade();
+            nglListEndScene();
+        }
+        nglListBeginScene(static_cast<nglSceneParamType>(1));
+        nglSetClearFlags(var<bool>(0x0095C878) ? 0 : 6);
+        nglSetFBWriteMask(7);
         if (!EnableShader) {
             matrix4x4 view{identity_matrix};
             view[0][0] = 2.0f / 640.0f;
@@ -2583,17 +2607,8 @@ void game::render_ui()
             nglSetOrthoMatrix(1000.0f, 10000.0f);
             nglCalculateMatrices(false);
         }
-        if (!var<bool>(0x0095C879)) {
-            if (flag.level_is_loaded) {
-                if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index >= 0 &&
-                    !os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"}))
-                    g_femanager.Draw();
-                render_interface();
-            } else if (g_femanager.m_fe_menu_system != nullptr) {
-                g_femanager.m_fe_menu_system->RenderLoadMeter(true);
-            }
-        }
-        mission_manager::s_inst->render_fade();
+        if (!var<bool>(0x0095C879) && flag.level_is_loaded)
+            render_interface();
         nglListEndScene();
     } else {
         THISCALL(0x0052B250, this);

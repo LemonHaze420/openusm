@@ -279,7 +279,6 @@ void conglomerate::sub_4D0E00()
         auto mark_model_poses = [model_count](const mashable_vector<entity_base *> &entities) {
             for (uint16_t i = 0; i < entities.size(); ++i) {
                 auto *member = entities.m_data[i];
-
                 const int model_index = static_cast<uint8_t>(member->rel_po_idx) - 1;
                 if (model_index < model_count) {
                     member->field_8 = (member->field_8 & ~0x100u) | 0x08000000u;
@@ -1161,14 +1160,12 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             v81->initialize_polytubes();
         }
 
-#if !STANDALONE_SYSTEM
         if (this->has_variant_ifc()) {
             auto *v82 = this->variant_ifc();
             v82->field_28 = v82->my_conglomerate->get_mesh()->File;
             auto *v83 = v82->get_random_variant();
             v82->apply_variant(v83);
         }
-#endif
     } else {
         THISCALL(0x004FC830, this, a2, a3, a4);
     }
@@ -1365,7 +1362,7 @@ void conglomerate::apply_variant_ifc(nglMeshParams &mesh_params, nglParamSet<ngl
     auto *mesh = get_mesh();
     const auto &transform = *reinterpret_cast<const math::MatClass<4, 3> *>(&get_abs_po());
     const int lod = (mesh_params.Flags & 0x80) != 0 ? mesh_params.field_C : nglGetLOD(mesh, transform);
-    auto *frames = reinterpret_cast<char **>(m_variant_interface->field_2C)[lod];
+    auto *frames = m_variant_interface->field_2C[lod];
     if (frames == nullptr)
         return;
     using section_info = std::remove_pointer_t<decltype(USSectionIFLParam{}.field_0)>;

@@ -22,6 +22,7 @@
 #include "osassert.h"
 #include "slc_manager.h"
 #include "trace.h"
+#include "traffic.h"
 #include "utility.h"
 #include "vm_stack.h"
 #include "xbpack.h"
@@ -434,11 +435,25 @@ struct slf__entity__ai_traffic_goto__vector3d__num__num__num__t : script_library
 struct slf__entity__ai_traffic_set_value__num__num__t : script_library_class::function {
     slf__entity__ai_traffic_set_value__num__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
-        m_vtbl = (decltype(m_vtbl))0x0089B2C4;
+        if constexpr (STANDALONE_SYSTEM)
+            bind_standalone_entity_slf(this);
+        else
+            m_vtbl = (decltype(m_vtbl))0x0089B2C4;
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle owner;
+        vm_num_t index;
+        vm_num_t value;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        if (auto *owner = parms->owner.get_volatile_ptr()) {
+            if (auto *car = traffic::get_traffic_from_entity(vhandle_type<entity>{owner->my_handle}))
+                car->set_value(static_cast<int>(parms->index), parms->value);
+        }
         return true;
     }
 };
@@ -496,11 +511,46 @@ struct slf__entity__ai_voice_box_set_team_respect__string_hash__num__t : script_
 struct slf__entity__ai_wait_say_file__str__num__num__t : script_library_class::function {
     slf__entity__ai_wait_say_file__str__num__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
-        m_vtbl = (decltype(m_vtbl))0x0089B3D4;
+        if constexpr (STANDALONE_SYSTEM)
+            bind_standalone_entity_slf(this);
+        else
+            m_vtbl = (decltype(m_vtbl))0x0089B3D4;
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle owner;
+        const char *sound;
+        vm_num_t behavior;
+        vm_num_t priority;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t entry) const
     {
+        SLF_PARMS;
+        float result = 0.0f;
+        auto *owner = parms->owner.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_actor()) {
+            if (auto *core = owner->get_ai_core()) {
+                auto *voice =
+                    static_cast<ai::voice_box_inode *>(core->get_info_node(ai::voice_box_inode::default_id, false));
+                if (voice != nullptr) {
+                    auto *recall = reinterpret_cast<float *>(parms + 1);
+                    if (entry == FIRST_ENTRY) {
+                        *recall = voice->say_file(string_hash{parms->sound},
+                                                  static_cast<int>(parms->behavior),
+                                                  static_cast<int>(parms->priority),
+                                                  nullptr)
+                                      ? 1.0f
+                                      : 0.0f;
+                        return false;
+                    }
+                    if (voice->is_speaking())
+                        return false;
+                    result = *recall;
+                }
+            }
+        }
+        SLF_RETURN;
         return true;
     }
 };
@@ -1057,11 +1107,23 @@ struct slf__entity__disable_as_target__t : script_library_class::function {
 struct slf__entity__disable_collisions__t : script_library_class::function {
     slf__entity__disable_collisions__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
-        m_vtbl = (decltype(m_vtbl))0x0089AF84;
+        if constexpr (STANDALONE_SYSTEM)
+            bind_standalone_entity_slf(this);
+        else
+            m_vtbl = (decltype(m_vtbl))0x0089AF84;
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle owner;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        if (auto *owner = parms->owner.get_volatile_ptr(); owner != nullptr && owner->is_an_actor()) {
+            using collision_fn = void(__fastcall *)(entity_base *, void *, bool, bool);
+            reinterpret_cast<collision_fn>(get_vfunc(owner->m_vtbl, 0x1F0))(owner, nullptr, false, true);
+        }
         return true;
     }
 };
@@ -3450,11 +3512,29 @@ struct slf__entity__set_kill_ent_on_destroy__num__t : script_library_class::func
 struct slf__entity__set_member_hidden__num__t : script_library_class::function {
     slf__entity__set_member_hidden__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
-        m_vtbl = (decltype(m_vtbl))0x0089AE9C;
+        if constexpr (STANDALONE_SYSTEM)
+            bind_standalone_entity_slf(this);
+        else
+            m_vtbl = (decltype(m_vtbl))0x0089AE9C;
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle owner;
+        vm_num_t hidden;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        if (auto *owner = parms->owner.get_volatile_ptr(); owner != nullptr && owner->is_conglom_member()) {
+            if (std::not_equal_to<float>{}(parms->hidden, 0.0f)) {
+                owner->field_4 |= 0x80000000u;
+                using visible_fn = void(__fastcall *)(entity_base *, void *, bool, bool);
+                reinterpret_cast<visible_fn>(get_vfunc(owner->m_vtbl, 0x44))(owner, nullptr, false, false);
+            } else {
+                owner->field_4 &= ~0x80000000u;
+            }
+        }
         return true;
     }
 };
@@ -3733,7 +3813,6 @@ struct slf__entity__set_render_color__vector3d__t : script_library_class::functi
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         SLF_PARMS;
-
         auto *owner = parms->entity.get_volatile_ptr();
         if (owner != nullptr && owner->is_an_entity()) {
             for (int i = 0; i < 3; ++i) {
@@ -4228,7 +4307,6 @@ struct slf__entity__wait_change_range__num__num__num__t : script_library_class::
         return true;
     }
 };
-
 
 struct slf__entity__wait_change_render_color__vector3d__num__num__t : script_library_class::function {
     slf__entity__wait_change_render_color__vector3d__num__num__t(script_library_class *slc, const char *a3)

@@ -46,8 +46,8 @@ void fe_health_widget::SetShown(bool a2)
             if (auto *target = animation->field_0.at(i)->field_14)
                 target->StartAnim(true);
         }
-        animation->field_18 = bit_cast<int>(animation->field_20);
-        animation->field_14 = 0.0f;
+        animation->field_20 = animation->field_14;
+        animation->field_18 = 0;
         animation->field_1C = 0;
         animation->field_28 = 0;
         animation->field_2C = false;

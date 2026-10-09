@@ -12,6 +12,10 @@
 #include "variable.h"
 #include "wds.h"
 #include "vtbl.h"
+#include "cursor.h"
+#include "geometry_manager.h"
+#include "panelfile.h"
+#include "panelquad.h"
 
 #include <utility.h>
 
@@ -19,6 +23,7 @@ VALIDATE_SIZE(IGOZoomOutMap, 0x82Cu);
 VALIDATE_SIZE(IGOZoomOutMap::internal, 0x1Cu);
 VALIDATE_SIZE(IGOZoomPOI, 0x14);
 VALIDATE_SIZE(zoom_map_ui, 0x248u);
+VALIDATE_SIZE(zoom_map_ui::marker, 0x2Cu);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5CC, 0x5CC);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5C4, 0x5C4);
 
@@ -65,6 +70,99 @@ void IGOZoomOutMap::UpdateInScene()
             if (this->field_5B8 == this->field_0[i].field_14) {
                 this->field_0[i].field_0.UpdateInScene();
             }
+        }
+    }
+}
+
+void zoom_map_ui::Draw()
+{
+    auto *panel = reinterpret_cast<PanelFile *>(field_0[3]);
+    if (panel == nullptr)
+        return;
+    panel->Draw();
+    const float height = bit_cast<float>(field_0[0x234 / 4]);
+    const float scale = height > 500.0f ? 1.0f - (height - 500.0f) * 0.002f * 0.25f : 1.0f;
+    const bool large = height > 1850.0f;
+    const auto *bytes = reinterpret_cast<const uint8_t *>(field_0);
+    for (const auto &entry : field_23C) {
+        int filter = -1;
+        switch (entry.type) {
+        case 2:
+            filter = 0x1E7;
+            break;
+        case 6:
+            filter = 0x1E6;
+            break;
+        case 13:
+        case 14:
+            filter = 0x1E8;
+            break;
+        case 3:
+        case 4:
+            filter = 0x1E9;
+            break;
+        case 11:
+        case 12:
+            filter = 0x1EA;
+            break;
+        case 17:
+        case 18:
+            filter = 0x1ED;
+            break;
+        case 19:
+            filter = 0x1EC;
+            break;
+        case 1:
+            filter = 0x1EB;
+            break;
+        }
+        if (filter >= 0 && !bytes[filter])
+            continue;
+        const auto position =
+            sub_501B20(geometry_manager::get_xform(static_cast<geometry_manager::xform_t>(7)), entry.position);
+        auto *selected = large ? entry.large : entry.small_quad;
+        selected->SetCenterPos(position.x, position.y);
+        entry.overlay->SetCenterPos(position.x, position.y);
+        if (!large)
+            selected->Scale(scale, true);
+        entry.large->TurnOn(large);
+        entry.small_quad->TurnOn(!large);
+        entry.overlay->TurnOn(true);
+        entry.large->SetZvalue(1000.0f - entry.depth, static_cast<panel_layer>(7));
+        entry.small_quad->SetZvalue(1000.0f - entry.depth, static_cast<panel_layer>(7));
+        entry.large->Draw();
+        entry.small_quad->Draw();
+        entry.overlay->Scale(scale, true);
+        entry.overlay->SetAlpha(entry.alpha);
+        entry.overlay->SetColor(color32{entry.color});
+        entry.overlay->SetZvalue(999.0f, static_cast<panel_layer>(7));
+        entry.overlay->Draw();
+    }
+    const auto position = sub_501B20(geometry_manager::get_xform(static_cast<geometry_manager::xform_t>(7)),
+                                     g_world_ptr->get_hero_ptr(0)->get_abs_position());
+    auto *small_icon = reinterpret_cast<PanelQuad *>(field_0[0x218 / 4]);
+    auto *large_icon = reinterpret_cast<PanelQuad *>(field_0[0x21C / 4]);
+    large_icon->TurnOn(large);
+    small_icon->TurnOn(!large);
+    auto *selected = large ? large_icon : small_icon;
+    selected->SetCenterPos(position.x, position.y);
+    if (!large)
+        selected->Scale(scale, true);
+    small_icon->Draw();
+    large_icon->Draw();
+    g_cursor->Draw();
+}
+
+void IGOZoomOutMap::Draw()
+{
+    if (!field_5C4)
+        return;
+    field_5CC.Draw();
+    if (field_5C5) {
+        for (int i = 0; i < field_5B4; ++i) {
+            auto &entry = field_0[i];
+            if (entry.field_14 == field_5B8 && entry.field_0.field_10 != nullptr)
+                reinterpret_cast<PanelQuad *>(entry.field_0.field_10)->Draw();
         }
     }
 }

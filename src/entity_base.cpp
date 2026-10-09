@@ -659,9 +659,15 @@ physical_interface *entity_base::physical_ifc()
     return func(this);
 }
 
+bool entity_base::has_variant_ifc()
+{
+    bool(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
+    return func(this);
+}
+
 variant_interface *entity_base::variant_ifc()
 {
-    variant_interface *(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
+    variant_interface *(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
     return func(this);
 }
 
@@ -1011,6 +1017,7 @@ void entity_base::clear_parent(bool a1)
                     break;
                 }
 
+                v5 = curr;
                 curr = curr->get_next_sibling();
             }
 
@@ -1633,8 +1640,6 @@ sound_and_pfx_interface *entity_base::create_sound_and_pfx_ifc()
         return nullptr;
     }
     auto *interface_ptr = ::new (storage) sound_and_pfx_interface;
-
-
     interface_ptr->m_vtbl = sound_and_pfx_interface::native_vtable();
     interface_ptr->field_4 = reinterpret_cast<std::intptr_t>(this);
     interface_ptr->dynamic = true;

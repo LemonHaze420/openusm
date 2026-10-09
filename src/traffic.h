@@ -116,6 +116,7 @@ struct traffic : spawnable {
     void set_standing(bool enabled);
     bool set_destroyable(bool enabled);
     void set_hit_points(int hit_points);
+    void set_value(int index, float value);
     void set_damage_done(int damage);
     int get_hit_points();
     int get_damage_done();
@@ -125,7 +126,6 @@ struct traffic : spawnable {
     void advance(Float time);
     bool _is_viable_lane(traffic_path_lane *lane);
     void play_car_toss_voice();
-
 
     void set_lane_position_index(int index, traffic_path_lane *lane)
     {

@@ -176,6 +176,103 @@ struct als_meta_linear_blend : als_meta_anim_base {
     //virtual
     int _get_mash_sizeof() const;
 };
+struct meta_anim_type_486 : als_meta_anim_base {
+    struct key_anim {
+        string_hash hash;
+        nalAnimClass<nalAnyPose> *animation;
+        key_anim();
+        key_anim(from_mash_in_place_constructor *tag);
+        void lookup();
+    };
+
+    struct nalInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
+        nalAnimClass<nalAnyPose>::nalInstanceClass *primary;
+        nalAnimClass<nalAnyPose>::nalInstanceClass *secondary;
+        animation_logic_system *logic;
+        state_machine *state;
+        meta_anim_type_486 *metadata;
+        nalAnyPose result;
+        nalAnyPose reference;
+        nalAnyPose secondary_pose;
+        nalAnyPose primary_pose;
+
+        nalInstance(meta_anim_type_486 *meta, nalBaseSkeleton *skeleton, animation_logic_system *als,
+                    state_machine *machine);
+        ~nalInstance();
+        void *scalar_delete(unsigned int flags);
+        void sample_pose(Float t, Float previous, nalBasePose &pose, const nalBasePose &default_pose);
+        void blend_poses(Float t, Float previous, nalAnyPose &pose, const nalAnyPose &default_pose, Float weight,
+                         nalAnimClass<nalAnyPose>::nalInstanceClass *lower,
+                         nalAnimClass<nalAnyPose>::nalInstanceClass *upper);
+        double compute_weight() const;
+        static void *native_vtable();
+    };
+
+    key_anim primary;
+    key_anim secondary;
+    float minimum;
+    float maximum;
+    float span;
+    int field_44;
+
+    meta_anim_type_486();
+    meta_anim_type_486(from_mash_in_place_constructor *tag);
+    void _destruct_mashed_class();
+    void _unmash(mash_info_struct *info, void *context);
+    void *scalar_delete(unsigned int flags);
+    bool _is_subclass_of(mash::virtual_types_enum type) const;
+    int _get_virtual_type_enum() const;
+    bool _is_anim_looping() const;
+    bool _is_anim_trajectory_relative() const;
+    float _get_anim_duration() const;
+    nalBaseSkeleton *_get_skeleton();
+    nalInstance *_create_anim_inst(nalBaseSkeleton *skeleton, nalAnimClass<nalAnyPose> *, animation_logic_system *logic,
+                                   state_machine *state);
+    int _get_mash_sizeof() const;
+    static void *native_vtable();
+};
+
+struct meta_anim_type_485 : als_meta_anim_base {
+    using key_anim = meta_anim_type_486::key_anim;
+    struct nalInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
+        nalAnimClass<nalAnyPose>::nalInstanceClass *children[4];
+        animation_logic_system *logic;
+        state_machine *state;
+        meta_anim_type_485 *metadata;
+        nalAnyPose poses[6];
+        nalInstance(meta_anim_type_485 *, nalBaseSkeleton *, animation_logic_system *, state_machine *);
+        ~nalInstance();
+        void *scalar_delete(unsigned int flags);
+        void sample_pose(Float, Float, nalBasePose &, const nalBasePose &);
+        void blend_poses(Float, Float, nalAnyPose &, const nalAnyPose &, Float,
+                         nalAnimClass<nalAnyPose>::nalInstanceClass *, nalAnimClass<nalAnyPose>::nalInstanceClass *);
+        void compute_weights(float *vertical, float *horizontal) const;
+        static void *native_vtable();
+    };
+    key_anim keys[4];
+    float minimum_up;
+    float maximum_up;
+    float minimum_right;
+    float maximum_right;
+    float span_up;
+    float span_right;
+    meta_anim_type_485();
+    meta_anim_type_485(from_mash_in_place_constructor *);
+    void _destruct_mashed_class();
+    void _unmash(mash_info_struct *, void *);
+    void *scalar_delete(unsigned int flags);
+    bool _is_subclass_of(mash::virtual_types_enum type) const;
+    int _get_virtual_type_enum() const;
+    bool _is_anim_looping() const;
+    bool _is_anim_trajectory_relative() const;
+    float _get_anim_duration() const;
+    nalBaseSkeleton *_get_skeleton();
+    nalInstance *_create_anim_inst(nalBaseSkeleton *, nalAnimClass<nalAnyPose> *, animation_logic_system *,
+                                   state_machine *);
+    int _get_mash_sizeof() const;
+    static void *native_vtable();
+};
+
 }  // namespace als
 
 extern void meta_anim_interact_patch();

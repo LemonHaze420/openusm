@@ -331,7 +331,6 @@ vector3d move_face::select_translation(Float dt, const po &before, const po &ani
     case 3:
         return dispatch_translation(this, 0x84, dt, before, animated);
     default:
-
 #ifdef _MSC_VER
         __assume(0);
 #else
@@ -436,7 +435,6 @@ int __fastcall crawl_size(crawl_transition *, void *)
 {
     return sizeof(crawl_transition);
 }
-
 
 void __fastcall move_reset_time(move_face *self, void *)
 {
@@ -785,13 +783,48 @@ void *movement_vtable()
         result[2] = reinterpret_cast<void *>(&motion_delete<T>);
         result[3] = reinterpret_cast<void *>(&motion_type<T, Type>);
         result[6] = reinterpret_cast<void *>(&motion_activate<T>);
-        result[7] = reinterpret_cast<void *>(&motion_deactivate<T>);
+        if constexpr (Type != 502)
+            result[7] = reinterpret_cast<void *>(&motion_deactivate<T>);
         result[9] = reinterpret_cast<void *>(&motion_post<T>);
         result[19] = reinterpret_cast<void *>(&motion_size<T>);
         return result;
     }();
     return table.data();
 }
+}
+
+VALIDATE_SIZE(crawl_orient, 0x14);
+
+void *crawl_orient::native_vtable()
+{
+    return movement_vtable<crawl_orient, 502>();
+}
+
+void crawl_orient::post_anim_action(Float dt)
+{
+    update_playback_speed(this);
+    po offset{};
+    field_4->get_animation_controller()->get_curr_po_offset(offset);
+    static const string_hash turn_rate_hash{int(to_hash("turn_rate"))};
+    const float turn_rate = field_8->get_optional_pb_float(turn_rate_hash, 10.0f, nullptr);
+    vector3d direction = field_8->get_vector_param(field_4, 27);
+    auto *owner = field_4->get_actor();
+    auto up = owner->get_abs_po().get_y_facing();
+    direction = orthogonal_projection_onto_plane(direction, up);
+    const float length2 = direction.length2();
+    if (length2 > LARGE_EPSILON)
+        direction *= static_cast<float>(1.0 / std::sqrt(static_cast<double>(length2)));
+    if (direction.length2() > EPSILON) {
+        vector3d forward;
+        reorient_vectors(
+            owner->get_abs_po().get_z_facing(), up, direction, up, forward, up, Float{turn_rate * dt.value});
+        po transform{};
+        transform.set_po(forward, up, the_actor->get_abs_position());
+        entity_set_abs_po(the_actor, transform);
+    }
+    const auto before = the_actor->get_abs_position();
+    apply_motion_offset(this, offset);
+    the_actor->set_frame_delta_trans(the_actor->get_abs_position() - before, dt);
 }
 
 void *move_and_face::native_vtable()

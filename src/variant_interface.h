@@ -32,9 +32,7 @@ struct variant_interface : conglomerate_interface {
     nglMesh *current_mesh;
     nglMorphSet *field_24;
     nglMeshFile *field_28;
-    char *field_2C[1];
-    int field_30;
-    int field_34;
+    char *field_2C[3];
     int field_38;
     int field_3C;
     int field_40;
@@ -54,6 +52,8 @@ struct variant_interface : conglomerate_interface {
     void apply_variant(string_hash a2);
 
     void apply_variant(variant_info *info);
+    nglMesh *create_mesh_concatenation_and_ifl_frames(nglMesh **parts, int count, variant_info *info, char random_frame,
+                                                      int lod, nglMesh *source);
 
     void destroy_ifl_frames();
 

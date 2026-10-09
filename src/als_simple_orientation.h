@@ -15,6 +15,10 @@ struct simple_orientation : motion_compensator {
     static void *native_vtable();
 };
 
+struct relative_orientation : simple_orientation {
+    static void *native_vtable();
+};
+
 struct simple_orientation_ped : simple_orientation {
     void other_po_changes(Float elapsed);
     static void *native_vtable();

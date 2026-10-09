@@ -7,11 +7,38 @@
 
 namespace als {
 
+namespace {
+void __fastcall meta_anim_noop(als_nal_meta_anim *, void *) {}
+
+bool __fastcall meta_anim_check_version(const als_nal_meta_anim *, void *)
+{
+    return false;
+}
+
+nalAnimClass<nalAnyPose>::nalInstanceClass *__fastcall meta_anim_virtual_create(als_nal_meta_anim *, void *,
+                                                                                nalBaseSkeleton *)
+{
+    return nullptr;
+}
+}
+
 VALIDATE_SIZE(als_nal_meta_anim, 0x44);
 
 als_nal_meta_anim::als_nal_meta_anim()
 {
-    this->m_vtbl = 0x00880968;
+    if constexpr (STANDALONE_SYSTEM) {
+        static void *table[]{
+            reinterpret_cast<void *>(&meta_anim_noop),
+            reinterpret_cast<void *>(&meta_anim_noop),
+            reinterpret_cast<void *>(&meta_anim_noop),
+            reinterpret_cast<void *>(&meta_anim_check_version),
+            reinterpret_cast<void *>(&meta_anim_virtual_create),
+        };
+        m_vtbl = static_cast<int>(reinterpret_cast<std::intptr_t>(table));
+        vtbl_ptr = m_vtbl;
+    } else {
+        m_vtbl = 0x00880968;
+    }
     this->field_40 = nullptr;
 }
 

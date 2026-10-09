@@ -47,6 +47,7 @@ struct threat_assessment_meters {
 
     //0x00643400
     void init();
+    void draw();
 };
 
 extern void threat_assessment_meters_patch();

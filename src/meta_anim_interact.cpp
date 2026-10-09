@@ -1,5 +1,7 @@
 #include "meta_anim_interact.h"
 #include "animation_controller.h"
+#include "als_animation_logic_system.h"
+#include "oldmath_po.h"
 
 #include "common.h"
 #include "func_wrapper.h"
@@ -642,6 +644,431 @@ void als_meta_linear_blend::nalInstance::blend_poses(Float t, Float t_prev, nalA
     lower->VirtualGetPose(t, t_prev, *lower_pose.field_0, *default_pose.field_0);
     upper->VirtualGetPose(t, t_prev, *upper_pose.field_0, *default_pose.field_0);
     sub_826140(pose, weight, lower_pose, upper_pose);
+}
+
+VALIDATE_SIZE(meta_anim_type_486, 0x48);
+VALIDATE_SIZE(meta_anim_type_486::nalInstance, 0x38);
+
+namespace {
+using blend486 = meta_anim_type_486;
+using instance486 = blend486::nalInstance;
+void __fastcall blend486_destruct(blend486 *self, void *)
+{
+    self->_destruct_mashed_class();
+}
+void *__fastcall blend486_delete(blend486 *self, void *, unsigned int flags)
+{
+    return self->scalar_delete(flags);
+}
+bool __fastcall blend486_subclass(const blend486 *self, void *, mash::virtual_types_enum type)
+{
+    return self->_is_subclass_of(type);
+}
+void *__fastcall instance486_delete(instance486 *self, void *, unsigned int flags)
+{
+    return self->scalar_delete(flags);
+}
+void __fastcall instance486_sample(instance486 *self, void *, Float t, Float previous, nalBasePose &pose,
+                                   const nalBasePose &reference)
+{
+    self->sample_pose(t, previous, pose, reference);
+}
+void __fastcall instance486_blend(instance486 *self, void *, Float t, Float previous, nalAnyPose &pose,
+                                  const nalAnyPose &reference, Float weight, child_instance *lower,
+                                  child_instance *upper)
+{
+    self->blend_poses(t, previous, pose, reference, weight, lower, upper);
+}
+void __fastcall instance486_weight(const instance486 *self, void *, float *weight)
+{
+    *weight = static_cast<float>(self->compute_weight());
+}
+}
+
+meta_anim_type_486::key_anim::key_anim() : hash(0), animation(nullptr) {}
+meta_anim_type_486::key_anim::key_anim(from_mash_in_place_constructor *tag) : hash(tag) {}
+void meta_anim_type_486::key_anim::lookup()
+{
+    animation = reinterpret_cast<nalAnimClass<nalAnyPose> *>(get_anim_by_hash(hash, nullptr, nullptr));
+    if (!animation)
+        error("Could not find animation file %s for meta anim.", hash.to_string());
+}
+meta_anim_type_486::meta_anim_type_486()
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+}
+meta_anim_type_486::meta_anim_type_486(from_mash_in_place_constructor *tag)
+    : als_meta_anim_base(tag), primary(tag), secondary(tag)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    primary.lookup();
+    secondary.lookup();
+}
+void meta_anim_type_486::_destruct_mashed_class()
+{
+    primary.hash.destruct_mashed_class();
+    secondary.hash.destruct_mashed_class();
+}
+void meta_anim_type_486::_unmash(mash_info_struct *info, void *context)
+{
+    als_meta_anim_base::_unmash(info, context);
+    info->unmash_class_in_place(primary.hash, this);
+    info->unmash_class_in_place(secondary.hash, this);
+}
+void *meta_anim_type_486::scalar_delete(unsigned int flags)
+{
+    this->~meta_anim_type_486();
+    if (flags & 1)
+        mash_virtual_base::operator delete(this, sizeof(*this));
+    return this;
+}
+bool meta_anim_type_486::_is_subclass_of(mash::virtual_types_enum type) const
+{
+    return type == 566 || type == 573;
+}
+int meta_anim_type_486::_get_virtual_type_enum() const
+{
+    return 486;
+}
+bool meta_anim_type_486::_is_anim_looping() const
+{
+    return (primary.animation->field_34 & 1) != 0;
+}
+bool meta_anim_type_486::_is_anim_trajectory_relative() const
+{
+    return (primary.animation->field_34 & 2) == 0;
+}
+float meta_anim_type_486::_get_anim_duration() const
+{
+    return primary.animation->field_38;
+}
+nalBaseSkeleton *meta_anim_type_486::_get_skeleton()
+{
+    return primary.animation->Skeleton;
+}
+meta_anim_type_486::nalInstance *meta_anim_type_486::_create_anim_inst(nalBaseSkeleton *skeleton,
+                                                                       nalAnimClass<nalAnyPose> *,
+                                                                       animation_logic_system *logic,
+                                                                       state_machine *state)
+{
+    return new nalInstance(this, skeleton, logic, state);
+}
+int meta_anim_type_486::_get_mash_sizeof() const
+{
+    return sizeof(*this);
+}
+void *meta_anim_type_486::native_vtable()
+{
+    static void *table[] = {reinterpret_cast<void *>(&blend486_destruct),
+                            func_address(&meta_anim_type_486::_unmash),
+                            reinterpret_cast<void *>(&blend486_delete),
+                            func_address(&meta_anim_type_486::_get_virtual_type_enum),
+                            reinterpret_cast<void *>(&blend486_subclass),
+                            func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                            func_address(&als_meta_anim_base::_get_anim_name),
+                            func_address(&meta_anim_type_486::_is_anim_looping),
+                            func_address(&meta_anim_type_486::_is_anim_trajectory_relative),
+                            func_address(&meta_anim_type_486::_get_anim_duration),
+                            func_address(&meta_anim_type_486::_get_skeleton),
+                            func_address(&meta_anim_type_486::_create_anim_inst),
+                            reinterpret_cast<void *>(&linear_has_no_extra_mash_data),
+                            reinterpret_cast<void *>(&linear_release_extra_mash_data),
+                            func_address(&meta_anim_type_486::_get_mash_sizeof)};
+    return table;
+}
+meta_anim_type_486::nalInstance::nalInstance(meta_anim_type_486 *meta, nalBaseSkeleton *skeleton,
+                                             animation_logic_system *als, state_machine *machine)
+    : nalAnimClass<nalAnyPose>::nalInstanceClass(meta->primary.animation, skeleton), logic(als), state(machine),
+      metadata(meta), result(skeleton), reference(skeleton), secondary_pose(skeleton), primary_pose(skeleton)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    primary = meta->primary.animation->VirtualCreateInstance(skeleton);
+    secondary = meta->secondary.animation->VirtualCreateInstance(skeleton);
+}
+meta_anim_type_486::nalInstance::~nalInstance()
+{
+    for (auto *child : {primary, secondary}) {
+        if (child) {
+            using destroy = void *(__fastcall *)(child_instance *, void *, unsigned int);
+            reinterpret_cast<destroy>(get_vfunc(child->m_vtbl, 0))(child, nullptr, 1);
+        }
+    }
+    for (auto *pose : {&primary_pose, &secondary_pose, &reference, &result})
+        const_cast<nalBaseSkeleton *>(pose->GetSkeleton())->VirtualDestroyPose(pose->field_0);
+}
+void *meta_anim_type_486::nalInstance::scalar_delete(unsigned int flags)
+{
+    this->~nalInstance();
+    if (flags & 1)
+        nalAnimClass<nalAnyPose>::nalInstanceClass::operator delete(this);
+    return this;
+}
+double meta_anim_type_486::nalInstance::compute_weight() const
+{
+    const auto up = logic->get_actor()->get_abs_po().get_y_facing();
+    const float z = state->get_param(logic, 60);
+    const float y = state->get_param(logic, 59);
+    const float x = state->get_param(logic, 58);
+    float weight = up.z * z + up.y * y + up.x * x;
+    if (weight < metadata->minimum)
+        weight = metadata->minimum;
+    else if (weight > metadata->maximum)
+        weight = metadata->maximum;
+    return (weight - metadata->minimum) / metadata->span;
+}
+void meta_anim_type_486::nalInstance::sample_pose(Float t, Float previous, nalBasePose &pose,
+                                                  const nalBasePose &default_pose)
+{
+    {
+        linear_blend_pose copy(default_pose, true);
+        const_cast<nalBaseSkeleton *>(reference.GetSkeleton())->VirtualCopyPose(*reference.field_0, *copy.field_0);
+    }
+    using weight_callback = void(__fastcall *)(const nalInstance *, void *, float *);
+    float blend_weight;
+    reinterpret_cast<weight_callback>(get_vfunc(m_vtbl, 12))(this, nullptr, &blend_weight);
+    const Float weight(blend_weight);
+    using blend_callback = void(__fastcall *)(nalInstance *,
+                                              void *,
+                                              Float,
+                                              Float,
+                                              nalAnyPose &,
+                                              const nalAnyPose &,
+                                              Float,
+                                              child_instance *,
+                                              child_instance *);
+    reinterpret_cast<blend_callback>(get_vfunc(m_vtbl, 8))(
+        this, nullptr, t, previous, result, reference, weight, secondary, primary);
+    field_C->VirtualCopyPose(pose, *result.field_0);
+}
+void meta_anim_type_486::nalInstance::blend_poses(Float t, Float previous, nalAnyPose &pose,
+                                                  const nalAnyPose &default_pose, Float weight, child_instance *lower,
+                                                  child_instance *upper)
+{
+    lower->VirtualGetPose(t, previous, *secondary_pose.field_0, *default_pose.field_0);
+    upper->VirtualGetPose(t, previous, *primary_pose.field_0, *default_pose.field_0);
+    sub_826140(pose, weight, secondary_pose, primary_pose);
+}
+void *meta_anim_type_486::nalInstance::native_vtable()
+{
+    static void *table[] = {reinterpret_cast<void *>(&instance486_delete),
+                            reinterpret_cast<void *>(&instance486_sample),
+                            reinterpret_cast<void *>(&instance486_blend),
+                            reinterpret_cast<void *>(&instance486_weight)};
+    return table;
+}
+
+VALIDATE_SIZE(meta_anim_type_485, 0x60);
+VALIDATE_SIZE(meta_anim_type_485::nalInstance, 0x48);
+namespace {
+using blend485 = meta_anim_type_485;
+using instance485 = blend485::nalInstance;
+void __fastcall blend485_destruct(blend485 *self, void *)
+{
+    self->_destruct_mashed_class();
+}
+void *__fastcall blend485_delete(blend485 *self, void *, unsigned int flags)
+{
+    return self->scalar_delete(flags);
+}
+bool __fastcall blend485_subclass(const blend485 *self, void *, mash::virtual_types_enum type)
+{
+    return self->_is_subclass_of(type);
+}
+void *__fastcall instance485_delete(instance485 *self, void *, unsigned int flags)
+{
+    return self->scalar_delete(flags);
+}
+void __fastcall instance485_sample(instance485 *self, void *, Float t, Float previous, nalBasePose &pose,
+                                   const nalBasePose &reference)
+{
+    self->sample_pose(t, previous, pose, reference);
+}
+void __fastcall instance485_blend(instance485 *self, void *, Float t, Float previous, nalAnyPose &pose,
+                                  const nalAnyPose &reference, Float weight, child_instance *lower,
+                                  child_instance *upper)
+{
+    self->blend_poses(t, previous, pose, reference, weight, lower, upper);
+}
+void __fastcall instance485_weights(const instance485 *self, void *, float *vertical, float *horizontal)
+{
+    self->compute_weights(vertical, horizontal);
+}
+}
+meta_anim_type_485::meta_anim_type_485()
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+}
+meta_anim_type_485::meta_anim_type_485(from_mash_in_place_constructor *tag)
+    : als_meta_anim_base(tag), keys{key_anim(tag), key_anim(tag), key_anim(tag), key_anim(tag)}
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    for (auto &key : keys)
+        key.lookup();
+}
+void meta_anim_type_485::_destruct_mashed_class()
+{
+    for (auto &key : keys)
+        key.hash.destruct_mashed_class();
+}
+void meta_anim_type_485::_unmash(mash_info_struct *info, void *context)
+{
+    als_meta_anim_base::_unmash(info, context);
+    for (auto &key : keys)
+        info->unmash_class_in_place(key.hash, &key);
+}
+void *meta_anim_type_485::scalar_delete(unsigned int flags)
+{
+    this->~meta_anim_type_485();
+    if (flags & 1)
+        mash_virtual_base::operator delete(this, sizeof(*this));
+    return this;
+}
+bool meta_anim_type_485::_is_subclass_of(mash::virtual_types_enum type) const
+{
+    return type == 566 || type == 573;
+}
+int meta_anim_type_485::_get_virtual_type_enum() const
+{
+    return 485;
+}
+bool meta_anim_type_485::_is_anim_looping() const
+{
+    return (keys[1].animation->field_34 & 1) != 0;
+}
+bool meta_anim_type_485::_is_anim_trajectory_relative() const
+{
+    return (keys[1].animation->field_34 & 2) == 0;
+}
+float meta_anim_type_485::_get_anim_duration() const
+{
+    return keys[1].animation->field_38;
+}
+nalBaseSkeleton *meta_anim_type_485::_get_skeleton()
+{
+    return keys[1].animation->Skeleton;
+}
+meta_anim_type_485::nalInstance *meta_anim_type_485::_create_anim_inst(nalBaseSkeleton *skeleton,
+                                                                       nalAnimClass<nalAnyPose> *,
+                                                                       animation_logic_system *logic,
+                                                                       state_machine *state)
+{
+    return new nalInstance(this, skeleton, logic, state);
+}
+int meta_anim_type_485::_get_mash_sizeof() const
+{
+    return sizeof(*this);
+}
+void *meta_anim_type_485::native_vtable()
+{
+    static void *table[] = {reinterpret_cast<void *>(&blend485_destruct),
+                            func_address(&meta_anim_type_485::_unmash),
+                            reinterpret_cast<void *>(&blend485_delete),
+                            func_address(&meta_anim_type_485::_get_virtual_type_enum),
+                            reinterpret_cast<void *>(&blend485_subclass),
+                            func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                            func_address(&als_meta_anim_base::_get_anim_name),
+                            func_address(&meta_anim_type_485::_is_anim_looping),
+                            func_address(&meta_anim_type_485::_is_anim_trajectory_relative),
+                            func_address(&meta_anim_type_485::_get_anim_duration),
+                            func_address(&meta_anim_type_485::_get_skeleton),
+                            func_address(&meta_anim_type_485::_create_anim_inst),
+                            reinterpret_cast<void *>(&linear_has_no_extra_mash_data),
+                            reinterpret_cast<void *>(&linear_release_extra_mash_data),
+                            func_address(&meta_anim_type_485::_get_mash_sizeof)};
+    return table;
+}
+meta_anim_type_485::nalInstance::nalInstance(meta_anim_type_485 *meta, nalBaseSkeleton *skeleton,
+                                             animation_logic_system *als, state_machine *machine)
+    : nalAnimClass<nalAnyPose>::nalInstanceClass(meta->keys[1].animation, skeleton), logic(als), state(machine),
+      metadata(meta), poses{nalAnyPose(skeleton),
+                            nalAnyPose(skeleton),
+                            nalAnyPose(skeleton),
+                            nalAnyPose(skeleton),
+                            nalAnyPose(skeleton),
+                            nalAnyPose(skeleton)}
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    for (int i = 0; i < 4; ++i)
+        children[i] = meta->keys[i].animation->VirtualCreateInstance(skeleton);
+}
+meta_anim_type_485::nalInstance::~nalInstance()
+{
+    for (auto *child : children) {
+        if (child) {
+            using destroy = void *(__fastcall *)(child_instance *, void *, unsigned int);
+            reinterpret_cast<destroy>(get_vfunc(child->m_vtbl, 0))(child, nullptr, 1);
+        }
+    }
+    for (int i = 5; i >= 0; --i)
+        const_cast<nalBaseSkeleton *>(poses[i].GetSkeleton())->VirtualDestroyPose(poses[i].field_0);
+}
+void *meta_anim_type_485::nalInstance::scalar_delete(unsigned int flags)
+{
+    this->~nalInstance();
+    if (flags & 1)
+        nalAnimClass<nalAnyPose>::nalInstanceClass::operator delete(this);
+    return this;
+}
+void meta_anim_type_485::nalInstance::compute_weights(float *vertical, float *horizontal) const
+{
+    const auto up = logic->get_actor()->get_abs_po().get_y_facing();
+    const auto right = logic->get_actor()->get_abs_po().get_x_facing();
+    const float z = state->get_param(logic, 60);
+    const float y = state->get_param(logic, 59);
+    const float x = state->get_param(logic, 58);
+    *horizontal = up.z * z + up.y * y + up.x * x;
+    *vertical = right.z * z + right.y * y + right.x * x;
+    if (*horizontal < metadata->minimum_up)
+        *horizontal = metadata->minimum_up;
+    else if (*horizontal > metadata->maximum_up)
+        *horizontal = metadata->maximum_up;
+    if (*vertical < metadata->minimum_right)
+        *vertical = metadata->minimum_right;
+    else if (*vertical > metadata->maximum_right)
+        *vertical = metadata->maximum_right;
+    *horizontal = (*horizontal - metadata->minimum_up) / metadata->span_up;
+    *vertical = (*vertical - metadata->minimum_right) / metadata->span_right;
+}
+void meta_anim_type_485::nalInstance::sample_pose(Float t, Float previous, nalBasePose &pose,
+                                                  const nalBasePose &default_pose)
+{
+    {
+        linear_blend_pose copy(default_pose, true);
+        const_cast<nalBaseSkeleton *>(poses[3].GetSkeleton())->VirtualCopyPose(*poses[3].field_0, *copy.field_0);
+    }
+    using weights_callback = void(__fastcall *)(const nalInstance *, void *, float *, float *);
+    float vertical, horizontal;
+    reinterpret_cast<weights_callback>(get_vfunc(m_vtbl, 12))(this, nullptr, &vertical, &horizontal);
+    using blend_callback = void(__fastcall *)(nalInstance *,
+                                              void *,
+                                              Float,
+                                              Float,
+                                              nalAnyPose &,
+                                              const nalAnyPose &,
+                                              Float,
+                                              child_instance *,
+                                              child_instance *);
+    auto blend = reinterpret_cast<blend_callback>(get_vfunc(m_vtbl, 8));
+    blend(this, nullptr, t, previous, poses[0], poses[3], Float(vertical), children[0], children[1]);
+    blend(this, nullptr, t, previous, poses[1], poses[3], Float(vertical), children[2], children[3]);
+    sub_826140(poses[2], Float(horizontal), poses[1], poses[0]);
+    field_C->VirtualCopyPose(pose, *poses[2].field_0);
+}
+void meta_anim_type_485::nalInstance::blend_poses(Float t, Float previous, nalAnyPose &pose,
+                                                  const nalAnyPose &default_pose, Float weight, child_instance *lower,
+                                                  child_instance *upper)
+{
+    lower->VirtualGetPose(t, previous, *poses[4].field_0, *default_pose.field_0);
+    upper->VirtualGetPose(t, previous, *poses[5].field_0, *default_pose.field_0);
+    sub_826140(pose, weight, poses[4], poses[5]);
+}
+void *meta_anim_type_485::nalInstance::native_vtable()
+{
+    static void *table[] = {reinterpret_cast<void *>(&instance485_delete),
+                            reinterpret_cast<void *>(&instance485_sample),
+                            reinterpret_cast<void *>(&instance485_blend),
+                            reinterpret_cast<void *>(&instance485_weights)};
+    return table;
 }
 
 }  // namespace als

@@ -20,6 +20,9 @@
 #include "game.h"
 #include "igozoomoutmap.h"
 #include "memory.h"
+#include "mission_manager.h"
+#include "ngl.h"
+#include "panelquad.h"
 #include "input_mgr.h"
 #include "medal_award_ui.h"
 #include "panelfile.h"
@@ -103,7 +106,81 @@ void IGOFrontEnd::UpdateInScene()
 
 void IGOFrontEnd::Draw()
 {
-    THISCALL(0x006358F0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        nglListBeginScene(static_cast<nglSceneParamType>(1));
+        if (!g_game_ptr->zoomInactive) {
+            if (m_threat_assessment_meters != nullptr)
+                m_threat_assessment_meters->draw();
+            if (m_thug_health != nullptr)
+                m_thug_health->draw();
+            if (m_targeting_reticle != nullptr)
+                m_targeting_reticle->draw();
+            if (m_tutorial_controller_gauge != nullptr && m_tutorial_controller_gauge->field_0 != nullptr)
+                m_tutorial_controller_gauge->field_0->Draw();
+            if (m_medal_award_ui != nullptr)
+                m_medal_award_ui->Draw();
+            if (m_race_announcer != nullptr && m_race_announcer->field_0 != nullptr && m_race_announcer->field_19)
+                m_race_announcer->field_0->Draw();
+            if (m_fe_crosshair != nullptr && m_fe_crosshair->field_C && m_fe_crosshair->field_10 != nullptr) {
+                m_fe_crosshair->field_14->TurnOn(true);
+                m_fe_crosshair->field_10->Draw();
+            }
+            if (m_fe_hotpursuit_indicator != nullptr)
+                m_fe_hotpursuit_indicator->Draw();
+            if (m_fe_score_widget != nullptr && m_fe_score_widget->field_4 && m_fe_score_widget->field_14 != nullptr)
+                m_fe_score_widget->field_14->Draw();
+            if (m_fe_game_credits != nullptr)
+                m_fe_game_credits->Draw();
+            if (m_fe_timer_widget != nullptr)
+                m_fe_timer_widget->Draw();
+            if (m_boss_health != nullptr)
+                m_boss_health->DrawAllPanels();
+            if (m_hero_health != nullptr)
+                m_hero_health->DrawAllPanels();
+            if (m_third_party_health != nullptr)
+                m_third_party_health->DrawAllPanels();
+            if (m_fe_track_and_field != nullptr)
+                m_fe_track_and_field->Draw();
+            if (m_fe_distance_chase != nullptr && static_cast<unsigned>(m_fe_distance_chase->field_24) <= 6) {
+                auto *panel = m_fe_distance_chase->panels[m_fe_distance_chase->field_24];
+                if (panel != nullptr && (m_fe_distance_chase->field_6C || panel->field_28.at(0)->field_2D))
+                    panel->Draw();
+            }
+            if (m_fe_distance_race != nullptr)
+                m_fe_distance_race->Draw();
+            if (m_combo_words != nullptr && m_combo_words->field_0 != nullptr)
+                m_combo_words->field_0->Draw();
+        }
+        nglListEndScene();
+        nglListBeginScene(static_cast<nglSceneParamType>(1));
+        if (!g_game_ptr->zoomInactive && m_fe_mini_map_widget != nullptr)
+            m_fe_mini_map_widget->Draw();
+        nglListEndScene();
+        nglListBeginScene(static_cast<nglSceneParamType>(1));
+        if (!g_game_ptr->zoomInactive && m_fe_mission_text != nullptr)
+            m_fe_mission_text->draw_v10();
+        nglListEndScene();
+        nglListBeginScene(static_cast<nglSceneParamType>(0));
+        if (var<bool>(0x0095C878))
+            nglSetClearFlags(0);
+        if (!EnableShader) {
+            matrix4x4 view{};
+            view[0].x = 0.003125f;
+            view[1].y = 0.004166666f;
+            view[2].z = -1.0f;
+            view[3] = {-1.0f, -1.0f, 0.0f, 1.0f};
+            nglSetWorldToViewMatrix({view});
+            nglSetAspectRatio(1.0f);
+            nglSetOrthoMatrix(1000.0f, 10000.0f);
+            nglCalculateMatrices(false);
+        }
+        mission_manager::s_inst->render_fade();
+        nglListEndScene();
+        if (m_igo_zoom_out_map != nullptr)
+            m_igo_zoom_out_map->Draw();
+    } else {
+        THISCALL(0x006358F0, this);
+    }
 }
 
 void IGOFrontEnd::Init()
@@ -142,6 +219,8 @@ void IGOFrontEnd::Update(Float a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
         CheckPauseUnpause();
+        if (m_entity_tracker_manager != nullptr)
+            m_entity_tracker_manager->frame_advance(a2);
 
         if (m_fe_timer_widget != nullptr)
             m_fe_timer_widget->Update(a2);

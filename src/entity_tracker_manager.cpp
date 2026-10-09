@@ -99,6 +99,28 @@ void entity_tracker_manager::set_entity(uint32_t id, entity *owner)
     }
 }
 
+void entity_tracker_manager::frame_advance(Float)
+{
+    for (auto it = field_0.begin(); it != field_0.end();) {
+        const auto id = (it++)->second;
+        auto *tracker = id_to_ptr(id);
+        if (tracker != nullptr && tracker->get_entity() == nullptr)
+            destroy_entity_tracker(id);
+    }
+    for (const auto &entry : field_0) {
+        auto *tracker = id_to_ptr(entry.second);
+        if (tracker == nullptr)
+            continue;
+        if (auto *owner = tracker->get_entity()) {
+            auto *dot = tracker->field_4;
+            dot->field_14 = owner->get_abs_position();
+            if (static_cast<int>(dot->field_20) != 0)
+                dot->field_26 = ((owner->field_8 & 0x2000u) != 0 || owner->get_primary_region() == nullptr) &&
+                                (owner->field_4 & 8u) == 0;
+        }
+    }
+}
+
 bool entity_tracker_manager::get_the_arrow_target_pos(vector3d *a2)
 {
     for (const auto &entry : field_0) {

@@ -173,14 +173,12 @@ void release_script_sounds(script_executable *, _std::list<uint32_t> &allocation
 
 _std::list<_std::vector<vector3d> *> script_vector3d_lists;
 
-
 _std::vector<vector3d> *create_script_vector3d_list()
 {
     auto *result = new _std::vector<vector3d>{};
     script_vector3d_lists.push_back(result);
     return result;
 }
-
 
 void release_script_vector3d_lists(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
 {
@@ -248,7 +246,6 @@ void release_allocated_entities(script_executable *, _std::list<uint32_t> &alloc
     }
 }
 #if STANDALONE_SYSTEM
-
 void vm_civilian_info_garbage_collection_callback(script_executable *, _std::list<uint32_t> &allocations,
                                                   _std::list<mString> &)
 {
@@ -257,7 +254,6 @@ void vm_civilian_info_garbage_collection_callback(script_executable *, _std::lis
     }
 }
 #endif
-
 
 void construct_civilian_info_lib()
 {
@@ -8208,8 +8204,16 @@ struct slf__spiderman_is_jumping__t : script_library_class::function {
     {
         TRACE("slf__spiderman_is_jumping__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006792F0);
-        return func(this, nullptr, &stack, entry);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        auto *controller = hero ? hero->get_player_controller() : nullptr;
+        bool result = false;
+        if (controller) {
+            auto predicate = reinterpret_cast<bool(__fastcall *)(ai_player_controller *, void *)>(
+                get_vfunc(controller->m_vtbl, 0x38));
+            result = predicate(controller, nullptr);
+        }
+        stack.push(static_cast<float>(result));
+        return true;
     }
 };
 
@@ -8300,8 +8304,16 @@ struct slf__spiderman_is_running__t : script_library_class::function {
     {
         TRACE("slf__spiderman_is_running__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006792A0);
-        return func(this, nullptr, &stack, entry);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        auto *controller = hero ? hero->get_player_controller() : nullptr;
+        bool result = false;
+        if (controller) {
+            auto predicate = reinterpret_cast<bool(__fastcall *)(ai_player_controller *, void *)>(
+                get_vfunc(controller->m_vtbl, 0x20));
+            result = predicate(controller, nullptr);
+        }
+        stack.push(static_cast<float>(result));
+        return true;
     }
 };
 
@@ -8357,8 +8369,16 @@ struct slf__spiderman_is_swinging__t : script_library_class::function {
     {
         TRACE("slf__spiderman_is_swinging__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00679250);
-        return func(this, nullptr, &stack, entry);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        auto *controller = hero ? hero->get_player_controller() : nullptr;
+        bool result = false;
+        if (controller) {
+            auto predicate = reinterpret_cast<bool(__fastcall *)(ai_player_controller *, void *)>(
+                get_vfunc(controller->m_vtbl, 0x44));
+            result = predicate(controller, nullptr);
+        }
+        stack.push(static_cast<float>(result));
+        return true;
     }
 };
 
@@ -11780,8 +11800,21 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_blend_mode__num, 0x0089C188)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float mode;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr()) {
+        const auto mode = static_cast<nglBlendModeType>(static_cast<unsigned>(parms->mode));
+        if (tube->field_D0)
+            tube->field_D0->m_blend_mode = mode;
+        if (tube->field_D4)
+            tube->field_D4->m_blend_mode = mode;
+        if (tube->field_D8)
+            tube->field_D8->m_blend_mode = mode;
+    }
     return true;
 }
 DECLARE_SLF_END()
@@ -11905,8 +11938,14 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_tiles_per_meter__num, 0x0089C1D0)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float tiles;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr())
+        tube->tiles_per_meter = parms->tiles;
     return true;
 }
 DECLARE_SLF_END()

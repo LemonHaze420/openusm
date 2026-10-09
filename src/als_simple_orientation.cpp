@@ -167,7 +167,6 @@ void simple_orientation::post_anim_action(Float elapsed)
         const float heading_change_max = reinterpret_cast<scalar_fn>(get_vfunc(m_vtbl, 0x58))(this, nullptr);
         using facing_fn = void(__fastcall *)(
             simple_orientation *, void *, actor *, vector3d, vector3d, vector3d, Float, Float, Float);
-
         reinterpret_cast<facing_fn>(get_vfunc(m_vtbl, 0x38))(this,
                                                              nullptr,
                                                              the_actor,
@@ -311,11 +310,26 @@ void __fastcall base_orientation_directions(simple_orientation *self, void *, an
 {
     self->get_directions(system, machine, facing, up);
 }
-
 void __fastcall base_orientation_changes(simple_orientation *, void *, Float) {}
 double __fastcall base_orientation_heading(simple_orientation *, void *)
 {
     return 0.99000001f;
+}
+int __fastcall relative_orientation_type(relative_orientation *, void *)
+{
+    return 518;
+}
+bool __fastcall relative_orientation_parent(relative_orientation *, void *, int type)
+{
+    return type == 522 || type == 490 || type == 573;
+}
+void __fastcall relative_orientation_directions(relative_orientation *self, void *, animation_logic_system *system,
+                                                state_machine *machine, vector3d &facing, vector3d &up)
+{
+    facing = machine->find_external_param(static_cast<external_parameter_types>(27))
+                 ? machine->get_vector_param(system, 27)
+                 : self->the_actor->get_abs_po().get_z_facing();
+    up = self->the_actor->get_abs_po().get_y_facing();
 }
 }  // namespace
 
@@ -331,6 +345,20 @@ void *simple_orientation::native_vtable()
         result[0x50 / 4] = reinterpret_cast<void *>(base_orientation_directions);
         result[0x54 / 4] = reinterpret_cast<void *>(base_orientation_changes);
         result[0x58 / 4] = reinterpret_cast<void *>(base_orientation_heading);
+        return result;
+    }();
+    return table.data();
+}
+
+void *relative_orientation::native_vtable()
+{
+    static_assert(sizeof(relative_orientation) == 0x14);
+    static auto table = [] {
+        std::array<void *, 23> result;
+        std::copy_n(static_cast<void **>(simple_orientation::native_vtable()), result.size(), result.begin());
+        result[0xC / 4] = reinterpret_cast<void *>(relative_orientation_type);
+        result[0x10 / 4] = reinterpret_cast<void *>(relative_orientation_parent);
+        result[0x50 / 4] = reinterpret_cast<void *>(relative_orientation_directions);
         return result;
     }();
     return table.data();

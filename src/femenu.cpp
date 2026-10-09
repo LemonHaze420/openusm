@@ -386,7 +386,7 @@ void FEMenu::OnUp(int a2)
             static_cast<main_menu_options *>(this)->OnUp(a2);
             return;
         }
-        if (m_vtbl == 0x00894648)
+        if (m_vtbl == 0x00894648 || m_vtbl == 0x00894598)
             return;
     }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x3C));
@@ -412,7 +412,7 @@ void FEMenu::OnDown(int a2)
             static_cast<main_menu_options *>(this)->OnDown(a2);
             return;
         }
-        if (m_vtbl == 0x00894648)
+        if (m_vtbl == 0x00894648 || m_vtbl == 0x00894598)
             return;
     }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x40));

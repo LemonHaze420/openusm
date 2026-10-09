@@ -460,7 +460,7 @@ void *create_mash_class_in_place(uint32_t type, mash_virtual_base *storage, int 
     assert(storage != nullptr);
     assert(storage_size >= static_cast<int>(sizeof(T)));
     if constexpr ((std::is_base_of_v<ai::info_node, T> || std::is_base_of_v<ai::base_state, T> ||
-                   std::is_base_of_v<als::als_meta_anim_base, T>) &&
+                   std::is_base_of_v<als::als_meta_anim_base, T> || std::is_same_v<PanelQuad, T>) &&
                   !std::is_aggregate_v<T> && std::is_constructible_v<T, from_mash_in_place_constructor *>) {
         storage = reinterpret_cast<mash_virtual_base *>(::new (static_cast<void *>(storage))
                                                             T{static_cast<from_mash_in_place_constructor *>(nullptr)});
@@ -722,6 +722,10 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<als::layer_state_machine_shared>(type, storage, storage_size);
     case 484:
         return create_mash_class<als::state_machine_shared>(type, storage, storage_size);
+    case 485:
+        return create_mash_class<als::meta_anim_type_485>(type, storage, storage_size);
+    case 486:
+        return create_mash_class<als::meta_anim_type_486>(type, storage, storage_size);
     case 488:
         return create_mash_class<als::als_meta_anim_swing>(type, storage, storage_size);
     case 489:
@@ -732,6 +736,8 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<als::begin_biped_physics>(type, storage, storage_size);
     case 496:
         return create_mash_class<als::combat_move_and_face>(type, storage, storage_size);
+    case 502:
+        return create_mash_class<als::crawl_orient>(type, storage, storage_size);
     case 503:
         return create_mash_class<als::crawl_transition>(type, storage, storage_size);
     case 508:
@@ -744,6 +750,8 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<als::null_mocomp>(type, storage, storage_size);
     case 516:
         return create_mash_class<als::reverse_anim_movement>(type, storage, storage_size);
+    case 518:
+        return create_mash_class<als::relative_orientation>(type, storage, storage_size);
     case 519:
         return create_mash_class<als::set_orient_mocomp>(type, storage, storage_size);
     case 522:
@@ -1189,11 +1197,14 @@ void mash_virtual_base::generate_vtable()
         vtable()[456] = ai::voice_box_inode::native_vtable();
         vtable()[483] = native_mash_vtable<als::layer_state_machine_shared>();
         vtable()[484] = native_mash_vtable<als::state_machine_shared>();
+        vtable()[485] = als::meta_anim_type_485::native_vtable();
+        vtable()[486] = als::meta_anim_type_486::native_vtable();
         vtable()[488] = als::als_meta_anim_swing::native_vtable();
         vtable()[489] = als::als_meta_linear_blend::native_vtable();
         vtable()[490] = als::motion_compensator::native_vtable(490);
         vtable()[493] = native_mash_vtable<als::begin_biped_physics>();
         vtable()[496] = als::combat_move_and_face::native_vtable();
+        vtable()[502] = als::crawl_orient::native_vtable();
         vtable()[503] = als::crawl_transition::native_vtable();
         vtable()[508] = als::flight_mocomp::native_vtable();
         vtable()[511] = als::move_and_face::native_vtable();
@@ -1201,6 +1212,7 @@ void mash_virtual_base::generate_vtable()
         vtable()[514] = als::motion_compensator::native_vtable(514);
         vtable()[516] = als::motion_compensator::native_vtable(516);
         vtable()[519] = als::set_orient_mocomp::native_vtable();
+        vtable()[518] = als::relative_orientation::native_vtable();
         vtable()[522] = als::simple_orientation::native_vtable();
         vtable()[523] = als::simple_orientation_ped::native_vtable();
         vtable()[525] = als::use_anim_only::native_vtable();

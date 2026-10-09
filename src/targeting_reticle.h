@@ -15,4 +15,5 @@ struct targeting_reticle {
     targeting_reticle();
 
     void init();
+    void draw();
 };

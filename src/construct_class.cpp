@@ -54,10 +54,7 @@ void mash_info_struct::construct_class(PanelFile *&a1)
             if (quad == nullptr)
                 continue;
 
-            quad->field_4 = 1.0f;
-            quad->field_10 = 4;
-            quad->field_34 = 0.0f;
-            quad->field_38 = 1.0f;
+            a1->pquads.m_data[i] = static_cast<PanelQuad *>(mash_virtual_base::construct_class_helper(quad));
         }
 
         for (auto i = 0; i < a1->ptext.m_size; ++i) {

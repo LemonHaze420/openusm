@@ -1,6 +1,8 @@
 #include "variant_interface.h"
 
 #include "common.h"
+#include "base_ai_core.h"
+#include "ai_voice_box_inode.h"
 #include "conglom.h"
 #include "entity_mash.h"
 #include "func_wrapper.h"
@@ -12,6 +14,8 @@
 #include "tl_system.h"
 #include "trace.h"
 #include "utility.h"
+#include <cstdlib>
+#include <new>
 
 VALIDATE_SIZE(variant_interface, 0x58);
 VALIDATE_SIZE(variant_info, 0x10);
@@ -39,7 +43,6 @@ void unmash_variant_vector(mashable_vector<T> &vector, generic_mash_data_ptrs *d
 {
     if (vector.is_shared()) {
         data->rebase_shared(4);
-
         const auto normal_bytes = *data->get_from_shared<uint32_t>();
         const auto shared_bytes = *data->get_from_shared<uint32_t>();
         auto *references = data->get_from_shared<uint32_t>();
@@ -107,7 +110,18 @@ void variant_interface::_un_mash(generic_mash_header *, void *owner, void *, gen
 
 variant_info *variant_interface::get_random_variant()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        int total = 0;
+        for (const auto &info : variants)
+            total += info.field_6;
+        const int choice = total > 1 ? static_cast<int>(std::rand() * (total - 1) * (1.0 / 32768.0)) : 0;
+        int first = 0;
+        for (auto &info : variants) {
+            if (choice >= first && choice < first + info.field_6)
+                return &info;
+            first += info.field_6;
+        }
+        return variants.m_data;
     } else {
         return (variant_info *)THISCALL(0x004CAD00, this);
     }
@@ -117,7 +131,13 @@ void variant_interface::apply_variant(string_hash a2)
 {
     TRACE("variant_interface::apply_variant");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        for (auto &info : variants) {
+            if (info.hash == a2) {
+                apply_variant(&info);
+                return;
+            }
+        }
     } else {
         THISCALL(0x004E0920, this, a2);
     }
@@ -127,10 +147,107 @@ void variant_interface::apply_variant(variant_info *info)
 {
     TRACE("variant_interface::apply_variant");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (my_conglomerate->field_90.field_5 > 1)
+            return;
+        release_ifc();
+        nglMesh *parts[32];
+        auto *selected = reinterpret_cast<uint8_t *>(&field_38);
+        int count = 0;
+        for (int first = 0; first < info->field_4;) {
+            int end = first + 1;
+            while (end < info->field_4 && (info->parts[end] & 0x80) == 0)
+                ++end;
+            const int choices = end - first;
+            const int choice = choices > 0 ? static_cast<int>(std::rand() * choices * (1.0 / 32768.0)) : 0;
+            const auto index = info->parts[first + choice] & 0x7F;
+            auto *mesh = field_28->FirstMesh;
+            for (int i = 0; i < index; ++i)
+                mesh = mesh->NextMesh;
+            selected[count] = index;
+            parts[count++] = mesh;
+            first = end;
+        }
+        selected[count] = 0xFF;
+        const char random_frame = static_cast<char>(std::rand() * (127.0 / 32768.0));
+        current_variant = info;
+        current_mesh = create_mesh_concatenation_and_ifl_frames(parts, count, info, random_frame, 0, nullptr);
+        my_conglomerate->field_90.set_mesh(current_mesh);
+        auto *core = my_conglomerate->get_ai_core();
+        if (core == nullptr)
+            return;
+        auto *voice = static_cast<ai::voice_box_inode *>(core->get_info_node(ai::voice_box_inode::default_id, false));
+        if (voice == nullptr)
+            return;
+        static const string_hash speaker_id{"speaker_id"};
+        for (int part = 0; part < info->field_4; ++part) {
+            const auto mesh_index = info->parts[part] & 0x7F;
+            int maximum_frame = -1;
+            for (const auto &set : field_14) {
+                if (set.field_0 == mesh_index)
+                    maximum_frame = std::max(maximum_frame, int(static_cast<int16_t>(set.field_4 >> 16)));
+            }
+            int frame = info->ifl_frames[part];
+            if (frame == -1 && maximum_frame != -1)
+                frame = static_cast<unsigned char>(random_frame) % (maximum_frame + 1);
+            for (const auto &set : field_14) {
+                const int first_frame = static_cast<int16_t>(set.field_4);
+                const int last_frame = static_cast<int16_t>(set.field_4 >> 16);
+                if (set.field_0 == mesh_index && ((first_frame == -1 && last_frame == -1) ||
+                                                  (frame >= 0 && first_frame <= frame && last_frame >= frame))) {
+                    const int index =
+                        set.id_count > 0 ? static_cast<int>(std::rand() * set.id_count * (1.0 / 32768.0)) : 0;
+                    voice->my_param_block.set_pb_hash(speaker_id, string_hash{static_cast<int>(set.ids[index])}, true);
+                    return;
+                }
+            }
+        }
     } else {
         THISCALL(0x004DB110, this, info);
     }
+}
+
+nglMesh *variant_interface::create_mesh_concatenation_and_ifl_frames(nglMesh **parts, int count, variant_info *info,
+                                                                     char random_frame, int lod, nglMesh *source)
+{
+    if (source == nullptr)
+        source = parts[0]->File->FirstMesh;
+    auto *result = new (tlMemAlloc(sizeof(nglMesh), 16, 0)) nglMesh{};
+    result->Name = source->Name;
+    result->Flags = (source->Flags & 0xFF000000u) | 0x90000u;
+    for (int part = 0; part < count; ++part) {
+        result->NSections += parts[part]->NSections;
+        result->DataSize += parts[part]->DataSize;
+    }
+    field_2C[lod] = static_cast<char *>(mem_alloc(result->NSections));
+    result->Sections =
+        static_cast<decltype(result->Sections)>(tlMemAlloc(sizeof(*result->Sections) * result->NSections, 8, 0));
+    int output = 0;
+    for (int part = 0; part < count; ++part) {
+        for (unsigned section = 0; section < parts[part]->NSections; ++section) {
+            result->Sections[output].field_0 = 0;
+            result->Sections[output].Section = parts[part]->Sections[section].Section;
+            field_2C[lod][output++] = info->ifl_frames[part] == -1 ? random_frame : info->ifl_frames[part];
+        }
+    }
+    result->SphereCenter = source->SphereCenter;
+    result->SphereRadius = source->SphereRadius;
+    result->NBones = source->NBones;
+    result->Bones = source->Bones;
+    result->File = source->File;
+    if (source->NLODs != 0) {
+        result->LODs = static_cast<nglMesh::Lod *>(tlMemAlloc(sizeof(*result->LODs) * source->NLODs, 8, 0));
+        for (int level = 0; level < source->NLODs; ++level) {
+            nglMesh *lod_parts[32];
+            for (int part = 0; part < count; ++part)
+                lod_parts[part] = parts[part]->LODs[level].field_0;
+            result->LODs[level].field_4 = source->LODs[level].field_4;
+            result->LODs[level].field_0 =
+                create_mesh_concatenation_and_ifl_frames(lod_parts, count, info, random_frame, level + 1, result);
+        }
+    }
+    result->NLODs = source->NLODs;
+    return result;
 }
 
 void variant_interface::release_ifc()

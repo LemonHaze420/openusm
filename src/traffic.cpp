@@ -83,7 +83,6 @@ _std::vector<traffic *> *&traffic::ai_occupied_cars = var<_std::vector<traffic *
 static float &stru_937FA4 = var<float>(0x00937FA4);
 
 #if STANDALONE_SYSTEM
-
 static const bool native_traffic_defaults = [] {
     traffic::traffic_enabled = true;
     traffic::traffic_density = 1.0f;
@@ -343,6 +342,66 @@ void traffic::set_hit_points(int hit_points)
         health[0] = std::max(health[1], std::min(static_cast<float>(hit_points), health[2]));
     } else {
         field_204 = hit_points;
+    }
+}
+
+void traffic::set_value(int index, float value)
+{
+    const bool enabled = value > 0.0001f;
+    switch (index) {
+    case 0:
+        set_hit_points(static_cast<int>(value));
+        break;
+    case 1:
+        field_1B8 = value;
+        break;
+    case 2:
+        if (enabled) {
+            if (field_15C != 13) {
+                if (field_15C != 12)
+                    field_160 = field_15C;
+                field_15C = 13;
+            }
+        } else if (field_15C == 13 || field_15C == 12) {
+            field_15C = field_160;
+        }
+        break;
+    case 3:
+        if (enabled)
+            screeching_halt();
+        else if (field_15C == 13 || field_15C == 12)
+            field_15C = field_160;
+        break;
+    case 4:
+        set_driver_type(static_cast<int>(value));
+        break;
+    case 5:
+        field_200 = enabled;
+        break;
+    case 6:
+        field_C.field_31 = enabled;
+        break;
+    case 7:
+        distract(value);
+        break;
+    case 8:
+        field_1C8 = static_cast<char>(static_cast<int>(value));
+        break;
+    case 9:
+        field_4 = enabled;
+        break;
+    case 10:
+    case 11:
+        if (field_C.field_5C == 0 && field_C.field_60 == 0)
+            field_C.update_part_visibility();
+        field_C.set_damage_level(static_cast<int>(value), index == 11 ? 1 : 0);
+        break;
+    case 12:
+        field_C.update_part_visibility();
+        field_C.sub_6BA920(static_cast<int>(value));
+        break;
+    default:
+        break;
     }
 }
 
@@ -1252,7 +1311,6 @@ void traffic::_critical_processing(Float a2)
     }
 }
 
-
 bool traffic::_is_viable_pos(const vector3d &position)
 {
     auto *region = g_world_ptr->get_the_terrain()->find_region(position, nullptr);
@@ -1509,7 +1567,6 @@ parking_marker *traffic::find_open_parking_marker()
     return visitor.closest;
 }
 
-
 void traffic::set_current_lane(traffic_path_lane *lane, int index, bool remove_previous)
 {
     if (field_140 == lane)
@@ -1533,7 +1590,6 @@ void traffic::set_current_lane(traffic_path_lane *lane, int index, bool remove_p
     }
 }
 
-
 void traffic::update_facing_lane()
 {
     if (field_190 == field_140 && field_18C == field_168)
@@ -1555,7 +1611,6 @@ void traffic::update_facing_lane()
     field_190 = field_140;
     field_18C = field_168;
 }
-
 
 actor *traffic::actor_ahead()
 {
@@ -1582,7 +1637,6 @@ bool traffic::is_destroyed_halt() const
     return is_halted() && field_208 - field_204 <= 0;
 }
 
-
 void traffic::check_obstacle_point(const vector3d &position, float radius, bool &stop, bool &slow, bool &clear,
                                    bool check_angle)
 {
@@ -1607,7 +1661,6 @@ void traffic::check_obstacle_point(const vector3d &position, float radius, bool 
         slow = true;
 }
 
-
 void traffic::check_obstacle(entity *other, bool &stop, bool &slow, bool &clear, bool check_angle)
 {
     if (!other)
@@ -1620,7 +1673,6 @@ void traffic::check_obstacle(entity *other, bool &stop, bool &slow, bool &clear,
     if (stop || slow)
         field_1C0 = other->get_my_vhandle().field_0;
 }
-
 
 bool traffic::point_in_front(const vector3d &position)
 {

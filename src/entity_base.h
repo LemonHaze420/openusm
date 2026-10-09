@@ -188,7 +188,6 @@ struct entity_base : entity_base_vtable {
 
     sound_and_pfx_interface *sound_and_pfx_ifc();
 
-
     sound_and_pfx_interface *create_sound_and_pfx_ifc();
 
     //0x004F9020
@@ -355,6 +354,8 @@ struct entity_base : entity_base_vtable {
     bool has_script_data_ifc();
 
     script_data_interface *script_data_ifc();
+
+    bool has_variant_ifc();
 
     variant_interface *variant_ifc();
 

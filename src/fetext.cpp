@@ -167,6 +167,7 @@ void FEText::Update(Float delta_time)
 
 void FEText::Animate(const matrix4x4 &transform, Float visibility)
 {
+    const bool multiline = m_vtbl == 0x0087AE58 || m_vtbl == bit_cast<std::intptr_t>(mash_virtual_base::vtable()[543]);
     const bool relative = (field_10 & 1) != 0;
     if (relative) {
         field_34[0] += transform[3].x;
@@ -176,13 +177,18 @@ void FEText::Animate(const matrix4x4 &transform, Float visibility)
     } else {
         field_34[0] = bit_cast<float>(field_2C) + transform[3].x;
         field_34[1] = bit_cast<float>(field_30) + transform[3].y;
-        field_3C = field_44[0] * transform[0].x;
-        field_40 = field_44[1] * transform[1].y;
+        field_3C = (multiline ? 1.0f : field_44[0]) * transform[0].x;
+        field_40 = (multiline ? 1.0f : field_44[1]) * transform[1].y;
     }
 
     const float alpha = std::clamp(relative ? float(visibility) * field_4 : float(visibility), 0.0f, 1.0f);
     field_4C.set_alpha(static_cast<uint8_t>(alpha * 255.0f));
     field_10 |= 1;
+    if (multiline) {
+        auto *text = static_cast<FEMultiLineText *>(this);
+        text->field_74 = text->field_70 * field_40;
+        text->AdjustForJustification();
+    }
 }
 
 void FEText::_SetText(global_text_enum a2)
