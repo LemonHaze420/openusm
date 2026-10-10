@@ -109,12 +109,6 @@ matrix4x4 transpose(const matrix4x4 &a)
 }
 
 
-constexpr DWORD sprite_vs[]{0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x1f,       0x8000000a, 0x900f0001,
-                            0x1f,       0x80000005, 0x900f0002, 0x9,        0xc0010000, 0x90e40000, 0xa0e40000,
-                            0x9,        0xc0020000, 0x90e40000, 0xa0e40001, 0x9,        0xc0040000, 0x90e40000,
-                            0xa0e40002, 0x9,        0xc0080000, 0x90e40000, 0xa0e40003, 0x1,        0xd00f0000,
-                            0x90e40001, 0x1,        0xe00f0000, 0x90e40002, 0xffff};
-
 constexpr DWORD mesh_vs[]{
     0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x1f,       0x80000003, 0x900f0001, 0x1f,       0x80000005,
     0x900f0002, 0x9,        0xc0010000, 0x90e40000, 0xa0e40000, 0x9,        0xc0020000, 0x90e40000, 0xa0e40001,
@@ -165,7 +159,8 @@ ShaderResources &shaders(bool mesh)
     if (EnableShader) {
         if (!vs.field_0) {
             IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, elements, &vs.field_4);
-            IDirect3DDevice9_CreateVertexShader(g_Direct3DDevice, mesh ? mesh_vs : sprite_vs, &vs.field_0);
+            IDirect3DDevice9_CreateVertexShader(
+                g_Direct3DDevice, mesh ? mesh_vs : CompileVShader("shaders/sprite_vs.hlsl").data(), &vs.field_0);
         }
         if (!resources.pixel) {
             auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
