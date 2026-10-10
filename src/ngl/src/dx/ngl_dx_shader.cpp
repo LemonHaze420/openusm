@@ -191,6 +191,23 @@ const DWORD *AssemblePShader(const char *text)
     return result;
 }
 
+static std::vector<DWORD> copy_compiled_shader(ID3DXBuffer *shader)
+{
+    const auto count = shader->lpVtbl->GetBufferSize(shader) / sizeof(DWORD);
+    const auto *words = static_cast<const DWORD *>(shader->lpVtbl->GetBufferPointer(shader));
+    size_t offset = 1;
+    while (offset + 1 < count && (words[offset] & 0xFFFFu) == 0xFFFEu) {
+        const auto length = (words[offset] >> 16) & 0x7FFFu;
+        if (length == 0 || length > count - offset - 1 || words[offset + 1] != 0x42415443u)
+            break;
+        offset += length + 1;
+    }
+    std::vector<DWORD> result(1 + count - offset);
+    result[0] = words[0];
+    std::memcpy(result.data() + 1, words + offset, (count - offset) * sizeof(DWORD));
+    return result;
+}
+
 std::vector<DWORD> CompilePShader(const char *file_name)
 {
     ID3DXBuffer *pShader = nullptr;
@@ -198,15 +215,8 @@ std::vector<DWORD> CompilePShader(const char *file_name)
 
     const char *profile = "ps_1_1";
 
-    if (D3DXCompileShaderFromFile(file_name,
-                                  nullptr,
-                                  nullptr,
-                                  "main",
-                                  profile,
-                                  D3DXSHADER_USE_LEGACY_D3DX9_31_DLL,
-                                  &pShader,
-                                  &error_messages,
-                                  nullptr) != D3D_OK) {
+    if (D3DXCompileShaderFromFile(
+            file_name, nullptr, nullptr, "main", profile, 0, &pShader, &error_messages, nullptr) != D3D_OK) {
         sp_log("%s", static_cast<const char *>(error_messages->lpVtbl->GetBufferPointer(error_messages)));
 
         error_messages->lpVtbl->Release(error_messages);
@@ -216,12 +226,7 @@ std::vector<DWORD> CompilePShader(const char *file_name)
 
     assert(error_messages == nullptr);
 
-    auto buffer_size = pShader->lpVtbl->GetBufferSize(pShader);
-    auto *buffer = pShader->lpVtbl->GetBufferPointer(pShader);
-
-    std::vector<DWORD> result(buffer_size / 4);
-
-    std::memcpy(result.data(), buffer, buffer_size);
+    auto result = copy_compiled_shader(pShader);
 
     pShader->lpVtbl->Release(pShader);
 
@@ -403,28 +408,15 @@ std::vector<DWORD> CompileVShader(const char *file_name, const D3DXMACRO *define
 
     const char *profile = "vs_1_1";
 
-    if (D3DXCompileShaderFromFile(file_name,
-                                  defines,
-                                  nullptr,
-                                  "main",
-                                  profile,
-                                  D3DXSHADER_USE_LEGACY_D3DX9_31_DLL,
-                                  &pShader,
-                                  &error_messages,
-                                  nullptr) != D3D_OK) {
+    if (D3DXCompileShaderFromFile(
+            file_name, defines, nullptr, "main", profile, 0, &pShader, &error_messages, nullptr) != D3D_OK) {
         sp_log("%s", static_cast<const char *>(error_messages->lpVtbl->GetBufferPointer(error_messages)));
 
         error_messages->lpVtbl->Release(error_messages);
         assert(0);
     }
 
-    auto buffer_size = pShader->lpVtbl->GetBufferSize(pShader);
-    auto *buffer = pShader->lpVtbl->GetBufferPointer(pShader);
-
-    //std::unique_ptr<DWORD> out = new DWORD[buffer_size / 4];
-
-    std::vector<DWORD> result(buffer_size / 4);
-    std::memcpy(result.data(), buffer, buffer_size);
+    auto result = copy_compiled_shader(pShader);
 
     pShader->lpVtbl->Release(pShader);
     if (error_messages != nullptr) {

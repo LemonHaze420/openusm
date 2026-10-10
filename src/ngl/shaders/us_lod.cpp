@@ -26,7 +26,6 @@ constexpr DWORD lod_height_vs[]{0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 
                                 0xa0aa0009, 0xa,        0x80020002, 0x80550002, 0xa0ff0009, 0xb,        0x80020002,
                                 0x80550002, 0xa000005b, 0x1,        0xb0010000, 0x80550002, 0x1,        0x800f0003,
                                 0xa0e42004, 0x5,        0xd00f0000, 0x80e40003, 0xa0e40008, 0xffff};
-constexpr DWORD lod_ps[]{0xffff0101, 0x1, 0x800f0000, 0x90e40000, 0xffff};
 constexpr DWORD newlod_flat_vs[]{0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x1f,       0x80000005, 0x900f0001,
                                  0x9,        0xc0010000, 0x90e40000, 0xa0e40000, 0x9,        0xc0020000, 0x90e40000,
                                  0xa0e40001, 0x9,        0xc0040000, 0x90e40000, 0xa0e40002, 0x9,        0xc0080000,
@@ -247,8 +246,9 @@ void USLODShader::Register()
     if (EnableShader) {
         nglCreateVertexDeclarationAndShader(&lod_vertex()[0], lod_elements, lod_flat_vs);
         nglCreateVertexDeclarationAndShader(&lod_vertex()[1], lod_elements, lod_height_vs);
-        CreatePixelShader(&lod_pixel()[0], lod_ps);
-        CreatePixelShader(&lod_pixel()[1], lod_ps);
+        auto debug_pixels_code = CompilePShader("shaders/debug_pixels.hlsl");
+        CreatePixelShader(&lod_pixel()[0], debug_pixels_code.data());
+        CreatePixelShader(&lod_pixel()[1], debug_pixels_code.data());
     } else if (dword_9738E0[0] == nullptr) {
         IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, fixed_lod_elements, &dword_9738E0[0]);
     }

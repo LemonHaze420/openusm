@@ -1588,7 +1588,8 @@ void sub_772E80()
 {
     if constexpr (STANDALONE_SYSTEM) {
         static Var<IDirect3DPixelShader9 *> shader{0x00975794};
-        CreatePixelShader(&shader(), ngl_builtin_programs::program_8bb530);
+        auto debug_pixels_code = CompilePShader("shaders/debug_pixels.hlsl");
+        CreatePixelShader(&shader(), debug_pixels_code.data());
     } else {
         CDECL_CALL(0x00772E80);
     }

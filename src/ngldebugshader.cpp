@@ -22,7 +22,6 @@ constexpr DWORD debug_vertex[]{0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0
                                0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000,
                                0x90E40000, 0xA0E40003, 0x00000001, 0xD00F0000, 0xA0E40004, 0x00000001,
                                0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001, 0xA0AA005B, 0x0000FFFF};
-constexpr DWORD debug_pixels[]{0xFFFF0101, 0x00000001, 0x800F0000, 0x90E40000, 0x0000FFFF};
 struct DebugNode : nglShaderNode {
     nglMaterialBase *material;
     DebugNode(nglMeshNode *mesh, nglMeshSection *section, nglMaterialBase *source)
@@ -128,7 +127,8 @@ int nglDebugShader::Register()
     nglShader::_Register();
     if (EnableShader) {
         nglCreateVertexDeclarationAndShader(&debug_program(), debug_elements, debug_vertex);
-        CreatePixelShader(&debug_pixel(), debug_pixels);
+        auto debug_pixels_code = CompilePShader("shaders/debug_pixels.hlsl");
+        CreatePixelShader(&debug_pixel(), debug_pixels_code.data());
     } else if (!dword_9738E0[23]) {
         IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, debug_elements, &dword_9738E0[23]);
     }
