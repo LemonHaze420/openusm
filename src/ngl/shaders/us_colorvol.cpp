@@ -19,11 +19,6 @@ Var<IDirect3DPixelShader9 *> pixel_shader{0x00970560};
 Var<int> suppress_render{0x00956974};
 
 
-constexpr DWORD vertex_program[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x00000009, 0xC0010000, 0x90E40000,
-    0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001, 0x00000009, 0xC0040000,
-    0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x0000FFFF,
-};
 const D3DVERTEXELEMENT9 vertex_elements[] = {
     {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
     D3DDECL_END(),
@@ -105,7 +100,8 @@ void USColorVolShader::Register()
 {
     nglShader::_Register();
     if (EnableShader) {
-        nglCreateVertexDeclarationAndShader(&vertex_shader(), vertex_elements, vertex_program);
+        auto color_volume_vertex_code = CompileVShader("shaders/color_volume_vertex.hlsl");
+        nglCreateVertexDeclarationAndShader(&vertex_shader(), vertex_elements, color_volume_vertex_code.data());
         auto debug_pixels_code = CompilePShader("shaders/debug_pixels.hlsl");
         CreatePixelShader(&pixel_shader(), debug_pixels_code.data());
     } else if (dword_9738E0[18] == nullptr) {
