@@ -15,9 +15,6 @@ extern void sub_405CC0();
 
 namespace {
 
-constexpr DWORD lod_flat_vs[]{0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x9, 0xc0010000, 0x90e40000, 0xa0e4000b,
-                              0x9,        0xc0020000, 0x90e40000, 0xa0e4000c, 0x9, 0xc0040000, 0x90e40000, 0xa0e4000d,
-                              0x9,        0xc0080000, 0x90e40000, 0xa0e4000e, 0x1, 0xd00f0000, 0xa0e40008, 0xffff};
 constexpr DWORD lod_height_vs[]{0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x9,        0xc0010000, 0x90e40000,
                                 0xa0e4000b, 0x9,        0xc0020000, 0x90e40000, 0xa0e4000c, 0x9,        0xc0040000,
                                 0x90e40000, 0xa0e4000d, 0x9,        0xc0080000, 0x90e40000, 0xa0e4000e, 0x9,
@@ -242,7 +239,8 @@ void USLODShader::Register()
 {
     nglShader::_Register();
     if (EnableShader) {
-        nglCreateVertexDeclarationAndShader(&lod_vertex()[0], lod_elements, lod_flat_vs);
+        auto lod_flat_vs_code = CompileVShader("shaders/lod_flat_vs.hlsl");
+        nglCreateVertexDeclarationAndShader(&lod_vertex()[0], lod_elements, lod_flat_vs_code.data());
         nglCreateVertexDeclarationAndShader(&lod_vertex()[1], lod_elements, lod_height_vs);
         auto debug_pixels_code = CompilePShader("shaders/debug_pixels.hlsl");
         CreatePixelShader(&lod_pixel()[0], debug_pixels_code.data());
