@@ -1650,7 +1650,8 @@ void sub_772630()
         nglCreateVertexDeclarationAndShader(&stru_9757A4(), declaration_93b0c8, screen_tint_vertex_code.data());
         auto screen_texture_vertex_code = CompileVShader("shaders/screen_texture_vertex.hlsl");
         nglCreateVertexDeclarationAndShader(&stru_975788(), declaration_93b0c8, screen_texture_vertex_code.data());
-        nglCreateVertexDeclarationAndShader(&stru_975798(), declaration_93b098, program_8bb030);
+        auto screen_four_texture_vertex_code = CompileVShader("shaders/screen_four_texture_vertex.hlsl");
+        nglCreateVertexDeclarationAndShader(&stru_975798(), declaration_93b098, screen_four_texture_vertex_code.data());
         sub_772D50(declaration_93b080);
         sub_772E30();
         sub_772E80();
