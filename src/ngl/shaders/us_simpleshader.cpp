@@ -335,23 +335,6 @@ constexpr DWORD grunge_vertex[] = {
     0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000001, 0xE0030000, 0x90E40001,
     0x00000001, 0xE0030001, 0x90E40002, 0x00000005, 0xD00F0000, 0x90C00003, 0xA0E40004, 0x0000FFFF,
 };
-constexpr DWORD grunge_pixel[] = {
-    0xFFFF0101,
-    0x00000042,
-    0xB00F0000,
-    0x00000042,
-    0xB00F0001,
-    0x00000012,
-    0x800F0000,
-    0xB0FF0001,
-    0xB0E40001,
-    0xB0E40000,
-    0x00000005,
-    0x800F0000,
-    0x80E40000,
-    0x90E40000,
-    0x0000FFFF,
-};
 constexpr D3DVERTEXELEMENT9 grunge_elements[] = {
     {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
     {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
@@ -502,7 +485,8 @@ struct GrungeShader : nglShader {
         if (EnableShader) {
             if (!programs.vertex.field_0) {
                 nglCreateVertexDeclarationAndShader(&programs.vertex, grunge_elements, grunge_vertex);
-                CreatePixelShader(&programs.pixel, grunge_pixel);
+                auto grunge_pixel_code = CompilePShader("shaders/grunge_pixel.hlsl");
+                CreatePixelShader(&programs.pixel, grunge_pixel_code.data());
             }
         } else if (!programs.fixed)
             IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, grunge_elements, &programs.fixed);
