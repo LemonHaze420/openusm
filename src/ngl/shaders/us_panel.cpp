@@ -24,16 +24,6 @@ static constexpr DWORD panel_program_0[]{
     0x90E40000u, 0xA0E40001u, 0x00000009u, 0xC0040000u, 0x90E40000u, 0xA0E40002u, 0x00000009u, 0xC0080000u,
     0x90E40000u, 0xA0E40003u, 0x00000001u, 0xE0030000u, 0x90E40001u, 0x00000001u, 0xD00F0000u, 0x90E40002u,
     0x00000001u, 0xD00F0001u, 0xA000005Bu, 0x00000001u, 0xC00F0001u, 0xA0AA005Bu, 0x0000FFFFu};
-static constexpr DWORD panel_program_5[]{0xFFFF0101u,
-                                         0x00000042u,
-                                         0xB00F0000u,
-                                         0x00000046u,
-                                         0xB00F0001u,
-                                         0xB0E40000u,
-                                         0x00000001u,
-                                         0x800F0000u,
-                                         0xB0E40001u,
-                                         0x0000FFFFu};
 static constexpr DWORD panel_program_6[]{
     0xFFFF0101u, 0x00000042u, 0xB00F0000u, 0x00000008u, 0x800F0000u, 0xB0E40000u, 0xA0E40000u, 0x0000FFFFu};
 static constexpr DWORD panel_program_7[]{0xFFFF0101u,
@@ -132,11 +122,12 @@ void USPanelShader::Register()
         nglCreateVertexDeclarationAndShader(&panel_vertex_shader, declaration, panel_program_0);
         auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
         auto texture_pixels_code = CompilePShader("shaders/texture_pixels.hlsl");
+        auto panel_gb_lookup_pixels_code = CompilePShader("shaders/panel_gb_lookup_pixels.hlsl");
         const DWORD *programs[]{particle_ps_code.data(),
                                 texture_pixels_code.data(),
                                 particle_ps_code.data(),
                                 particle_ps_code.data(),
-                                panel_program_5,
+                                panel_gb_lookup_pixels_code.data(),
                                 panel_program_6,
                                 panel_program_7};
         for (unsigned index = 0; index != 7; ++index)
