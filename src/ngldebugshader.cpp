@@ -17,11 +17,6 @@ Var<VShader> debug_program{0x00976E74};
 Var<IDirect3DPixelShader9 *> debug_pixel{0x00976E70};
 constexpr D3DVERTEXELEMENT9 debug_elements[]{
     {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0}, D3DDECL_END()};
-constexpr DWORD debug_vertex[]{0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x00000009, 0xC0010000,
-                               0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
-                               0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000,
-                               0x90E40000, 0xA0E40003, 0x00000001, 0xD00F0000, 0xA0E40004, 0x00000001,
-                               0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001, 0xA0AA005B, 0x0000FFFF};
 struct DebugNode : nglShaderNode {
     nglMaterialBase *material;
     DebugNode(nglMeshNode *mesh, nglMeshSection *section, nglMaterialBase *source)
@@ -126,7 +121,8 @@ int nglDebugShader::Register()
 #if STANDALONE_SYSTEM
     nglShader::_Register();
     if (EnableShader) {
-        nglCreateVertexDeclarationAndShader(&debug_program(), debug_elements, debug_vertex);
+        auto debug_vertex_code = CompileVShader("shaders/debug_vertex.hlsl");
+        nglCreateVertexDeclarationAndShader(&debug_program(), debug_elements, debug_vertex_code.data());
         auto debug_pixels_code = CompilePShader("shaders/debug_pixels.hlsl");
         CreatePixelShader(&debug_pixel(), debug_pixels_code.data());
     } else if (!dword_9738E0[23]) {
