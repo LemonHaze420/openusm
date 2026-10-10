@@ -114,7 +114,6 @@ constexpr DWORD sprite_vs[]{0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x1f
                             0x9,        0xc0020000, 0x90e40000, 0xa0e40001, 0x9,        0xc0040000, 0x90e40000,
                             0xa0e40002, 0x9,        0xc0080000, 0x90e40000, 0xa0e40003, 0x1,        0xd00f0000,
                             0x90e40001, 0x1,        0xe00f0000, 0x90e40002, 0xffff};
-constexpr DWORD particle_ps[]{0xffff0101, 0x42, 0xb00f0000, 0x5, 0x800f0000, 0xb0e40000, 0x90e40000, 0xffff};
 
 constexpr DWORD mesh_vs[]{
     0xfffe0101, 0x1f,       0x80000000, 0x900f0000, 0x1f,       0x80000003, 0x900f0001, 0x1f,       0x80000005,
@@ -168,8 +167,10 @@ ShaderResources &shaders(bool mesh)
             IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, elements, &vs.field_4);
             IDirect3DDevice9_CreateVertexShader(g_Direct3DDevice, mesh ? mesh_vs : sprite_vs, &vs.field_0);
         }
-        if (!resources.pixel)
-            IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, particle_ps, &resources.pixel);
+        if (!resources.pixel) {
+            auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
+            IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, particle_ps_code.data(), &resources.pixel);
+        }
         nglSetVertexDeclarationAndShader(&vs);
         SetPixelShader(&resources.pixel);
     } else {

@@ -117,16 +117,6 @@ constexpr DWORD roof_vs[] = {
     0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000002,
     0xE0030000, 0x90E40001, 0xA0540005, 0x00000005, 0xD00F0000, 0x90C00002, 0xA0E40004, 0x0000FFFF,
 };
-constexpr DWORD roof_ps[] = {
-    0xFFFF0101,
-    0x00000042,
-    0xB00F0000,
-    0x00000005,
-    0x800F0000,
-    0xB0E40000,
-    0x90E40000,
-    0x0000FFFF,
-};
 
 struct ProcShaders {
     VShader building{}, windows{}, roof{};
@@ -155,7 +145,8 @@ ProcShaders &shaders(bool procedural = true)
             CreatePixelShader(&resources.windows_pixel, windows_ps);
         if (procedural && !resources.roof.field_0) {
             nglCreateVertexDeclarationAndShader(&resources.roof, elements, roof_vs);
-            CreatePixelShader(&resources.roof_pixel, roof_ps);
+            auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
+            CreatePixelShader(&resources.roof_pixel, particle_ps_code.data());
         }
     } else if (!resources.fixed_declaration) {
         IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, elements, &resources.fixed_declaration);

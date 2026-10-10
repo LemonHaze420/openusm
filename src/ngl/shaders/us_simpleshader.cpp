@@ -87,16 +87,6 @@ constexpr DWORD translucent_vertex[] = {
     0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000005,
     0xD00F0000, 0x90C00002, 0xA0E40004, 0x00000002, 0xE0030000, 0x90E40001, 0xA0540005, 0x0000FFFF,
 };
-constexpr DWORD world_pixel[] = {
-    0xFFFF0101,
-    0x00000042,
-    0xB00F0000,
-    0x00000005,
-    0x800F0000,
-    0xB0E40000,
-    0x90E40000,
-    0x0000FFFF,
-};
 constexpr D3DVERTEXELEMENT9 world_elements[] = {
     {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
     {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
@@ -287,7 +277,8 @@ struct WorldShader : nglShader {
                                                         ? (Interior ? translucent_interior_vertex : translucent_vertex)
                                                     : Interior ? simple_interior_vertex
                                                                : simple_vertex);
-                CreatePixelShader(&programs.pixel, world_pixel);
+                auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
+                CreatePixelShader(&programs.pixel, particle_ps_code.data());
             }
         } else if (!programs.fixed) {
             IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, world_elements, &programs.fixed);
