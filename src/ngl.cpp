@@ -1613,7 +1613,8 @@ void sub_772F70()
     if constexpr (STANDALONE_SYSTEM) {
         using namespace ngl_builtin_programs;
         static Var<IDirect3DPixelShader9 *[4]> shaders{0x009757AC};
-        const DWORD *programs[]{program_8bb640, program_8bb660, program_8bb6a0, program_8bb708};
+        auto texture_alpha_pixels_code = CompilePShader("shaders/texture_alpha_pixels.hlsl");
+        const DWORD *programs[]{texture_alpha_pixels_code.data(), program_8bb660, program_8bb6a0, program_8bb708};
         for (unsigned i = 0; i < 4; ++i) {
             CreatePixelShader(&shaders()[i], programs[i]);
         }
