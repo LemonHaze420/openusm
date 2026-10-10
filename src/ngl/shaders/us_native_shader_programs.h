@@ -302,15 +302,6 @@ inline constexpr DWORD program_8af598[] = {
 };
 
 
-inline constexpr DWORD program_8af5e0[] = {
-    0xFFFF0101u,
-    0x00000001u,
-    0x800F0000u,
-    0xA0E40000u,
-    0x0000FFFFu,
-};
-
-
 inline constexpr DWORD program_8b0f30[] = {
     0xFFFE0101u, 0x0000001Fu, 0x80000000u, 0x900F0000u, 0x0000001Fu, 0x80000005u, 0x900F0001u, 0x0000001Fu,
     0x8000000Au, 0x900F0002u, 0x00000009u, 0xC0010000u, 0x90E40000u, 0xA0E40000u, 0x00000009u, 0xC0020000u,

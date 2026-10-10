@@ -521,7 +521,8 @@ void register_person_shader(nglShader &shader)
         CreateVertexDeclAndShaders(skin_elements);
         CreatePixelShaders();
         CreateOutlineVShader(skin_elements);
-        CreatePixelShader(&OutlinePShader(), us_native_programs::program_8af5e0);
+        auto constant_pixels_code = CompilePShader("shaders/constant_pixels.hlsl");
+        CreatePixelShader(&OutlinePShader(), constant_pixels_code.data());
     } else if (dword_9738E0[12] == nullptr) {
         static constexpr D3DVERTEXELEMENT9 fixed_elements[]{
             {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
