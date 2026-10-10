@@ -37,7 +37,6 @@ constexpr DWORD newlod_height_vs[]{
     0x2,        0x80020000, 0x90550000, 0xa0550005, 0x5,        0x80020000, 0x80550000, 0xa0000005, 0x5,
     0x80020000, 0x80550000, 0xa0aa0005, 0xa,        0x80020000, 0x80550000, 0xa0ff0005, 0xb,        0x80020000,
     0x80550000, 0xa000005b, 0x1,        0xb0010000, 0x80550000, 0x1,        0xd00f0000, 0xa0e42006, 0xffff};
-constexpr DWORD newlod_flat_ps[]{0xffff0101, 0x42, 0xb00f0000, 0x1, 0x800f0000, 0xb0e40000, 0xffff};
 constexpr DWORD newlod_height_ps[]{0xffff0101, 0x42, 0xb00f0000, 0x5, 0x800f0000, 0xb0e40000, 0x90e40000, 0xffff};
 constexpr D3DVERTEXELEMENT9 lod_elements[]{{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
                                            D3DDECL_END()};
@@ -259,7 +258,8 @@ void NewlodShader::Register()
     if (EnableShader) {
         nglCreateVertexDeclarationAndShader(&newlod_vertex()[0], newlod_elements, newlod_flat_vs);
         nglCreateVertexDeclarationAndShader(&newlod_vertex()[1], newlod_elements, newlod_height_vs);
-        CreatePixelShader(&newlod_pixel()[0], newlod_flat_ps);
+        auto texture_pixels_code = CompilePShader("shaders/texture_pixels.hlsl");
+        CreatePixelShader(&newlod_pixel()[0], texture_pixels_code.data());
         CreatePixelShader(&newlod_pixel()[1], newlod_height_ps);
     }
 }

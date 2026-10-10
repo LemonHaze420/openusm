@@ -1598,7 +1598,10 @@ void sub_772E80()
 void sub_772ED0()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        CreatePixelShader(&dword_9757DC(), ngl_builtin_programs::program_8bb544);
+        {
+            auto texture_pixels_code = CompilePShader("shaders/texture_pixels.hlsl");
+            CreatePixelShader(&dword_9757DC(), texture_pixels_code.data());
+        }
     } else {
         CDECL_CALL(0x00772ED0);
     }
