@@ -155,14 +155,10 @@ void PCUV_Shader::Register()
         static Var<IDirect3DVertexDeclaration9 *> dword_973918{0x00973918};
 
         if (EnableShader) {
-            if constexpr (!STANDALONE_SYSTEM) {
-                auto pShader = CompileVShader("shaders/us_pcuv_VS.hlsl");
+            auto vertexShader = CompileVShader("shaders/us_pcuv_VS.hlsl");
 
-                //static Var<DWORD *> off_939FB0{0x00939FB0};
-                nglCreateVertexDeclarationAndShader(&dword_970AD0(), elements, pShader.data());
-            } else {
-                nglCreateVertexDeclarationAndShader(&dword_970AD0(), elements, us_native_programs::program_8b0f30);
-            }
+            //static Var<DWORD *> off_939FB0{0x00939FB0};
+            nglCreateVertexDeclarationAndShader(&dword_970AD0(), elements, vertexShader.data());
 
             if constexpr (STANDALONE_SYSTEM) {
                 static const char *text = "tex t0\n"

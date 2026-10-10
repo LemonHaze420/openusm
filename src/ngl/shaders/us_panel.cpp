@@ -18,12 +18,6 @@ VALIDATE_SIZE(USPanelShaderNode, 0x18);
 namespace {
 VShader panel_vertex_shader{};
 IDirect3DPixelShader9 *panel_pixel_shaders[7]{};
-static constexpr DWORD panel_program_0[]{
-    0xFFFE0101u, 0x0000001Fu, 0x80000000u, 0x900F0000u, 0x0000001Fu, 0x80000005u, 0x900F0001u, 0x0000001Fu,
-    0x8000000Au, 0x900F0002u, 0x00000009u, 0xC0010000u, 0x90E40000u, 0xA0E40000u, 0x00000009u, 0xC0020000u,
-    0x90E40000u, 0xA0E40001u, 0x00000009u, 0xC0040000u, 0x90E40000u, 0xA0E40002u, 0x00000009u, 0xC0080000u,
-    0x90E40000u, 0xA0E40003u, 0x00000001u, 0xE0030000u, 0x90E40001u, 0x00000001u, 0xD00F0000u, 0x90E40002u,
-    0x00000001u, 0xD00F0001u, 0xA000005Bu, 0x00000001u, 0xC00F0001u, 0xA0AA005Bu, 0x0000FFFFu};
 void __fastcall register_panel_shader(USPanelShader *self, void *)
 {
     self->Register();
@@ -107,7 +101,8 @@ void USPanelShader::Register()
                                            {0, 20, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
                                            D3DDECL_END()};
     if (EnableShader) {
-        nglCreateVertexDeclarationAndShader(&panel_vertex_shader, declaration, panel_program_0);
+        auto mesh_color_vertex_code = CompileVShader("shaders/us_frontend_VS.hlsl");
+        nglCreateVertexDeclarationAndShader(&panel_vertex_shader, declaration, mesh_color_vertex_code.data());
         auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
         auto texture_pixels_code = CompilePShader("shaders/texture_pixels.hlsl");
         auto panel_gb_lookup_pixels_code = CompilePShader("shaders/panel_gb_lookup_pixels.hlsl");

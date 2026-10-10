@@ -190,13 +190,9 @@ void FrontEnd_Shader::_Register()
         if (EnableShader) {
             //static Var<DWORD *> off_939B90{0x00939B90};
 
-            if constexpr (!STANDALONE_SYSTEM) {
-                auto pShader = CompileVShader("shaders/us_frontend_VS.hlsl");
+            auto vertexShader = CompileVShader("shaders/us_frontend_VS.hlsl");
 
-                nglCreateVertexDeclarationAndShader(&stru_970610, elements, pShader.data());
-            } else {
-                nglCreateVertexDeclarationAndShader(&stru_970610, elements, us_native_programs::program_8ad4d8);
-            }
+            nglCreateVertexDeclarationAndShader(&stru_970610, elements, vertexShader.data());
 
             static Var<char[1]> asc_870AD8{0x00870AD8};
 
