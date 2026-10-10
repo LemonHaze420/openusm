@@ -3,6 +3,7 @@
 #include <d3d9.h>
 
 namespace us_native_programs {
+// @todo - shaders
 
 
 inline constexpr DWORD program_8ae4a0[] = {
@@ -22,6 +23,7 @@ inline constexpr DWORD program_8ae4a0[] = {
     0x80E40005u, 0xA0E40001u, 0x00000009u, 0xC0040000u, 0x80E40005u, 0xA0E40002u, 0x00000009u, 0xC0080000u, 0x80E40005u,
     0xA0E40003u, 0x00000001u, 0xE00F0000u, 0x90E40002u, 0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8ae6b0[] = {
@@ -46,6 +48,7 @@ inline constexpr DWORD program_8ae6b0[] = {
     0x80080008u, 0x80FF0008u, 0xA0AA005Bu, 0x00000005u, 0x800F0009u, 0xA0E40007u, 0x80FF0008u, 0x00000002u, 0xD00F0000u,
     0x80E40009u, 0xA0E40008u, 0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8ae968[] = {
@@ -69,6 +72,7 @@ inline constexpr DWORD program_8ae968[] = {
     0x00000001u, 0x80070008u, 0x80E40005u, 0x00000001u, 0x80080008u, 0xA0AA005Bu, 0x00000009u, 0xE0010001u, 0x80E40008u,
     0xA0E40004u, 0x00000009u, 0xE0020001u, 0x80E40008u, 0xA0E40005u, 0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8aec08[] = {
@@ -94,6 +98,7 @@ inline constexpr DWORD program_8aec08[] = {
     0x0000000Bu, 0x80080009u, 0x80FF0009u, 0xA000005Bu, 0x0000000Au, 0x80080009u, 0x80FF0009u, 0xA0AA005Bu, 0x00000005u,
     0x800F000Au, 0xA0E40007u, 0x80FF0009u, 0x00000002u, 0xD00F0000u, 0x80E4000Au, 0xA0E40008u, 0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8aeef8[] = {
@@ -116,6 +121,7 @@ inline constexpr DWORD program_8aeef8[] = {
     0xC0020000u, 0x80E40007u, 0xA0E40001u, 0x00000009u, 0xC0040000u, 0x80E40007u, 0xA0E40002u, 0x00000009u, 0xC0080000u,
     0x80E40007u, 0xA0E40003u, 0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af168[] = {
@@ -138,6 +144,7 @@ inline constexpr DWORD program_8af168[] = {
     0xC0020000u, 0x80E40007u, 0xA0E40001u, 0x00000009u, 0xC0040000u, 0x80E40007u, 0xA0E40002u, 0x00000009u, 0xC0080000u,
     0x80E40007u, 0xA0E40003u, 0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af3d8[] = {
@@ -153,6 +160,7 @@ inline constexpr DWORD program_8af3d8[] = {
     0xB0FF0000u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af404[] = {
@@ -168,6 +176,7 @@ inline constexpr DWORD program_8af404[] = {
     0xB0FF0000u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af430[] = {
@@ -190,6 +199,7 @@ inline constexpr DWORD program_8af430[] = {
     0xA0E40001u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af478[] = {
@@ -212,6 +222,7 @@ inline constexpr DWORD program_8af478[] = {
     0xA0E40001u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af4c0[] = {
@@ -234,6 +245,7 @@ inline constexpr DWORD program_8af4c0[] = {
     0xB0E40001u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af508[] = {
@@ -256,6 +268,7 @@ inline constexpr DWORD program_8af508[] = {
     0xB0E40001u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af550[] = {
@@ -278,6 +291,7 @@ inline constexpr DWORD program_8af550[] = {
     0xB0E40001u,
     0x0000FFFFu,
 };
+// @todo - shaders
 
 
 inline constexpr DWORD program_8af598[] = {

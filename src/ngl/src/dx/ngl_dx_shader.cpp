@@ -215,8 +215,15 @@ std::vector<DWORD> CompilePShader(const char *file_name)
 
     const char *profile = "ps_1_1";
 
-    if (D3DXCompileShaderFromFile(
-            file_name, nullptr, nullptr, "main", profile, 0, &pShader, &error_messages, nullptr) != D3D_OK) {
+    if (D3DXCompileShaderFromFile(file_name,
+                                  nullptr,
+                                  nullptr,
+                                  "main",
+                                  profile,
+                                  D3DXSHADER_USE_LEGACY_D3DX9_31_DLL,
+                                  &pShader,
+                                  &error_messages,
+                                  nullptr) != D3D_OK) {
         sp_log("%s", static_cast<const char *>(error_messages->lpVtbl->GetBufferPointer(error_messages)));
 
         error_messages->lpVtbl->Release(error_messages);
@@ -408,8 +415,15 @@ std::vector<DWORD> CompileVShader(const char *file_name, const D3DXMACRO *define
 
     const char *profile = "vs_1_1";
 
-    if (D3DXCompileShaderFromFile(
-            file_name, defines, nullptr, "main", profile, 0, &pShader, &error_messages, nullptr) != D3D_OK) {
+    if (D3DXCompileShaderFromFile(file_name,
+                                  defines,
+                                  nullptr,
+                                  "main",
+                                  profile,
+                                  D3DXSHADER_USE_LEGACY_D3DX9_31_DLL,
+                                  &pShader,
+                                  &error_messages,
+                                  nullptr) != D3D_OK) {
         sp_log("%s", static_cast<const char *>(error_messages->lpVtbl->GetBufferPointer(error_messages)));
 
         error_messages->lpVtbl->Release(error_messages);

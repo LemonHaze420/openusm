@@ -107,6 +107,7 @@ matrix4x4 transpose(const matrix4x4 &a)
             out[i][j] = a[j][i];
     return out;
 }
+// @todo - shaders
 
 
 constexpr DWORD mesh_vs[]{

@@ -70,6 +70,7 @@ void quad(ProcVertex *out, ProcVertex a, ProcVertex b, ProcVertex c, ProcVertex 
     out[4] = b;
     out[5] = d;
 }
+// @todo - shaders
 
 
 constexpr DWORD building_vs[] = {
@@ -80,6 +81,7 @@ constexpr DWORD building_vs[] = {
     0xA0550009, 0x00000005, 0xE0030002, 0x80550002, 0xA0000009, 0x00000005, 0xD0070000, 0x90000002, 0xA0E40008,
     0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
 };
+// @todo - shaders
 constexpr DWORD building_ps[] = {
     0xFFFF0101,
     0x00000042,
@@ -96,6 +98,7 @@ constexpr DWORD building_ps[] = {
     0xB0E40000,
     0x0000FFFF,
 };
+// @todo - shaders
 constexpr DWORD windows_vs[] = {
     0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
     0x900F0002, 0x00000001, 0x80070000, 0x90E40000, 0x00000001, 0x80080000, 0xA0AA005B, 0x00000009, 0xC0010000,
@@ -106,11 +109,13 @@ constexpr DWORD windows_vs[] = {
     0xA055000A, 0x00000005, 0xE0030003, 0x80550003, 0xA000000A, 0x00000005, 0xD0070000, 0x90000002, 0xA0E40008,
     0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
 };
+// @todo - shaders
 constexpr DWORD windows_ps[] = {
     0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000042, 0xB00F0001, 0x00000042, 0xB00F0002, 0x00000042, 0xB00F0003,
     0x00000005, 0x800F0000, 0x90E40000, 0xB0E40002, 0x00000005, 0x80070000, 0x80E40000, 0xB0E40000, 0x00000005,
     0x800F0001, 0xB0E40001, 0xB0E40003, 0x00000012, 0x80070000, 0xB0FF0000, 0x80E40000, 0x80E40001, 0x0000FFFF,
 };
+// @todo - shaders
 constexpr DWORD roof_vs[] = {
     0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
     0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
@@ -271,6 +276,7 @@ void draw_triangles(const ProcVertex *vertices, unsigned count)
 constexpr uint16_t wall_indices[] = {0, 1, 2, 3, 1, 5, 3, 7, 5, 4, 7, 6, 4, 0, 6, 2};
 constexpr uint16_t column_indices[] = {3,  2,  1,  0,  5,  4,  4,  9,  9,  8,  7,  6,  11, 10, 10,
                                        15, 15, 14, 13, 12, 17, 16, 16, 21, 21, 20, 19, 18, 23, 22};
+// @todo - shaders
 
 
 constexpr DWORD mesh_windows_vs[] = {
