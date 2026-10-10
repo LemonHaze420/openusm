@@ -1644,7 +1644,8 @@ void sub_772630()
 {
     if constexpr (STANDALONE_SYSTEM) {
         using namespace ngl_builtin_programs;
-        nglCreateVertexDeclarationAndShader(&stru_975780(), declaration_93b0e0, program_8baf18);
+        auto screen_color_vertex_code = CompileVShader("shaders/screen_color_vertex.hlsl");
+        nglCreateVertexDeclarationAndShader(&stru_975780(), declaration_93b0e0, screen_color_vertex_code.data());
         nglCreateVertexDeclarationAndShader(&stru_9757A4(), declaration_93b0c8, program_8bafd0);
         nglCreateVertexDeclarationAndShader(&stru_975788(), declaration_93b0c8, program_8baf80);
         nglCreateVertexDeclarationAndShader(&stru_975798(), declaration_93b098, program_8bb030);
