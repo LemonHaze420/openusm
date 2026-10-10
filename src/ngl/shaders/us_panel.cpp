@@ -26,16 +26,6 @@ static constexpr DWORD panel_program_0[]{
     0x00000001u, 0xD00F0001u, 0xA000005Bu, 0x00000001u, 0xC00F0001u, 0xA0AA005Bu, 0x0000FFFFu};
 static constexpr DWORD panel_program_6[]{
     0xFFFF0101u, 0x00000042u, 0xB00F0000u, 0x00000008u, 0x800F0000u, 0xB0E40000u, 0xA0E40000u, 0x0000FFFFu};
-static constexpr DWORD panel_program_7[]{0xFFFF0101u,
-                                         0x00000042u,
-                                         0xB00F0000u,
-                                         0x00000045u,
-                                         0xB00F0001u,
-                                         0xB0E40000u,
-                                         0x00000001u,
-                                         0x800F0000u,
-                                         0xB0E40001u,
-                                         0x0000FFFFu};
 void __fastcall register_panel_shader(USPanelShader *self, void *)
 {
     self->Register();
@@ -123,13 +113,14 @@ void USPanelShader::Register()
         auto particle_ps_code = CompilePShader("shaders/us_frontend_PS.hlsl");
         auto texture_pixels_code = CompilePShader("shaders/texture_pixels.hlsl");
         auto panel_gb_lookup_pixels_code = CompilePShader("shaders/panel_gb_lookup_pixels.hlsl");
+        auto panel_ar_lookup_pixels_code = CompilePShader("shaders/panel_ar_lookup_pixels.hlsl");
         const DWORD *programs[]{particle_ps_code.data(),
                                 texture_pixels_code.data(),
                                 particle_ps_code.data(),
                                 particle_ps_code.data(),
                                 panel_gb_lookup_pixels_code.data(),
                                 panel_program_6,
-                                panel_program_7};
+                                panel_ar_lookup_pixels_code.data()};
         for (unsigned index = 0; index != 7; ++index)
             CreatePixelShader(&panel_pixel_shaders[index], programs[index]);
     } else if (!dword_9738E0[21]) {
