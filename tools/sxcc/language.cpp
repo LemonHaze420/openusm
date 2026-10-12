@@ -1,6 +1,7 @@
 #include "language.h"
 #include "source_parser.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cmath>
 #include <cstdlib>
