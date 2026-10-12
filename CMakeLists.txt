@@ -469,7 +469,7 @@ endif()
 find_program(DOCKER_EXECUTABLE docker)
 if(DOCKER_EXECUTABLE)
     add_custom_target(check-format
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_format.sh
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/build/check_format.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         USES_TERMINAL
         VERBATIM)
