@@ -2,6 +2,7 @@ build/
 !/build/
 /build/*
 !/build/check_format.sh
+!/build/check_scripts.sh
 .vs/
 
 #Ignore thumbnails created by Windows

@@ -23,6 +23,8 @@ jobs:
           sudo apt-get install -y --no-install-recommends clang-format-18
       - name: Check formatting
         run: clang-format-18 --dry-run --Werror $(find src include test -name '*.cpp' -o -name '*.h' -o -name '*.hpp') main.cpp
+      - name: Check script compilation
+        run: build/check_scripts.sh
 
   build:
     name: MinGW (${{ matrix.name }})
