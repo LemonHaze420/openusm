@@ -1,0 +1,148 @@
+namespace SABLE_MERC {
+    extern entity_tracker _global_slc::create_entity_tracker(entity);
+    extern trigger _global_slc::create_trigger(entity,num);
+    extern void _global_slc::destroy_entity_tracker(entity_tracker);
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern vector3d entity::get_abs_position();
+    extern num entity::is_a_car();
+    extern void entity_tracker::set_health_widget_active(num);
+    extern void entity_tracker::set_mini_map_active(num);
+    extern void entity_tracker::set_poi_active(num);
+    extern void entity_tracker::set_poi_icon(num);
+    extern void signaller::clear_callbacks();
+    extern vector3d vector3d::operator-(vector3d);
+
+    class _sable_merc
+    {
+    public:
+        static num global_0 = 0;
+        static num global_4 = 0;
+        static num global_8 = 0;
+        static num global_12 = 0;
+        static str global_16;
+        static str global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _sable_merc(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity_tracker field_0;
+        trigger field_4;
+        entity field_8;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void wonder_poi_activate();
+        void turn_off_health_poi();
+        void kill_tracker();
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    _sable_merc::_sable_merc(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_8 = p4;
+        field_0 = create_entity_tracker(field_8);
+        field_4 = create_trigger(field_8, 40);
+        (field_0).set_poi_icon(2);
+        (field_0).set_poi_active(0);
+        (field_0).set_mini_map_active(1);
+        (field_0).set_health_widget_active(0);
+        bind_signal_once_on(this, signal_id(field_4, "trigger::ENTER"), (this).wonder_poi_activate());
+        bind_signal_once_on(this, signal_id(field_8, "_sable_merc::TURN_OFF_MY_HEALTH_POI"), (this).turn_off_health_poi());
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        (this).kill_tracker();
+    }
+
+    void ENX_MASTER_OBJECT::wonder_poi_activate()
+    {
+        (field_0).set_health_widget_active(1);
+    }
+
+    void ENX_MASTER_OBJECT::turn_off_health_poi()
+    {
+        (field_4).clear_callbacks();
+        (field_0).set_health_widget_active(0);
+    }
+
+    void ENX_MASTER_OBJECT::kill_tracker()
+    {
+        (field_0).set_poi_active(0);
+        (field_0).set_mini_map_active(0);
+        (field_0).set_health_widget_active(0);
+        destroy_entity_tracker(field_0);
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((p4).is_a_car()) {
+            vector3d v0 = (p8).get_abs_position();
+            vector3d v1 = (p4).get_abs_position();
+            (field_8).apply_directed_damage_cat(20, (v0 - v1), "Enter_Prop_Physics", 1);
+        }
+    }
+
+    str _sable_merc::global_16 = "";
+
+    str _sable_merc::global_20 = "";
+
+    str _sable_merc::global_152 = "";
+
+    str _sable_merc::global_156 = "";
+
+}

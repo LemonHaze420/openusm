@@ -1,0 +1,188 @@
+namespace sable {
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern num entity::operator==(entity);
+    extern void entity::set_inode_param_int(str,str,num);
+    extern vector3d vector3d::operator-(vector3d);
+
+    class _sable
+    {
+    public:
+        static entity global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static str global_44;
+        static str global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64;
+        static num global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static str global_156;
+        static str global_160;
+        static num global_164 = 0;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _sable(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        entity field_4[3];
+        num field_16;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    class sable_blaster_charge
+    {
+    public:
+        sable_blaster_charge(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    _sable::_sable(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_16 = 0;
+        field_0 = p4;
+        _sable::global_0 = p4;
+        num v0 = 0;
+        while ((v0 < 3)) {
+            field_4[v0] = entity("NULL");
+            v0++;
+        }
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        entity v0;
+        vector3d v1;
+        vector3d v2;
+        num v3 = 1;
+        num v4 = 0;
+        if ((p4 == field_0)) {
+            v0 = p8;
+            v1 = p24;
+            v2 = p12;
+        } else {
+            v0 = p4;
+            v1 = p12;
+            v2 = p24;
+        }
+        while ((v4 < 3)) {
+            if ((v0 == field_4[v4])) {
+                v3 = 0;
+                v4 = 3;
+            }
+            v4++;
+        }
+        if (v3) {
+            (field_0).apply_directed_damage_cat(20, (v1 - v2), "WOUNDED_CAR", 0);
+            v4 = (3 - 1);
+            while ((v4 > 0)) {
+                field_4[v4] = field_4[(v4 - 1)];
+                v4--;
+            }
+            field_4[0] = v0;
+        }
+    }
+
+    sable_blaster_charge::sable_blaster_charge(entity p4)
+    {
+    }
+
+    void sable_blaster_charge::activate()
+    {
+        (_sable::global_0).set_inode_param_int("sable", "begin_charge", 1);
+    }
+
+    void sable_blaster_charge::deactivate()
+    {
+    }
+
+    void sable_blaster_charge::frame_advance(num p4, num p8)
+    {
+    }
+
+    str _sable::global_44 = "";
+
+    str _sable::global_48 = "";
+
+    str _sable::global_156 = "";
+
+    str _sable::global_160 = "";
+
+}

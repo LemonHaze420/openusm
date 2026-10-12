@@ -1,0 +1,145 @@
+namespace DESTRUCTION_BARREL {
+    extern entity _global_slc::create_entity(str);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern num entity::is_valid();
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_state(num,num);
+
+    class _destruction_barrel
+    {
+    public:
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static str global_44;
+        static str global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64;
+        static num global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static str global_156;
+        static str global_160;
+        static num global_164 = 0;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _destruction_barrel(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void wait_destroy(entity p4, num p8);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void med_explosion(item p4, entity p8, vector3d p12, vector3d p24);
+        void do_cleanup(entity p4);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::wait_destroy(entity p4, num p8)
+    {
+        if ((p4).is_valid()) {
+            delay(p8);
+            destroy_entity(p4);
+        }
+    }
+
+    _destruction_barrel::_destruction_barrel(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_0 = p4;
+        bind_signal_once_on(this, signal_id(field_0, "entity::PROP_PHYSICS_STOP"), (this).do_cleanup(field_0));
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::med_explosion(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        entity fx_explo_aerialsm = create_entity("effects\\aeps\\fx_explo_aerialsm");
+        (fx_explo_aerialsm).set_state(2, 1);
+        (fx_explo_aerialsm).set_rel_position((p8).get_abs_position());
+        start_thread_on(this, (_destruction_barrel::my_common).wait_destroy(fx_explo_aerialsm, 2));
+    }
+
+    void ENX_MASTER_OBJECT::do_cleanup(entity p4)
+    {
+        destroy_entity(p4);
+    }
+
+    str _destruction_barrel::global_44 = "";
+
+    str _destruction_barrel::global_48 = "";
+
+    str _destruction_barrel::global_156 = "";
+
+    str _destruction_barrel::global_160 = "";
+
+}

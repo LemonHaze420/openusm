@@ -1,0 +1,259 @@
+namespace SABLE_COPTER {
+    extern void _global_slc::apply_radius_damage(vector3d,num,num,num,num);
+    extern void _global_slc::apply_radius_subdue(vector3d,num,num,num,num);
+    extern entity _global_slc::create_entity(str);
+    extern entity_tracker _global_slc::create_entity_tracker(entity);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_tracker(entity_tracker);
+    extern entity _global_slc::hero();
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern entity entity::get_member(str);
+    extern num entity::is_a_car();
+    extern num entity::is_valid();
+    extern void entity::physical_ifc_apply_force(vector3d,num);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::wait_change_range(num,num,num);
+    extern void entity_tracker::set_health_widget_active(num);
+    extern void entity_tracker::set_mini_map_active(num);
+    extern void entity_tracker::set_poi_active(num);
+    extern void entity_tracker::set_poi_icon(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::xz_norm();
+    extern num vector3d::y();
+
+    class _sable_copter
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _sable_copter(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        entity_tracker field_4;
+        entity field_8;
+        num field_12;
+        num field_16;
+        num field_20;
+        num field_24;
+        num unused_28[1];
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void kill_tracker();
+        num abs(num p4);
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+        void do_it();
+        void splode();
+        void spin_chopper_blade();
+        void hurt_venom(entity p4, vector3d p8, vector3d p20);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    _sable_copter::_sable_copter(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_12 = 0.5;
+        field_16 = 8;
+        field_20 = 0;
+        field_24 = 0;
+        field_0 = p4;
+        field_4 = create_entity_tracker(field_0);
+        (field_4).set_poi_icon(2);
+        (field_4).set_poi_active(0);
+        (field_4).set_mini_map_active(1);
+        (field_4).set_health_widget_active(0);
+        field_8 = create_entity("effects\\aeps\\fx_helicopter_blade");
+        (field_8).set_state(2, 1);
+        (field_8).set_visible(1);
+        bind_signal_once_on(this, signal_id(field_0, "ENX_MASTER_OBJECT::ENTITY_FORCE_EXPLODE"), (this).do_it());
+        start_thread_on(this, (this).spin_chopper_blade());
+        bind_signal_once_on(this, signal_id(field_0, "entity::DESTROYED"), (this).splode());
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        if ((field_8).is_valid()) {
+            destroy_entity(field_8);
+        }
+        (this).kill_tracker();
+    }
+
+    void ENX_MASTER_OBJECT::kill_tracker()
+    {
+        (field_4).set_poi_active(0);
+        (field_4).set_mini_map_active(0);
+        (field_4).set_health_widget_active(0);
+        destroy_entity_tracker(field_4);
+    }
+
+    num ENX_MASTER_OBJECT::abs(num p4)
+    {
+        if ((p4 < 0)) {
+            num v0 = (-1 * p4);
+            return v0;
+        } else {
+            return p4;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((p4).is_a_car()) {
+            vector3d v0 = (p8).get_abs_position();
+            vector3d v1 = (p4).get_abs_position();
+            (field_0).apply_directed_damage_cat(20, (v0 - v1), "Enter_Prop_Physics", 1);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::do_it()
+    {
+        field_24 = 1;
+        (this).splode();
+    }
+
+    void ENX_MASTER_OBJECT::splode()
+    {
+        if ((field_8).is_valid()) {
+            destroy_entity(field_8);
+        }
+        vector3d v0 = (field_0).get_abs_position();
+        destroy_entity(field_0);
+        entity fx_explo_aerialmed = create_entity("effects\\aeps\\fx_explo_aerialmed");
+        (fx_explo_aerialmed).set_state(2, 1);
+        (fx_explo_aerialmed).set_rel_position(v0);
+        entity fx_explo_light = create_entity("effects\\entities\\fx_explo_light");
+        (fx_explo_light).set_rel_position(v0);
+        apply_radius_damage(v0, 6, 15, 0, 0);
+        apply_radius_subdue(v0, 6, 15, 0, 0);
+        ((fx_explo_light).get_member("Omni01")).wait_change_range(0.01, 0.01, 2.1);
+    }
+
+    void ENX_MASTER_OBJECT::spin_chopper_blade()
+    {
+        entity v0 = hero();
+        entity v1 = (field_0).get_member("prop_spin1");
+        while ((field_0).is_valid()) {
+            vector3d v5 = ((field_0).get_abs_position() + vector3d(0, 2.25, 0));
+            (field_8).set_rel_position(v5);
+            (field_8).set_po_facing((field_0).get_facing());
+            if ((!field_20)) {
+                vector3d v3 = (v0).get_abs_position();
+                vector3d v2 = (v1).get_abs_position();
+                num v7 = (v3).y();
+                num v8 = (v2).y();
+                if (((this).abs((v7 - v8)) < field_12)) {
+                    vector3d v4 = (v3 - v2);
+                    num v6 = (v4).xz_norm();
+                    if ((v6 < field_16)) {
+                        start_thread_on(this, (this).hurt_venom(v0, v2, v4));
+                    }
+                }
+            }
+            wait_frame();
+        }
+    }
+
+    void ENX_MASTER_OBJECT::hurt_venom(entity p4, vector3d p8, vector3d p20)
+    {
+        field_20 = 1;
+        (p4).apply_directed_damage_cat(25, p20, "KnockDown", 1);
+        (p4).physical_ifc_apply_force(p20, 75);
+        delay(1);
+        field_20 = 0;
+    }
+
+    str _sable_copter::global_40 = "";
+
+    str _sable_copter::global_44 = "";
+
+    str _sable_copter::global_152 = "";
+
+    str _sable_copter::global_156 = "";
+
+}

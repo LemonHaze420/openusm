@@ -1,0 +1,362 @@
+namespace RHINO_SHOCKWAVE {
+    extern vector3d NULL_VECTOR;
+    extern num _global_slc::col_check(vector3d,vector3d,num);
+    extern void _global_slc::create_decal(str,vector3d,num,vector3d);
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern num _global_slc::find_entities_in_radius(entity_list,vector3d,num,num);
+    extern vector3d _global_slc::get_col_hit_pos();
+    extern entity _global_slc::hero();
+    extern num _global_slc::random(num);
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_ifc_num(str);
+    extern num entity::operator==(entity);
+    extern void entity::physical_ifc_start_prop_physics(vector3d,num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity_list::add(entity);
+    extern entity_list_iterator entity_list::begin();
+    extern entity entity_list::get_index(num);
+    extern void entity_list::remove(entity);
+    extern num entity_list::size();
+    extern entity entity_list_iterator::get_entity();
+    extern entity_list_iterator entity_list_iterator::operator++();
+    extern num vector3d::length();
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::y();
+    extern num vector3d::z();
+
+    class _rhino_shockwave
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        _rhino_shockwave(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        num field_12;
+        entity field_16;
+        entity field_20;
+        entity field_24;
+        entity field_28;
+        entity_list field_32;
+        entity_list field_36;
+        entity_list field_40;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void rhino_shockwave_fly(entity p4, entity p8);
+        void rhino_shockwave_suicide();
+        void damage_cars(entity p4);
+        void frame_advance(num p4, num p8);
+        void rhino_shockwave_tracker(entity p4, entity p8);
+        void shockwave_hit(item p4, entity p8, vector3d p12, vector3d p24);
+        void make_shockwaves(num p4);
+        void make_squibs(num p4);
+        void make_decals(num p4);
+        void place_decal(vector3d p4, vector3d p16);
+        void place_squib(vector3d p4);
+        vector3d getGround_level(vector3d p4);
+    };
+
+    _rhino_shockwave::_rhino_shockwave(num p0)
+    {
+        wait_frame();
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_12 = 0;
+        field_0 = p4;
+        field_8 = 0;
+        field_12 = 0;
+        field_32 = create_entity_list();
+        field_36 = create_entity_list();
+        field_40 = create_entity_list();
+        field_24 = create_entity("effects\\aeps\\fx_shockhit");
+        (field_24).set_state(2, 1);
+        (field_24).set_visible(0);
+        field_20 = create_entity("effects\\aeps\\fx_shock_smoke");
+        (field_20).set_state(2, 1);
+        (field_20).set_visible(0);
+        field_28 = create_entity("effects\\aeps\\crevice_stomp_decal");
+        destroy_entity(field_28);
+        (this).make_decals(32);
+        (this).make_squibs(8);
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        destroy_entity_list(field_36);
+        destroy_entity_list(field_40);
+        destroy_entity_list(field_32);
+    }
+
+    void ENX_MASTER_OBJECT::rhino_shockwave_fly(entity p4, entity p8)
+    {
+        field_4 = 1;
+        start_thread_on(this, (this).rhino_shockwave_tracker(p4, p8));
+    }
+
+    void ENX_MASTER_OBJECT::rhino_shockwave_suicide()
+    {
+        (field_16).set_visible(0);
+        (field_20).set_visible(0);
+        field_4 = 0;
+    }
+
+    void ENX_MASTER_OBJECT::damage_cars(entity p4)
+    {
+        num retained_value243 = 4;
+        vector3d v0 = (p4).get_abs_position();
+        entity_list v1;
+        v1 = create_entity_list();
+        find_entities_in_radius(v1, v0, 25, 2);
+        (v1).remove(field_0);
+        (v1).remove(hero());
+        entity_list_iterator v4 = (v1).begin();
+        num v2 = 0;
+        vector3d v6;
+        while ((v2 < (v1).size())) {
+            entity v3 = (v4).get_entity();
+            vector3d v5 = (v3).get_abs_position();
+            num v7 = distance3d(v5, v0);
+            if ((v7 < retained_value243)) {
+                if (((v3).get_ifc_num("SD_NUM_5") == 43)) {
+                    v6 = (v5 - v0);
+                    v6 = (v6 * (20 / (v6).length()));
+                    (v3).physical_ifc_start_prop_physics(v6, 4);
+                }
+                (v1).remove(v3);
+            } else {
+                v2++;
+                v4++;
+            }
+        }
+        destroy_entity_list(v1);
+    }
+
+    void ENX_MASTER_OBJECT::frame_advance(num p4, num p8)
+    {
+    }
+
+    void ENX_MASTER_OBJECT::rhino_shockwave_tracker(entity p4, entity p8)
+    {
+        num v4 = 0;
+        vector3d v5 = ((p4).get_abs_position() - vector3d(0, 1.8, 0));
+        bind_signal_once_on(this, signal_id(p8, "entity::FADED_OUT"), (this).rhino_shockwave_suicide());
+        (this).place_squib(v5);
+        (field_20).set_visible(1);
+        vector3d v3 = (this).getGround_level((p8).get_abs_position());
+        vector3d v1 = v5;
+        if ((field_16 == entity("NULL"))) {
+            field_16 = create_entity("effects\\aeps\\fx_rhino_gpound");
+            (field_16).set_state(2, 1);
+        }
+        (field_16).set_rel_position(v5);
+        (field_16).set_visible(1);
+        create_decal("fx_decal_rhinofall", v3, 20, NULL_VECTOR);
+        vector3d v6;
+        vector3d v0 = vector3d(0, 0, 0);
+        num v2 = 0;
+        while (field_4) {
+            v6 = vector3d(((p8).get_abs_position()).x(), (v3).y(), ((p8).get_abs_position()).z());
+            num v8 = ((v6 - v0)).length();
+            if ((v8 < 0.1)) {
+                v2++;
+                if ((v2 > 5)) {
+                    (this).rhino_shockwave_suicide();
+                }
+            }
+            (this).damage_cars(p8);
+            if ((v4 > 1)) {
+                if ((random(3) == 0)) {
+                    (this).place_squib(v6);
+                }
+                v4 = 0;
+            }
+            if ((distance3d(v1, v6) >= 3.25)) {
+                v3 = (this).getGround_level((p8).get_abs_position());
+                v6 = vector3d(((p8).get_abs_position()).x(), (v3).y(), ((p8).get_abs_position()).z());
+                vector3d v9 = (v1 - v6);
+                num v10 = (v9).length();
+                vector3d v7 = (v9 / v10);
+                (this).place_decal((v6 + vector3d(0, 0.05, 0)), v7);
+                v1 = v6;
+            }
+            (field_20).set_rel_position(v6);
+            wait_frame();
+            v4++;
+        }
+        destroy_entity(field_16);
+    }
+
+    void ENX_MASTER_OBJECT::shockwave_hit(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (field_24).set_rel_position(p12);
+        (field_24).set_visible(1);
+        (this).rhino_shockwave_suicide();
+    }
+
+    void ENX_MASTER_OBJECT::make_shockwaves(num p4)
+    {
+        num v0 = 0;
+        num v1 = (1 / p4);
+        while ((v0 < p4)) {
+            entity fx_shock_wave = create_entity("effects\\entities\\fx_shock_wave");
+            (fx_shock_wave).set_distance_clip(10000);
+            (fx_shock_wave).set_render_scale(vector3d((8 - v0), (10 - v0), (8 - v0)));
+            if ((v0 > 0)) {
+                (fx_shock_wave).set_parent((field_32).get_index(0));
+                (fx_shock_wave).set_rel_position(vector3d(0, 0, (-0.3 * v0)));
+                (fx_shock_wave).set_render_alpha((1 - (v1 * v0)));
+            }
+            (field_32).add(fx_shock_wave);
+            v0++;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::make_squibs(num p4)
+    {
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_rhino_ftstomp = create_entity("effects\\aeps\\fx_rhino_ftstomp");
+            (fx_rhino_ftstomp).set_state(2, 1);
+            (fx_rhino_ftstomp).set_distance_clip(10000);
+            (fx_rhino_ftstomp).set_visible(0);
+            (field_40).add(fx_rhino_ftstomp);
+            v0++;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::make_decals(num p4)
+    {
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity crevice_decal = create_entity("effects\\entities\\crevice_decal");
+            (crevice_decal).set_distance_clip(10000);
+            (crevice_decal).set_visible(0);
+            (field_36).add(crevice_decal);
+            v0++;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::place_decal(vector3d p4, vector3d p16)
+    {
+        ((field_36).get_index(field_8)).set_rel_position(p4);
+        ((field_36).get_index(field_8)).set_po_facing(p16);
+        ((field_36).get_index(field_8)).set_visible(1);
+        if ((field_8 < ((field_36).size() - 1))) {
+            field_8++;
+        } else {
+            field_8 = 0;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::place_squib(vector3d p4)
+    {
+        ((field_40).get_index(field_12)).set_rel_position(p4);
+        ((field_40).get_index(field_12)).set_visible(1);
+        if ((field_12 < ((field_40).size() - 1))) {
+            field_12++;
+        } else {
+            field_12 = 0;
+        }
+    }
+
+    vector3d ENX_MASTER_OBJECT::getGround_level(vector3d p4)
+    {
+        p4 = (p4 + vector3d(0, 0.25, 0));
+        vector3d v1 = (p4 + vector3d(0, -5, 0));
+        if (col_check(p4, v1, 1)) {
+            vector3d v2 = get_col_hit_pos();
+            return v2;
+        } else {
+            vector3d v2 = vector3d(0, 0, 0);
+            return v2;
+        }
+    }
+
+    str _rhino_shockwave::global_40 = "";
+
+    str _rhino_shockwave::global_44 = "";
+
+    str _rhino_shockwave::global_152 = "";
+
+    str _rhino_shockwave::global_156 = "";
+
+}

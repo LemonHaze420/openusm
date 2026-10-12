@@ -1,0 +1,46 @@
+namespace KG_POWERSOURCE {
+    extern void entity::apply_damage(num);
+    extern num entity::is_a_car();
+
+    class _kg_powersource
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        _kg_powersource(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    _kg_powersource::_kg_powersource(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_0 = p4;
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((p4).is_a_car()) {
+            (p8).apply_damage(20);
+        }
+    }
+
+}

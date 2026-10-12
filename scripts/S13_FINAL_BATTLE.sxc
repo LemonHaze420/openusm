@@ -1,0 +1,3509 @@
+namespace S13_FINAL_BATTLE {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern num g_mission_music_active;
+    extern num g_switch_to_open_city_music;
+    extern num g_story_checkpoint;
+    extern num g_hood_gang;
+    extern num g_mission_type;
+    extern num g_tutorial_car_combat_attack_shown;
+    extern num g_tutorial_car_combat_dodge_shown;
+    extern num g_tutorial_car_combat_land_shown;
+    extern num g_queens_tour_running;
+    extern num g_enable_story;
+    extern num g_enable_igc;
+    extern num g_enable_venom_igc;
+    extern num g_enable_token_event;
+    extern num g_enable_sh;
+    extern num g_enable_can;
+    extern num g_enable_hot_pursuit;
+    extern num g_next_shenani_time;
+    extern num g_next_can_time;
+    extern num g_enable_trick_race;
+    extern num g_race_exited_via_pause;
+    extern num g_done_with_storm_anim;
+    extern num g_trick_race_restarted;
+    extern num g_enable_venom_trick_race;
+    extern num g_unlockables_entered;
+    extern num g_torch_race_running;
+    extern num g_trick_race_controls_locked;
+    extern num g_trick_race_running;
+    extern num g_spidey_trick_difficulty[];
+    extern num g_venom_trick_difficulty[];
+    extern vector3d RESPAWN_PETERS_HOUSE;
+    extern vector3d RESPAWN_DAILY_BUGLE;
+    extern vector3d RESPAWN_ESU;
+    extern vector3d RESPAWN_CENTRAL_PARK;
+    extern num g_enable_storm_race;
+    extern num g_torch_message_flag;
+    extern num game_clock_timer;
+    extern vector3d gv_hero_restart_pos;
+    extern num gv_num_current_story;
+    extern num gv_num_current_token_event;
+    extern num gv_story_finished;
+    extern num gv_unlockable_landmark[];
+    extern num gv_unlockable_covers[];
+    extern num gv_easy_trick_races_completed;
+    extern num gv_medium_trick_races_completed;
+    extern num gv_hard_trick_races_completed;
+    extern num gv_insane_trick_races_completed;
+    extern num gv_tutorial_car_combat_counter;
+    extern num gv_shen_speed_normal;
+    extern num gv_shens_successfully_completed;
+    extern num gv_trick_marker_bronze_medal_status[];
+    extern num gv_trick_marker_silver_medal_status[];
+    extern num gv_trick_marker_gold_medal_status[];
+    extern num gv_trick_marker_ultimate_medal_status[];
+    extern num gv_venom_trick_marker_bronze_medal_status[];
+    extern num gv_venom_trick_marker_silver_medal_status[];
+    extern num gv_venom_trick_marker_gold_medal_status[];
+    extern num gv_venom_trick_marker_ultimate_medal_status[];
+    extern num gv_current_max_hitpoints;
+    extern num gv_total_storm_races_completed;
+    extern num gv_torch_race_00_done;
+    extern num gv_torch_race_01_done;
+    extern num gv_torch_race_02_done;
+    extern num gv_torch_race_03_done;
+    extern num gv_token_tally[];
+    extern num gv_token_collected[];
+    extern num gv_city_tutorials[];
+    extern num gv_health_ulocked;
+    extern num gv_tour_diff_ulocked;
+    extern num gv_combat_tours_completed;
+    extern num gv_tour_difficulty[];
+    extern num gv_tour_req[];
+    extern num gv_race_req[];
+    extern num gv_token_req[];
+    extern num gv_shen_req[];
+    extern num gv_tour_prog[];
+    extern num gv_race_prog[];
+    extern num gv_token_prog[];
+    extern num gv_shen_prog[];
+    extern num gv_master_prog[];
+    extern num gv_shens_finished;
+    extern num gv_obj_list_needed;
+    extern num gv_torch_race_unlock_req_easy;
+    extern num gv_torch_race_unlock_req_med;
+    extern num gv_torch_race_unlock_req_hard;
+    extern num gv_torch_race_unlock_req_insane;
+    extern num gv_torch_race_unlocked_2;
+    extern num gv_torch_race_unlocked_3;
+    extern num gv_torch_race_unlocked_4;
+    extern num gv_torch_race_unlocked_5;
+    extern num gv_current_city_tod;
+    extern num gv_current_venom_city_tod;
+    extern void _global_slc::add_glass_house(str);
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern entity _global_slc::chase_cam();
+    extern void _global_slc::clear_controls();
+    extern num _global_slc::col_check(vector3d,vector3d,num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern debug_menu_entry _global_slc::create_debug_menu_entry(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern polytube _global_slc::create_polytube();
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern sound_inst _global_slc::create_stompable_music_sound_inst(str);
+    extern trigger _global_slc::create_trigger(vector3d,num);
+    extern vector3d _global_slc::cross(vector3d,vector3d);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::disable_subtitles();
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern void _global_slc::enable_civilians(num);
+    extern void _global_slc::enable_controls(num);
+    extern void _global_slc::enable_mini_map(num);
+    extern void _global_slc::enable_subtitles();
+    extern void _global_slc::enable_tokens_of_type(num,num);
+    extern void _global_slc::enable_traffic(num);
+    extern void _global_slc::end_cut_scenes();
+    extern num _global_slc::entity_exists(str);
+    extern district _global_slc::find_district_for_point(vector3d);
+    extern entity _global_slc::find_entity(str);
+    extern num _global_slc::float_random(num);
+    extern void _global_slc::freeze_hero(num);
+    extern vector3d _global_slc::get_col_hit_norm();
+    extern vector3d _global_slc::get_col_hit_pos();
+    extern num _global_slc::get_token_index_from_id(num,num);
+    extern entity _global_slc::hero();
+    extern void _global_slc::initialize_encounter_object();
+    extern void _global_slc::invoke_pause_menu_unlockables();
+    extern num _global_slc::is_hero_spidey();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern num _global_slc::is_mission_loading();
+    extern void _global_slc::malor(vector3d,num);
+    extern vector3d _global_slc::normal(vector3d);
+    extern void _global_slc::play_prerender(str);
+    extern num _global_slc::random(num);
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::set_game_info_num(str,num);
+    extern void _global_slc::set_mission_text(num,...);
+    extern void _global_slc::set_mission_text_box_flavor(num);
+    extern void _global_slc::set_time_of_day(num);
+    extern void _global_slc::shut_up_all_ai_voice_boxes();
+    extern num _global_slc::sin(num);
+    extern void _global_slc::spiderman_camera_add_shake(num,num,num);
+    extern void _global_slc::spiderman_camera_autocorrect(num);
+    extern void _global_slc::spiderman_camera_clear_fixedstatic();
+    extern void _global_slc::spiderman_camera_enable_lookaround(num);
+    extern num _global_slc::spiderman_is_on_ground();
+    extern num _global_slc::spiderman_is_on_wall();
+    extern void _global_slc::stop_all_sounds();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::subtitle(num,num,num,num,num,num);
+    extern void _global_slc::swap_hero_costume(str);
+    extern void _global_slc::turn_off_boss_health();
+    extern void _global_slc::turn_off_mission_text();
+    extern void _global_slc::turn_on_boss_health(num,entity);
+    extern void _global_slc::turn_on_hero_health(num,entity);
+    extern void _global_slc::unload_script();
+    extern void _global_slc::wait_for_streamer_to_reach_equilibrium();
+    extern void _global_slc::wait_frame();
+    extern num entity::ai_say_sound_group(str,num,num);
+    extern num entity::ai_wait_say_file(str,num,num);
+    extern num entity::ai_wait_say_sound_group(str,num,num);
+    extern void entity::apply_damage(num);
+    extern num entity::change_ai_base_machine(str);
+    extern void entity::compute_sector();
+    extern void entity::enable_collisions();
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern num entity::get_ifc_num(str);
+    extern entity entity::get_member(str);
+    extern vector3d entity::get_rel_position();
+    extern num entity::get_render_alpha();
+    extern void entity::ifl_lock(num);
+    extern num entity::is_valid();
+    extern num entity::is_visible();
+    extern num entity::operator!=(entity);
+    extern num entity::operator==(entity);
+    extern num entity::physical_ifc_is_biped_physics_running();
+    extern void entity::physical_ifc_stop_biped_physics();
+    extern void entity::reset_ai();
+    extern void entity::set_ai_param_int(str,num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_scale(num);
+    extern void entity::set_scripted_target(entity);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::set_xz_facing(vector3d);
+    extern void entity::wait_change_color(vector3d,vector3d,num);
+    extern void entity::wait_rotate(vector3d,num,num);
+    extern num entity::was_occluded_last_frame();
+    extern void cut_scene::wait_play();
+    extern void debug_menu_entry::set_handler(str);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern vector3d polytube::get_control_pt(num);
+    extern num polytube::get_num_control_pts();
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_additive(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tube_radius(num);
+    extern void signaller::clear_callbacks();
+    extern void sound_inst::fade_out(num);
+    extern num sound_inst::is_valid();
+    extern void sound_inst::play(num);
+    extern void sound_inst::play_3d(vector3d,num);
+    extern void sound_inst::stop(num);
+    extern num trigger::contains(entity);
+    extern num vector3d::length();
+    extern num vector3d::operator!=(vector3d);
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::y();
+    extern num vector3d::z();
+    extern vector3d posfacing3d::get_facing();
+    extern vector3d posfacing3d::get_position();
+    extern district district::district(str);
+    extern num district::get_neighborhood();
+    extern void district::wait_for_load();
+
+    class _s13_final_battle
+    {
+    public:
+        static camera_effects fx_camera = camera_effects::create_named("fx_camera");
+        static fx_lightning go_lightning = fx_lightning::create_named("go_lightning");
+        static effects_common rain_common = effects_common::create_named("rain_common");
+        static sound_inst global_12;
+        static num global_16 = 0;
+        static entity_list global_20;
+        static entity_list global_24;
+        static hero_damage_over_time s13_damage = hero_damage_over_time::create_named("s13_damage");
+        static final_battle_data FINAL_BATTLE = final_battle_data::from_game_data("FINAL_BATTLE");
+        static num global_36 = 1;
+        static sound_inst global_40;
+        static entity global_44;
+        static entity global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static rain_system my_rain = rain_system::create_named("my_rain");
+        static num global_64 = 0;
+        static num global_68 = 0;
+        static num global_72;
+        static num global_76;
+        static num global_80;
+        static num global_84;
+        static num global_88;
+        static num global_92;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static str global_112;
+        static str global_116;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132;
+        static num global_136;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static num global_184 = 0;
+        static num global_188 = 0;
+        static num global_192 = 0;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204 = 0;
+        static num global_208 = 0;
+        static num global_212 = 0;
+        static num global_216 = 0;
+        static num global_220 = 0;
+        static str global_224;
+        static str global_228;
+        static num global_232 = 0;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        static num global_260;
+        static num global_264;
+        static num global_268 = 0;
+        static num global_272 = 0;
+        static num global_276 = 0;
+        static num global_280;
+        static num global_284;
+        static num global_288;
+        static num global_292;
+        static num global_296;
+        static num global_300;
+        static ai_auditor ai_auditor = ai_auditor::create_named("ai_auditor");
+        static goal_tracker goal_tracker = goal_tracker::create_named("goal_tracker");
+        static city_point_manager city_point_manager = city_point_manager::create_named("city_point_manager");
+        static common_gmu_manager common_gmu_manager = common_gmu_manager::create_named("common_gmu_manager");
+        static common_thug_manager common_thug_manager = common_thug_manager::create_named("common_thug_manager");
+        static common_vehicle_manager common_vehicle_manager = common_vehicle_manager::create_named("common_vehicle_manager");
+        static common_simple_civ_manager common_simple_civ_manager = common_simple_civ_manager::create_named("common_simple_civ_manager");
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_336 = 0;
+        static num global_340;
+        static num global_344;
+        static num global_348;
+        static num global_352;
+        static num global_356;
+        static num global_360;
+        static num global_364;
+        static num global_368;
+        static num global_372;
+        static num global_376;
+        static num global_380;
+        static num global_384;
+        static num global_388;
+        static num global_392;
+        static num global_396;
+        static num global_400;
+        static num global_404;
+        static num global_408 = 0;
+        static num global_412;
+        static num global_416;
+        static num global_420;
+        static num global_424;
+        _s13_final_battle(num p0);
+        ~_s13_final_battle();
+        void generic_spidey_lose_panel();
+        void failure_dialog(num p0);
+        void clear_all_scripts();
+        num get_random_polarity(num p0);
+        void wait_frame(num p0);
+        void mission_music_P1_start();
+        void mission_music_IGC();
+        void mission_music_failed();
+        void start_mission_music();
+        void end_mission_success();
+        void end_mission_failed();
+        void end_mission_music_check(sound_inst p0);
+        void show_car_combat_help_text(num p0);
+        void set_hero(str p0);
+        void set_spiderman_health();
+        void run_hot_pursuit();
+        void prepare_open_city_vars();
+        num cycle_tod(num p0);
+        void switch_to_spiderman();
+        void switch_to_venom();
+        void hot_pursuit_checker();
+        void update_open_city_times();
+        num adjust_mission_num(num p0);
+        void set_TOD_and_shoreline(num p0);
+        void enable_mission_tokens_by_hero();
+        void go_to_my_neighborhood(vector3d p0);
+        void city_tutorial_manager(num p0, num p4, num p8);
+        void handle_objective_list(num p0);
+        void launch_trick_race(num p0);
+        void launch_venom_trick_race(num p0);
+        void launch_torch_race(num p0);
+        void set_up_tokens(num p0, num p4);
+        void kill_shenanigans();
+        void disable_mission_tokens();
+        void launch_combat_tour(num p0);
+        void show_mission_text(num p0);
+        void update_open_city_shen_times();
+        num convert_to_progression_step(num p0);
+        void disable_all_tokens();
+        void enable_pickup_tokens();
+        void set_torch_token(num p0);
+        void set_tour_tokens();
+        void city_goals_hint();
+        void process_master_objective();
+        void set_progression_display_vars();
+        void make_fire_light(num p0);
+        void start_fire_damage(trigger p0);
+        void stop_fire_damage();
+        void add_fire_trigger(vector3d p0);
+        void make_fires(num p0);
+        void north_fire_effect();
+        void animate_fire_lights(num p0, num p4);
+        void place_fire(vector3d p0, num p12);
+        void south_fire_effect();
+        void fire_vo();
+        void setup_debug_menu();
+        void checkpoint_manager();
+        void end_mission_music();
+        void sound_watcher();
+        void setup_s13_throw_entities();
+        void start_story();
+        void begin_story();
+        void play_intro_igc();
+        void set_up_scene();
+        void S13_music_thread();
+        void north_fire_start_effects();
+        void watch_for_biggerfire();
+        void watch_for_mission_win();
+        void watch_for_chopper_fail();
+        void watch_for_chopper_damage();
+        void play_chopper_sound();
+        void starting_vo();
+        void kill_mission_text(num p0);
+        void south_fire_start_effects();
+        void mission_fail_spidey_specific(num p0);
+        void start_chopper_dmg_panel();
+        void spawn_move_and_set(entity p0, str p4);
+        void trask_got_hit();
+        void spidey_got_hit();
+        void S13_preview_stomp(debug_menu_entry p0);
+        void s13_preview_moves(debug_menu_entry p0);
+        void s13_win(debug_menu_entry p0);
+        void mission_called_from_debug_menu();
+        void on_combat_tour_enter(entity p0, num p4, str p8);
+        void on_storm_race_enter(entity p0, num p4, str p8);
+        void on_venom_race_enter(entity p0, num p4, str p8);
+        void on_trick_race_enter(entity p0, num p4, str p8);
+        void on_token_pickup(entity p0, num p4, num p8, num p12, str p16);
+        void progression_mission_aborted();
+        void progression_mission_failed();
+        void clear_missions_for_unlockables();
+        void toggle_hero();
+        void set_hero_costume(str p0);
+        void left_token_trigger();
+        void display_car_combat_warning_panel(num p0);
+    };
+
+    class hero_damage_over_time
+    {
+    public:
+        num field_0;
+        num field_4;
+        trigger field_8;
+        hero_damage_over_time();
+        ~hero_damage_over_time();
+        void enable(trigger p4, num p8);
+        void disable();
+        void update_loop();
+    };
+
+    class spawner
+    {
+    public:
+        str field_0;
+        str field_4;
+        posfacing3d field_8;
+        entity field_24;
+        entity spawn_it();
+    };
+
+    class final_battle_data
+    {
+    public:
+        posfacing3d field_0;
+        spawner field_16;
+        spawner field_20;
+        num unused_24[9];
+        vector3d field_60;
+        vector3d field_72;
+        vector3d field_84;
+        vector3d field_96;
+        vector3d field_108;
+        vector3d field_120;
+        vector3d field_132;
+        vector3d field_144;
+        spawner field_156;
+        spawner field_160;
+        spawner field_164;
+        spawner field_168;
+        spawner field_172;
+        spawner field_176;
+        spawner field_180;
+        spawner field_184;
+        spawner field_188;
+        spawner field_192;
+        spawner field_196;
+        spawner field_200;
+        num unused_204[1];
+        spawner field_208;
+        spawner field_212;
+        spawner field_216;
+        spawner field_220;
+        spawner field_224;
+        spawner field_228;
+        spawner field_232;
+        spawner field_236;
+        spawner field_240;
+        spawner field_244;
+        spawner field_248;
+        spawner field_252;
+        spawner field_256;
+        spawner field_260;
+        spawner field_264;
+        spawner field_268;
+        spawner field_272;
+        spawner field_276;
+        spawner field_280;
+        spawner field_284;
+        spawner field_288;
+        num unused_292[3];
+        spawner field_304;
+        spawner field_308;
+        num unused_312[2];
+        spawner field_320;
+        spawner field_324;
+        spawner field_328;
+        spawner field_332;
+        spawner field_336;
+        spawner field_340;
+        spawner field_344;
+        spawner field_348;
+        spawner field_352;
+        spawner field_356;
+        spawner field_360;
+        spawner field_364;
+        spawner field_368;
+        spawner field_372;
+        spawner field_376;
+        spawner field_380;
+        spawner field_384;
+        spawner field_388;
+        spawner field_392;
+        spawner field_396;
+        spawner field_400;
+        spawner field_404;
+        spawner field_408;
+        spawner field_412;
+        spawner field_416;
+        spawner field_420;
+        spawner field_424;
+        spawner field_428;
+        spawner field_432;
+        spawner field_436;
+        spawner field_440;
+        spawner field_444;
+        spawner field_448;
+        spawner field_452;
+        spawner field_456;
+        spawner field_460;
+        spawner field_464;
+        spawner field_468;
+        spawner field_472;
+        spawner field_476;
+        spawner field_480;
+        num unused_484[1];
+        spawner field_488;
+        spawner field_492;
+        spawner field_496;
+        spawner field_500;
+        spawner field_504;
+        num unused_508[2];
+        final_battle_data();
+        ~final_battle_data();
+        void startup();
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void wait_fade_alpha(entity p4, num p8);
+        void wait_fade_alpha_in(entity p4, num p8);
+        void adv_wait_fade_alpha_in(entity p4, num p8, num p12);
+        void wait_visibility(entity p4, num p8, num p12);
+        void xz_face_cam_list(entity_list p4, entity p8);
+    };
+
+    class camera_effects
+    {
+    public:
+        entity field_0;
+        camera_effects();
+        void flash_cam(num p4, num p8);
+        void shake_cam(num p4);
+    };
+
+    class fx_lightning
+    {
+    public:
+        vector3d field_0;
+        vector3d field_12;
+        num field_24;
+        num field_28;
+        effects_common field_32;
+        entity_list field_36;
+        fx_lightning();
+        void thunder_sound();
+        void lightning_storm_on();
+        void go_lightning_storm();
+        void make_cloud_particles(num p4);
+        void multi_place_cloud_particles(vector3d p4, num p16, num p20);
+        void place_cloud_particles(vector3d p4, num p16);
+        void make_one_bolt(vector3d p4, vector3d p16, num p28);
+        void setup_bolt(polytube p4);
+        void shape_bolt(polytube p4, polytube p8);
+        void wait_flash_bolt(polytube p4, polytube p8, num p12, num p16, num p20);
+        void func_cross_product(vector3d p4);
+    };
+
+    class rain_system
+    {
+    public:
+        entity field_0;
+        entity field_4;
+        entity field_8;
+        vector3d field_12;
+        vector3d field_24;
+        num field_36;
+        num field_40;
+        num field_44;
+        num field_48;
+        entity_list field_52;
+        entity_list field_56;
+        sound_inst field_60;
+        rain_system();
+        void start_rain();
+        void make_splashes(num p4);
+        void face_splashes_to_cam();
+        void make_puddles(num p4);
+        void recycle_puddles();
+        void wait_place_puddle(vector3d p4);
+        num check_ground_flatness(vector3d p4, num p16);
+        void rain_follow();
+        void start_ground_splashing(num p4);
+        num avoid_spidey(vector3d p4, num p16);
+        void ground_splashing(num p4, num p8);
+    };
+
+    class ai_auditor
+    {
+    public:
+        num field_0;
+        ai_auditor();
+    };
+
+    class common_thug_manager
+    {
+    public:
+        num field_0[18];
+        num field_72;
+        num field_76;
+        num field_80;
+        num field_84;
+        num field_88;
+        num field_92;
+        num field_96;
+        num field_100;
+        common_thug_manager();
+        ~common_thug_manager();
+    };
+
+    class common_simple_civ_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        common_simple_civ_manager();
+        ~common_simple_civ_manager();
+    };
+
+    class common_gmu_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        num field_80;
+        common_gmu_manager();
+        ~common_gmu_manager();
+    };
+
+    class common_vehicle_manager
+    {
+    public:
+        num unused_0[22];
+        num field_88;
+        num field_92;
+        common_vehicle_manager();
+        ~common_vehicle_manager();
+    };
+
+    class goal_tracker
+    {
+    public:
+        num field_0;
+        goal_tracker();
+        ~goal_tracker();
+        void shutdown();
+    };
+
+    class city_point_manager
+    {
+    public:
+        city_point_manager();
+        ~city_point_manager();
+        void shutdown();
+    };
+
+    void _s13_final_battle::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    void _s13_final_battle::kill_mission_text(num p0)
+    {
+        if ((p0 > 0)) {
+            delay(p0);
+        }
+        turn_off_mission_text();
+    }
+
+    num _s13_final_battle::get_random_polarity(num p0)
+    {
+        num v1 = random(2);
+        if ((!v1)) {
+            v1 = -1;
+        }
+        num v0 = (p0 * v1);
+        return v0;
+    }
+
+    void _s13_final_battle::mission_fail_spidey_specific(num p0)
+    {
+        g_mission_status = 3;
+        stop_all_sounds();
+        stop_vibration();
+        set_dialog_box_flavor(3);
+        (hero()).reset_ai();
+        start_thread(_s13_final_battle::generic_spidey_lose_panel());
+        delay(4.63);
+        _s13_final_battle::failure_dialog(p0);
+    }
+
+    void _s13_final_battle::clear_all_scripts()
+    {
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        unload_script();
+        while (is_mission_active()) {
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _s13_final_battle::failure_dialog(num p0)
+    {
+        num v1 = 3;
+        num v0 = 0;
+        shut_up_all_ai_voice_boxes();
+        blackscreen_off(0);
+        _global_slc::wait_frame();
+        if (((gv_num_current_story == 1) || (gv_num_current_story == 2))) {
+            v0 = 1;
+        }
+        if (v0) {
+            v1 = 0;
+        } else if ((p0 == -1)) {
+            v1 = bring_up_dialog_box_title(30, 0, 31);
+        } else {
+            v1 = bring_up_dialog_box_title(p0, 0, 31);
+        }
+        if ((v1 == 0)) {
+            blackscreen_on(0);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            end_cut_scenes();
+            _s13_final_battle::clear_all_scripts();
+        } else {
+            blackscreen_on(0);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            g_story_checkpoint = 0;
+            end_cut_scenes();
+            raise_signal("MISSION_END_FAIL");
+            _s13_final_battle::clear_all_scripts();
+        }
+    }
+
+    void _s13_final_battle::generic_spidey_lose_panel()
+    {
+        end_cut_scenes();
+        cut_scene v0 = create_cut_scene("cutscenes\\in_game\\spidey_failpanel");
+        (v0).wait_play();
+    }
+
+    void _s13_final_battle::go_to_my_neighborhood(vector3d p0)
+    {
+        district v2;
+        district v1;
+        num v3 = 0;
+        if ((hero()).physical_ifc_is_biped_physics_running()) {
+            (hero()).physical_ifc_stop_biped_physics();
+        }
+        if (is_hero_venom()) {
+            malor(RESPAWN_CENTRAL_PARK, 1);
+        } else {
+            v2 = find_district_for_point(p0);
+            v3 = (v2).get_neighborhood();
+            switch (v3) {
+            case 0:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            case 1:
+            {
+                malor(RESPAWN_ESU, 1);
+                break;
+            }
+            case 2:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            case 3:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            default:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            }
+        }
+        v1 = find_district_for_point((hero()).get_abs_position());
+        (v1).wait_for_load();
+        wait_for_streamer_to_reach_equilibrium();
+    }
+
+    hero_damage_over_time::hero_damage_over_time()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_4 = 0;
+    }
+
+    hero_damage_over_time::~hero_damage_over_time()
+    {
+        if (field_4) {
+            (this).disable();
+        }
+    }
+
+    void hero_damage_over_time::enable(trigger p4, num p8)
+    {
+        if (field_4) {
+            (this).disable();
+        }
+        field_8 = p4;
+        wait_frame();
+        field_0 = p8;
+        start_thread_on(this, (this).update_loop());
+    }
+
+    void hero_damage_over_time::disable()
+    {
+        if (field_4) {
+            field_4 = 0;
+        }
+    }
+
+    void hero_damage_over_time::update_loop()
+    {
+        field_4 = 1;
+        while ((((field_4 == 1) && (field_8).contains(hero())) && (g_mission_status != 3))) {
+            switch (field_0) {
+            case 0:
+            {
+                (hero()).apply_damage(3);
+                break;
+            }
+            case 1:
+            {
+                (hero()).apply_damage(2);
+                break;
+            }
+            case 2:
+            {
+                break;
+            }
+            case 3:
+            {
+                break;
+            }
+            }
+            delay(1);
+        }
+        (this).disable();
+    }
+
+    entity spawner::spawn_it()
+    {
+        if ((field_24).is_valid()) {
+        } else {
+            field_24 = create_entity(field_0, field_4);
+            if ((field_24).is_valid()) {
+                wait_frame();
+                (field_24).set_rel_position((field_8).get_position());
+                (field_24).set_xz_facing((field_8).get_facing());
+            }
+        }
+        return field_24;
+    }
+
+    final_battle_data::final_battle_data()
+    {
+    }
+
+    final_battle_data::~final_battle_data()
+    {
+    }
+
+    void final_battle_data::startup()
+    {
+        initialize_encounter_object();
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::wait_fade_alpha(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v1 = (p4).get_render_alpha();
+        num v2 = (v1 / p8);
+        while ((v0 < p8)) {
+            (p4).set_render_alpha((v1 - (v2 * v0)));
+            wait_frame();
+            v0++;
+        }
+        (p4).set_visible(0);
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::wait_fade_alpha_in(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v2 = (p4).get_render_alpha();
+        num v1 = ((1 - v2) / p8);
+        while ((v0 < p8)) {
+            wait_frame();
+            (p4).set_render_alpha((v1 * v0));
+            v0++;
+        }
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::adv_wait_fade_alpha_in(entity p4, num p8, num p12)
+    {
+        num v0 = 1;
+        num v2 = (p4).get_render_alpha();
+        num v1 = ((p12 - v2) / p8);
+        while ((v0 < p8)) {
+            wait_frame();
+            (p4).set_render_alpha((v1 * v0));
+            v0++;
+        }
+        (p4).set_render_alpha(p12);
+    }
+
+    void effects_common::wait_visibility(entity p4, num p8, num p12)
+    {
+        delay(p12);
+        (p4).set_visible(p8);
+    }
+
+    void effects_common::xz_face_cam_list(entity_list p4, entity p8)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_xz_facing((p8).get_facing());
+            v0++;
+        }
+    }
+
+    camera_effects::camera_effects()
+    {
+        wait_frame();
+    }
+
+    void camera_effects::flash_cam(num p4, num p8)
+    {
+        num v0 = 0;
+        if ((field_0 == entity("NULL"))) {
+            field_0 = create_entity("fx\\entities\\fx_cam_flash", "camera_flash");
+            (field_0).set_parent(chase_cam());
+            (field_0).set_rel_position(vector3d(0, 0, 0.5));
+            (field_0).set_visible(0);
+        }
+        while ((v0 < p4)) {
+            (field_0).set_visible(1);
+            wait_frame();
+            (field_0).set_visible(0);
+            wait_frame();
+            v0++;
+        }
+        if ((p8 > 0)) {
+            (this).shake_cam(p8);
+        }
+    }
+
+    void camera_effects::shake_cam(num p4)
+    {
+        switch (p4) {
+        case 1:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        case 2:
+        {
+            spiderman_camera_add_shake(0.1, 16, 0.75);
+            spiderman_camera_add_shake(0.04, 20, 0.5);
+            spiderman_camera_add_shake(0.015, 24, 1.5);
+            break;
+        }
+        default:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        }
+    }
+
+    fx_lightning::fx_lightning()
+    {
+        field_24 = 0;
+        field_28 = 0;
+        wait_frame();
+        field_0 = vector3d(0, 0, 0);
+        field_12 = vector3d(0, 0, 0);
+        (this).make_cloud_particles(4);
+    }
+
+    void fx_lightning::thunder_sound()
+    {
+        sound_inst v2;
+        switch (random(3)) {
+        case 0:
+        {
+            v2 = create_sound_inst("sfx_lightning_1");
+            break;
+        }
+        case 1:
+        {
+            v2 = create_sound_inst("sfx_lightning_2");
+            break;
+        }
+        default:
+        {
+            v2 = create_sound_inst("sfx_lightning_3");
+            break;
+        }
+        }
+        num v1 = 0;
+        v1 = ((random(16) + 5) * 0.1);
+        delay(v1);
+        (v2).play(0);
+    }
+
+    void fx_lightning::lightning_storm_on()
+    {
+        if ((!field_24)) {
+            field_24 = 1;
+            start_thread_on(this, (this).go_lightning_storm());
+        } else {
+        }
+    }
+
+    void fx_lightning::go_lightning_storm()
+    {
+        while (field_24) {
+            num v0 = random(15);
+            vector3d v7 = (chase_cam()).get_facing();
+            num v8 = (v7).length();
+            vector3d v6 = (v7 / v8);
+            vector3d v1 = vector3d((v6).x(), 0, (v6).z());
+            vector3d v3 = vector3d(((hero()).get_abs_position()).x(), 0, ((hero()).get_abs_position()).z());
+            v3 = (v3 + vector3d(_s13_final_battle::get_random_polarity(random(70)), 0, _s13_final_battle::get_random_polarity(random(70))));
+            vector3d v2 = (v3 + (v1 * 200));
+            num v4 = (((hero()).get_abs_position()).y() + 80);
+            vector3d v5 = (v2 + vector3d(_s13_final_battle::get_random_polarity(random(30)), v4, _s13_final_battle::get_random_polarity(random(30))));
+            (this).place_cloud_particles(v5, 0);
+            start_thread_on(this, (this).make_one_bolt(v5, v2, 3.2));
+            start_thread_on(this, (this).thunder_sound());
+            delay(0.2);
+            (_s13_final_battle::fx_camera).flash_cam(3, 0);
+            if ((v0 > 1)) {
+                delay((v0 / 2));
+                (this).multi_place_cloud_particles(v5, 45, 5);
+                delay((v0 / 2));
+            } else {
+                delay(1);
+            }
+        }
+    }
+
+    void fx_lightning::make_cloud_particles(num p4)
+    {
+        field_36 = create_entity_list();
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_cloudglow = create_entity("effects\\aeps\\fx_cloudglow");
+            (fx_cloudglow).set_state(2, 1);
+            (fx_cloudglow).set_distance_clip(10000);
+            (fx_cloudglow).set_render_scale(vector3d(20, 20, 20));
+            (field_36).add(fx_cloudglow);
+            v0++;
+        }
+    }
+
+    void fx_lightning::multi_place_cloud_particles(vector3d p4, num p16, num p20)
+    {
+        num v0 = 0;
+        while ((v0 < p20)) {
+            (this).place_cloud_particles(p4, p16);
+            wait_frame();
+            v0++;
+        }
+    }
+
+    void fx_lightning::place_cloud_particles(vector3d p4, num p16)
+    {
+        num v0 = 0;
+        num v2 = 1;
+        while (((v0 < ((field_36).size() - 1)) && v2)) {
+            if ((!((field_36).get_index(v0)).is_visible())) {
+            }
+            {
+                entity v1 = (field_36).get_index(v0);
+                if ((p16 > 0)) {
+                    vector3d v3 = vector3d(_s13_final_battle::get_random_polarity(random(p16)), (p4).y(), _s13_final_battle::get_random_polarity(random(p16)));
+                    (v1).set_rel_position((p4 + v3));
+                } else {
+                    (v1).set_rel_position(p4);
+                }
+                (v1).set_visible(1);
+                start_thread_on(this, (field_32).wait_visibility(v1, 0, 0.5));
+                v2 = 0;
+            }
+            v0++;
+        }
+    }
+
+    void fx_lightning::make_one_bolt(vector3d p4, vector3d p16, num p28)
+    {
+        num v4 = 0;
+        num v2 = distance3d(p4, p16);
+        polytube v0 = create_polytube();
+        (v0).reserve_control_pts((32 / 2));
+        polytube v5 = create_polytube();
+        polytube v1 = create_polytube();
+        (v1).reserve_control_pts(32);
+        while ((v4 < (32 / 2))) {
+            (v0).add_control_pt(vector3d(0, -10, 0));
+            v4++;
+        }
+        v4 = 0;
+        while ((v4 < 32)) {
+            (v1).add_control_pt(vector3d(0, -10, 0));
+            v4++;
+        }
+        (v0).set_tube_radius(p28);
+        (v0).set_num_sides(2);
+        (v0).build(2, 3);
+        (v0).set_material("fx_bolt_core");
+        (v1).set_tube_radius((p28 / 8));
+        (v1).set_num_sides(3);
+        (v1).build(1, 1);
+        (v1).set_visible(0);
+        (this).setup_bolt(v0);
+        (this).setup_bolt(v1);
+        (v0).set_control_pt(0, p4);
+        (v0).set_control_pt(((v0).get_num_control_pts() - 1), p16);
+        vector3d v3 = vector3d(_s13_final_battle::get_random_polarity(float_random((v2 / 3))), 0, _s13_final_battle::get_random_polarity(float_random((v2 / 3))));
+        (v1).set_control_pt(((v1).get_num_control_pts() - 1), (p16 + v3));
+        start_thread_on(this, (this).shape_bolt(v0, v0));
+        wait_frame();
+        num v6 = random((32 / 4));
+        (v1).set_control_pt(0, (v0).get_control_pt(v6));
+        start_thread_on(this, (this).shape_bolt(v1, v1));
+    }
+
+    void fx_lightning::setup_bolt(polytube p4)
+    {
+        (p4).set_render_color(vector3d(1, 1, 1));
+        (p4).set_additive(1);
+        (p4).compute_sector();
+        (p4).set_distance_clip(10000);
+    }
+
+    void fx_lightning::shape_bolt(polytube p4, polytube p8)
+    {
+        vector3d v7 = vector3d(0, 0, 0);
+        vector3d v15;
+        num v11 = 0;
+        num v12 = 0;
+        num v0 = (p4).get_num_control_pts();
+        vector3d v1 = (p4).get_control_pt(0);
+        vector3d v14 = (p4).get_control_pt((v0 - 1));
+        vector3d v2 = (v14 - v1);
+        num v16 = (v2).length();
+        num v5 = 1;
+        num v6 = 29214968;
+        if ((v16 < 0)) {
+            v16 = 0.0001;
+        }
+        v7 = (v2 / v16);
+        num v3 = (v16 / v0);
+        num v8 = (v16 / 10);
+        num retained_value502 = 0.5;
+        num retained_value503 = 1;
+        num v4 = (2 * 3.1415925);
+        field_28 = float_random(3.1415925);
+        vector3d v9;
+        while ((v5 < ((p4).get_num_control_pts() - 1))) {
+            v9 = (v1 + (v7 * (v5 * v3)));
+            (this).func_cross_product(v2);
+            num v13 = (1 - (v5 / v0));
+            num v10 = (1 - (v5 / v0));
+            v11 = _s13_final_battle::get_random_polarity(float_random(v3));
+            v11 = (v11 + (sin(((((retained_value503 * v4) * v13) + v6) + field_28)) * v8));
+            v12 = _s13_final_battle::get_random_polarity(float_random(v3));
+            v12 = (v12 + (sin(((((retained_value502 * v4) * v10) + v6) + field_28)) * v8));
+            v15 = ((field_12 * v11) + (field_0 * v12));
+            v9 = (v9 + v15);
+            (p4).set_control_pt(v5, v9);
+            if ((p8 != p4)) {
+                (p8).set_control_pt(v5, v9);
+            } else {
+                (p4).set_visible(0);
+            }
+            if ((v8 > 0)) {
+                v8 = (v8 - 0.1);
+            }
+            v6++;
+            v5++;
+        }
+        (this).wait_flash_bolt(p4, p8, 3, 8, 1);
+    }
+
+    void fx_lightning::wait_flash_bolt(polytube p4, polytube p8, num p12, num p16, num p20)
+    {
+        if (((p4).is_visible() != 1)) {
+            (p4).set_visible(1);
+            (p8).set_visible(1);
+        }
+        if (((p4).get_render_alpha() > 0.3)) {
+            (field_32).wait_fade_alpha_in(p4, p12);
+        } else {
+            _s13_final_battle::wait_frame((p12 / 2));
+        }
+        (p4).set_visible(0);
+        if ((p8 != p4)) {
+            (p8).set_visible(0);
+        }
+        delay(0.034);
+        (p4).set_visible(1);
+        if ((p8 != p4)) {
+            (p8).set_visible(1);
+        }
+        if ((p8 != p4)) {
+            start_thread_on(this, (field_32).wait_fade_alpha(p8, p16));
+        }
+        (field_32).wait_fade_alpha(p4, p16);
+        if (p20) {
+            destroy_entity(p4);
+            if ((p8 != entity("NULL"))) {
+                wait_frame();
+                destroy_entity(p8);
+            }
+        }
+    }
+
+    void fx_lightning::func_cross_product(vector3d p4)
+    {
+        vector3d v0 = vector3d(0, 1, 0);
+        vector3d v2 = vector3d(0, -1, 0);
+        vector3d v1 = vector3d(1, 0, 0);
+        if (((p4 != v0) && (p4 != v2))) {
+            field_0 = cross(p4, v0);
+        } else {
+            field_0 = cross(p4, v1);
+        }
+        field_0 = normal(field_0);
+        field_12 = cross(p4, field_0);
+        field_12 = normal(field_12);
+    }
+
+    rain_system::rain_system()
+    {
+        field_36 = 0;
+        field_40 = 0;
+        field_44 = 0;
+        field_48 = 0;
+        wait_frame();
+        field_36 = 1;
+        field_40 = 1;
+        field_44 = 20;
+        field_48 = -99;
+        (field_8).set_rel_position(field_24);
+        field_60 = create_sound_inst("sfx_rain_1");
+    }
+
+    void rain_system::start_rain()
+    {
+        field_40 = 1;
+        field_36 = 1;
+        (field_60).play(0);
+        (this).make_splashes(40);
+        start_thread_on(this, (this).make_puddles(30));
+        start_thread_on(this, (this).start_ground_splashing(8));
+        wait_frame();
+        start_thread_on(this, (this).rain_follow());
+        start_thread_on(this, (this).face_splashes_to_cam());
+        (_s13_final_battle::go_lightning).lightning_storm_on();
+    }
+
+    void rain_system::make_splashes(num p4)
+    {
+        num v0 = 0;
+        field_52 = create_entity_list();
+        while ((v0 < p4)) {
+            entity fx_rainsplash = create_entity("effects\\aeps\\fx_rainsplash");
+            (fx_rainsplash).set_state(2, 1);
+            (fx_rainsplash).set_distance_clip(10000);
+            (fx_rainsplash).set_visible(0);
+            (field_52).add(fx_rainsplash);
+            v0++;
+        }
+    }
+
+    void rain_system::face_splashes_to_cam()
+    {
+        while (field_36) {
+            (_s13_final_battle::rain_common).xz_face_cam_list(field_52, field_0);
+            _s13_final_battle::wait_frame(2);
+        }
+    }
+
+    void rain_system::make_puddles(num p4)
+    {
+        num v0 = 0;
+        num v2 = 1;
+        field_56 = create_entity_list();
+        while ((v0 < p4)) {
+            v2 = random(4);
+            entity fx_rainpuddle = create_entity("effects\\entities\\fx_rainpuddle");
+            (fx_rainpuddle).set_rel_position(vector3d(0, 0, 0));
+            (fx_rainpuddle).set_distance_clip(1000);
+            (fx_rainpuddle).set_visible(0);
+            (fx_rainpuddle).set_render_alpha(0.5);
+            (fx_rainpuddle).ifl_lock(v2);
+            (field_56).add(fx_rainpuddle);
+            v0++;
+        }
+    }
+
+    void rain_system::recycle_puddles()
+    {
+        num v0 = 0;
+        while ((v0 < (field_56).size())) {
+            if ((distance3d((hero()).get_abs_position(), ((field_56).get_index(v0)).get_abs_position()) > field_44)) {
+                ((field_56).get_index(v0)).set_visible(0);
+            }
+            v0++;
+        }
+    }
+
+    void rain_system::wait_place_puddle(vector3d p4)
+    {
+        num v0 = 0;
+        num v1 = 0;
+        if ((((p4).y() < 1) && (this).check_ground_flatness(p4, 1.8))) {
+            while (((v0 < (field_56).size()) && (!v1))) {
+                if ((!((field_56).get_index(v0)).is_visible())) {
+                    num v3 = float_random(2.25);
+                    entity v2 = (field_56).get_index(v0);
+                    (v2).set_rel_position(p4);
+                    (v2).wait_rotate(vector3d(0, 1, 0), float_random(6.2832), 0);
+                    (v2).set_visible(1);
+                    if ((v3 < 0.75)) {
+                        v3 = 0.75;
+                    }
+                    (v2).set_scale(v3);
+                    (v2).set_render_alpha(0);
+                    (_s13_final_battle::rain_common).adv_wait_fade_alpha_in(v2, 30, 0.5);
+                    v1 = 1;
+                }
+                v0++;
+            }
+            if ((!v1)) {
+                (this).recycle_puddles();
+            }
+        }
+    }
+
+    num rain_system::check_ground_flatness(vector3d p4, num p16)
+    {
+        vector3d v0 = (p4 + vector3d(0, 2, 0));
+        vector3d v1 = (p4 + vector3d(0, -2, 0));
+        vector3d v5 = vector3d(p16, 0, p16);
+        vector3d v4 = vector3d((-p16), 0, (-p16));
+        vector3d v3 = vector3d(p16, 0, (-p16));
+        vector3d v2 = vector3d((-p16), 0, p16);
+        vector3d v6;
+        if (col_check((v0 + v5), (v1 + v5), 1)) {
+            v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+            if ((((v6).y() - (p4).y()) < 0.01)) {
+                wait_frame();
+                if (col_check((v0 + v4), (v1 + v4), 1)) {
+                    v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+                    if ((((v6).y() - (p4).y()) < 0.01)) {
+                        wait_frame();
+                        if (col_check((v0 + v3), (v1 + v3), 1)) {
+                            v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+                            if ((((v6).y() - (p4).y()) < 0.01)) {
+                                wait_frame();
+                                if (col_check((v0 + v2), (v1 + v2), 1)) {
+                                    v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+                                    if ((((v6).y() - (p4).y()) < 0.01)) {
+                                        wait_frame();
+                                        return 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        delay(1);
+        return 0;
+    }
+
+    void rain_system::rain_follow()
+    {
+        field_0 = chase_cam();
+        field_8 = create_entity("items\\entities\\nullo", "pbox");
+        (field_8).set_render_color(vector3d(0, 1, 0));
+        (field_8).set_visible(0);
+        field_24 = vector3d(0, (field_44 / 4), (field_44 / 3));
+        field_12 = vector3d(0, 20, 0);
+        (field_8).set_parent(field_0);
+        (field_8).set_rel_position(field_24);
+        field_4 = create_entity("effects\\aeps\\fx_rainfall", "rain_particles");
+        (field_4).set_state(2, 1);
+        (field_4).set_distance_clip(1000);
+        while (field_40) {
+            (field_4).set_rel_position((field_0).get_abs_position());
+            (field_4).set_xz_facing((field_0).get_facing());
+            _s13_final_battle::wait_frame(2);
+        }
+    }
+
+    void rain_system::start_ground_splashing(num p4)
+    {
+        num v0 = 1;
+        num v1 = ((field_52).size() / p4);
+        while ((v0 < (p4 + 1))) {
+            num v2 = (v1 * (v0 - 1));
+            num v3 = (v1 * v0);
+            start_thread_on(this, (this).ground_splashing(v2, v3));
+            wait_frame();
+            v0++;
+        }
+    }
+
+    num rain_system::avoid_spidey(vector3d p4, num p16)
+    {
+        vector3d v0 = vector3d(((hero()).get_abs_position()).x(), 0, ((hero()).get_abs_position()).z());
+        vector3d v1 = vector3d((p4).x(), 0, (p4).z());
+        if ((distance3d(v0, v1) > p16)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    void rain_system::ground_splashing(num p4, num p8)
+    {
+        num unused_local0;
+        vector3d v2;
+        vector3d v6;
+        num v4 = 0;
+        num v5 = 0;
+        while (field_36) {
+            num v0 = p4;
+            vector3d v1 = vector3d(0, 0, 0);
+            while (((v0 < p8) && field_36)) {
+                v2 = ((field_8).get_abs_position() + field_12);
+                v4 = (float_random((field_44 * 2)) - field_44);
+                v5 = (float_random((field_44 * 2)) - field_44);
+                v2 = (v2 + vector3d(v4, 0, v5));
+                v6 = (v2 + vector3d(0, field_48, 0));
+                if (col_check(v2, v6, 3)) {
+                    v1 = (get_col_hit_pos() + (get_col_hit_norm() * 0.04));
+                }
+                entity v3 = (field_52).get_index(v0);
+                if ((this).avoid_spidey(v2, 1)) {
+                    if ((v3).is_valid()) {
+                        (v3).set_rel_position(v1);
+                        if ((!(v3).is_visible())) {
+                            (v3).set_visible(1);
+                        }
+                        wait_frame();
+                        if (((v3).is_valid() && ((v3).was_occluded_last_frame() < 1))) {
+                            (this).wait_place_puddle(v1);
+                            v0++;
+                        }
+                    }
+                    wait_frame();
+                }
+            }
+        }
+    }
+
+    void _s13_final_battle::end_mission_music_check(sound_inst p0)
+    {
+        if (g_mission_music_active) {
+            (p0).fade_out(1);
+        }
+        g_ambient_music_allowed = 1;
+    }
+
+    void _s13_final_battle::start_mission_music()
+    {
+        g_ambient_music_allowed = 0;
+        g_mission_music_active = 1;
+        raise_signal("AMBIENT_MUSIC_FADE_OUT");
+    }
+
+    void _s13_final_battle::end_mission_success()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _s13_final_battle::end_mission_failed()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _s13_final_battle::S13_music_thread()
+    {
+        bind_signal_once(signal_id("MISSION_MUSIC_P1_START"), _s13_final_battle::mission_music_P1_start());
+        bind_signal_once(signal_id("MISSION_MUSIC_IGC"), _s13_final_battle::mission_music_IGC());
+        bind_signal_once(signal_id("MISSION_MUSIC_FAILED"), _s13_final_battle::mission_music_failed());
+    }
+
+    void _s13_final_battle::mission_music_P1_start()
+    {
+        _s13_final_battle::start_mission_music();
+        num v0 = random(1);
+        switch (v0) {
+        case 0:
+        {
+            _s13_final_battle::global_12 = create_stompable_music_sound_inst("s13_01gp01_mus_finalbattl");
+            break;
+        }
+        default:
+        {
+            _s13_final_battle::global_12 = create_stompable_music_sound_inst("s13_01gp01_mus_finalbattl");
+            break;
+        }
+        }
+        (_s13_final_battle::global_12).play(0);
+    }
+
+    void _s13_final_battle::mission_music_IGC()
+    {
+        (_s13_final_battle::global_12).fade_out(1);
+        _s13_final_battle::end_mission_success();
+    }
+
+    void _s13_final_battle::mission_music_failed()
+    {
+        (_s13_final_battle::global_12).fade_out(1);
+        _s13_final_battle::end_mission_failed();
+    }
+
+    void _s13_final_battle::end_mission_music()
+    {
+        _s13_final_battle::end_mission_music_check(_s13_final_battle::global_12);
+    }
+
+    void _s13_final_battle::city_tutorial_manager(num p0, num p4, num p8)
+    {
+        if ((p0 == 0)) {
+            if ((!gv_city_tutorials[0])) {
+                gv_city_tutorials[0] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(131, 1, 130);
+            }
+        } else if ((p0 == 1)) {
+            if ((!gv_city_tutorials[5])) {
+                blackscreen_off(0);
+                gv_city_tutorials[5] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(76, 1, 75);
+            }
+        } else if ((p0 == 2)) {
+            switch (p8) {
+            case 0:
+            {
+                if ((!gv_city_tutorials[6])) {
+                    gv_city_tutorials[6] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(239, 1, 238);
+                }
+                break;
+            }
+            case 1:
+            {
+                if ((!gv_city_tutorials[7])) {
+                    gv_city_tutorials[7] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(241, 1, 240);
+                }
+                break;
+            }
+            case 2:
+            {
+                if ((!gv_city_tutorials[8])) {
+                    gv_city_tutorials[8] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(237, 1, 236);
+                }
+                break;
+            }
+            }
+        }
+    }
+
+    void _s13_final_battle::display_car_combat_warning_panel(num p0)
+    {
+        _s13_final_battle::show_car_combat_help_text(3);
+        if (p0) {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_left");
+            (v0).wait_play();
+        } else {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_right");
+            (v0).wait_play();
+        }
+    }
+
+    void _s13_final_battle::left_token_trigger()
+    {
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        if ((!g_trick_race_running)) {
+        }
+        turn_off_mission_text();
+        if ((hero()).is_valid()) {
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+        }
+    }
+
+    void _s13_final_battle::switch_to_spiderman()
+    {
+        _s13_final_battle::set_hero("ultimate_spiderman");
+    }
+
+    void _s13_final_battle::switch_to_venom()
+    {
+        if (gv_story_finished) {
+            _s13_final_battle::set_hero("venom_spider");
+        } else {
+            _s13_final_battle::set_hero("venom");
+        }
+    }
+
+    void _s13_final_battle::set_hero(str p0)
+    {
+        stop_vibration();
+        vector3d v0 = (hero()).get_abs_position();
+        swap_hero_costume(p0);
+        malor(v0, 1);
+        spiderman_camera_autocorrect(0);
+        if (is_hero_spidey()) {
+            _s13_final_battle::set_spiderman_health();
+        } else {
+            turn_on_hero_health(4, hero());
+        }
+    }
+
+    void _s13_final_battle::set_hero_costume(str p0)
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_s13_final_battle::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _s13_final_battle::clear_all_scripts();
+        _s13_final_battle::set_hero(p0);
+        _s13_final_battle::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    void _s13_final_battle::toggle_hero()
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_s13_final_battle::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _s13_final_battle::clear_all_scripts();
+        if (is_hero_venom()) {
+            gv_current_city_tod = _s13_final_battle::cycle_tod(gv_current_city_tod);
+            _s13_final_battle::switch_to_spiderman();
+        } else {
+            gv_current_venom_city_tod = _s13_final_battle::cycle_tod(gv_current_venom_city_tod);
+            _s13_final_battle::switch_to_venom();
+            start_thread(_s13_final_battle::hot_pursuit_checker());
+        }
+        _s13_final_battle::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    num _s13_final_battle::cycle_tod(num p0)
+    {
+        num v0 = 0;
+        if ((p0 == 3)) {
+            v0 = 0;
+        } else {
+            v0 = (p0 + 1);
+        }
+        return v0;
+    }
+
+    void _s13_final_battle::set_TOD_and_shoreline(num p0)
+    {
+        set_time_of_day(p0);
+        raise_signal("UPDATE_SHORELINE");
+    }
+
+    void _s13_final_battle::hot_pursuit_checker()
+    {
+        bind_signal_once(signal_id("A_CAR_HAS_EXPLODED"), _s13_final_battle::run_hot_pursuit());
+    }
+
+    void _s13_final_battle::run_hot_pursuit()
+    {
+        if ((((!g_enable_hot_pursuit) && (!g_enable_venom_trick_race)) && (!g_trick_race_running))) {
+            g_enable_sh = 0;
+            g_enable_story = 0;
+            g_enable_hot_pursuit = 1;
+        }
+        while (((g_enable_hot_pursuit || g_enable_venom_trick_race) || g_trick_race_running)) {
+            _global_slc::wait_frame();
+        }
+        start_thread(_s13_final_battle::hot_pursuit_checker());
+    }
+
+    num _s13_final_battle::adjust_mission_num(num p0)
+    {
+        num v1 = p0;
+        switch (p0) {
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 3:
+        {
+            v1 = 36;
+            break;
+        }
+        case 7:
+        {
+            v1 = 30;
+            break;
+        }
+        case 15:
+        {
+            v1 = 31;
+            break;
+        }
+        case 34:
+        {
+            v1 = 25;
+            break;
+        }
+        case 8:
+        {
+            v1 = 25;
+            break;
+        }
+        case 17:
+        {
+            v1 = 32;
+            break;
+        }
+        case 33:
+        {
+            v1 = 32;
+            break;
+        }
+        case 10:
+        {
+            v1 = 27;
+            break;
+        }
+        case 28:
+        {
+            v1 = 27;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _s13_final_battle::prepare_open_city_vars()
+    {
+        if ((!gv_story_finished)) {
+            _s13_final_battle::update_open_city_times();
+            if ((!is_hero_spidey())) {
+                _s13_final_battle::switch_to_spiderman();
+            }
+        }
+        g_story_checkpoint = 0;
+        g_enable_story = 0;
+        gv_num_current_story = _s13_final_battle::adjust_mission_num(gv_num_current_story);
+        if (is_hero_spidey()) {
+            _s13_final_battle::set_TOD_and_shoreline(gv_current_city_tod);
+        } else {
+            _s13_final_battle::set_TOD_and_shoreline(gv_current_venom_city_tod);
+        }
+        g_enable_igc = 0;
+        g_enable_venom_igc = 0;
+        g_mission_status = 0;
+        g_mission_type = 0;
+        g_enable_sh = 1;
+        g_enable_can = 1;
+        g_switch_to_open_city_music = 1;
+        g_enable_token_event = 0;
+        g_enable_trick_race = 0;
+        g_enable_venom_trick_race = 0;
+        gv_num_current_token_event = 0;
+        _s13_final_battle::enable_mission_tokens_by_hero();
+    }
+
+    void _s13_final_battle::clear_missions_for_unlockables()
+    {
+        g_unlockables_entered = 1;
+        blackscreen_on(0);
+        num v1 = g_mission_type;
+        num v0 = g_queens_tour_running;
+        _s13_final_battle::prepare_open_city_vars();
+        g_trick_race_restarted = 0;
+        g_enable_trick_race = 0;
+        g_enable_storm_race = 0;
+        g_enable_venom_trick_race = 0;
+        g_torch_race_running = 0;
+        g_trick_race_running = 0;
+        _s13_final_battle::clear_all_scripts();
+        if (((v1 == 4) || (v0 == 1))) {
+            _s13_final_battle::go_to_my_neighborhood(gv_hero_restart_pos);
+        }
+        blackscreen_off(0);
+        invoke_pause_menu_unlockables();
+        raise_signal("MISSION_START_UPDATE");
+        g_unlockables_entered = 0;
+    }
+
+    void _s13_final_battle::progression_mission_failed()
+    {
+        blackscreen_on(0);
+        spiderman_camera_clear_fixedstatic();
+        _s13_final_battle::prepare_open_city_vars();
+        _s13_final_battle::clear_all_scripts();
+        _s13_final_battle::go_to_my_neighborhood(gv_hero_restart_pos);
+        raise_signal("MISSION_START_UPDATE");
+        blackscreen_off(1);
+    }
+
+    void _s13_final_battle::progression_mission_aborted()
+    {
+        if ((g_mission_type == 4)) {
+            stop_vibration();
+            clear_controls();
+        }
+        if (((hero()).get_ifc_num("HIT_POINTS") > 0)) {
+            g_story_checkpoint = 0;
+            if ((g_mission_type == 3)) {
+                if ((!g_trick_race_controls_locked)) {
+                    enable_controls(0);
+                    clear_controls();
+                    spiderman_camera_enable_lookaround(0);
+                    g_trick_race_controls_locked = 1;
+                }
+                g_race_exited_via_pause = 1;
+                g_done_with_storm_anim = 1;
+            } else {
+                blackscreen_on(0);
+                spiderman_camera_clear_fixedstatic();
+                if ((gv_num_current_story == 42)) {
+                    g_mission_status = 2;
+                    raise_signal("MISSION_END");
+                } else {
+                    _s13_final_battle::prepare_open_city_vars();
+                    _s13_final_battle::clear_all_scripts();
+                    if ((g_mission_type != 1)) {
+                        _s13_final_battle::go_to_my_neighborhood(gv_hero_restart_pos);
+                    }
+                    raise_signal("MISSION_START_UPDATE");
+                }
+            }
+            blackscreen_off(1);
+        }
+    }
+
+    void _s13_final_battle::on_token_pickup(entity p0, num p4, num p8, num p12, str p16)
+    {
+        _s13_final_battle::city_tutorial_manager(2, 0, p4);
+        _s13_final_battle::handle_objective_list(2);
+        if ((p4 != 4)) {
+            destroy_entity(p0);
+        }
+        switch (p4) {
+        case 1:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(12);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(11, p8, p12);
+            }
+            num v0 = 1;
+            while ((v0 <= 79)) {
+                if ((v0 == 1)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[0] = 1;
+                        gv_unlockable_covers[1] = 1;
+                        gv_unlockable_covers[2] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 2)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[3] = 1;
+                        gv_unlockable_covers[4] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 10)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        gv_unlockable_covers[(v0 + 3)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                    gv_unlockable_covers[(v0 + 3)] = 1;
+                    v0 = 79;
+                }
+                v0++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(13);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(17, p8, p12);
+            }
+            if ((p16 == "MV_TOKEN_01")) {
+                gv_unlockable_landmark[5] = 1;
+            } else if ((p16 == "MV_TOKEN_02")) {
+                gv_unlockable_landmark[13] = 1;
+            } else if ((p16 == "MV_TOKEN_03")) {
+                gv_unlockable_landmark[4] = 1;
+            } else if ((p16 == "MV_TOKEN_04")) {
+                gv_unlockable_landmark[0] = 1;
+            } else if ((p16 == "MV_TOKEN_05")) {
+                gv_unlockable_landmark[6] = 1;
+            } else if ((p16 == "MV_TOKEN_06")) {
+                gv_unlockable_landmark[1] = 1;
+            } else if ((p16 == "MV_TOKEN_07")) {
+                gv_unlockable_landmark[2] = 1;
+            } else if ((p16 == "MV_TOKEN_08")) {
+                gv_unlockable_landmark[7] = 1;
+            } else if ((p16 == "MV_TOKEN_09")) {
+                gv_unlockable_landmark[9] = 1;
+            } else if ((p16 == "MV_TOKEN_10")) {
+                gv_unlockable_landmark[10] = 1;
+            } else if ((p16 == "MV_TOKEN_11")) {
+                gv_unlockable_landmark[11] = 1;
+            } else if ((p16 == "MV_TOKEN_12")) {
+                gv_unlockable_landmark[8] = 1;
+            } else if ((p16 == "MV_TOKEN_13")) {
+                gv_unlockable_landmark[14] = 1;
+            } else if ((p16 == "MV_TOKEN_14")) {
+                gv_unlockable_landmark[3] = 1;
+            } else if ((p16 == "MV_TOKEN_15")) {
+                gv_unlockable_landmark[12] = 1;
+            }
+            break;
+        }
+        case 2:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(15);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(18, p8, p12);
+            }
+            break;
+        }
+        case 4:
+        {
+            break;
+        }
+        }
+        sound_inst v2 = create_sound_inst("token_sfx");
+        (v2).play(0);
+        delay(1.5);
+        turn_off_mission_text();
+    }
+
+    void _s13_final_battle::on_trick_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            v2 = g_spidey_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _s13_final_battle::launch_trick_race(p4));
+            }
+        }
+    }
+
+    void _s13_final_battle::on_venom_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_venom()) && (p4 != -1))) {
+            v2 = g_venom_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_venom_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_venom_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_venom_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_venom_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _s13_final_battle::launch_venom_trick_race(p4));
+            }
+        }
+    }
+
+    void _s13_final_battle::on_storm_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            num v0 = get_token_index_from_id(4, p4);
+            set_mission_text_box_flavor(0);
+            if ((!g_torch_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(78);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _s13_final_battle::launch_torch_race(p4));
+            }
+        }
+    }
+
+    void _s13_final_battle::disable_all_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(0, 0);
+        enable_tokens_of_type(1, 0);
+        enable_tokens_of_type(2, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _s13_final_battle::disable_mission_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _s13_final_battle::enable_mission_tokens_by_hero()
+    {
+        if (is_hero_venom()) {
+            enable_tokens_of_type(5, 1);
+            enable_tokens_of_type(4, 0);
+            enable_tokens_of_type(6, 0);
+            enable_tokens_of_type(8, 0);
+        } else {
+            _s13_final_battle::set_up_tokens(gv_num_current_story, 0);
+        }
+    }
+
+    void _s13_final_battle::enable_pickup_tokens()
+    {
+        enable_tokens_of_type(0, 1);
+        enable_tokens_of_type(1, 1);
+        enable_tokens_of_type(2, 1);
+    }
+
+    void _s13_final_battle::kill_shenanigans()
+    {
+        g_enable_sh = 0;
+        g_enable_can = 0;
+        _global_slc::wait_frame();
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        if ((is_mission_active() && (g_mission_type == 1))) {
+            unload_script();
+            while (is_mission_active()) {
+                _global_slc::wait_frame();
+            }
+        }
+    }
+
+    void _s13_final_battle::launch_combat_tour(num p0)
+    {
+        turn_off_mission_text();
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        g_enable_token_event = 1;
+        blackscreen_on(1);
+        delay(1);
+        _s13_final_battle::kill_shenanigans();
+        gv_hero_restart_pos = (hero()).get_abs_position();
+        gv_num_current_token_event = p0;
+        _s13_final_battle::disable_mission_tokens();
+    }
+
+    void _s13_final_battle::on_combat_tour_enter(entity p0, num p4, str p8)
+    {
+        set_mission_text_box_flavor(0);
+        set_mission_text(277);
+        bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _s13_final_battle::launch_combat_tour(p4));
+    }
+
+    void _s13_final_battle::launch_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_trick_race = 1;
+            _s13_final_battle::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _s13_final_battle::launch_venom_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            if (g_enable_hot_pursuit) {
+                g_enable_hot_pursuit = 0;
+                unload_script();
+            }
+            g_enable_venom_trick_race = 1;
+            _s13_final_battle::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _s13_final_battle::launch_torch_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_storm_race = 1;
+            _s13_final_battle::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+                g_trick_race_controls_locked = 1;
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _s13_final_battle::show_car_combat_help_text(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_land_shown))) {
+                start_thread(_s13_final_battle::show_mission_text(136));
+                g_tutorial_car_combat_land_shown = 1;
+            }
+            break;
+        }
+        case 1:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(135, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_s13_final_battle::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 2:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(290, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_s13_final_battle::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 3:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_dodge_shown))) {
+                start_thread(_s13_final_battle::show_mission_text(138));
+                g_tutorial_car_combat_dodge_shown = 1;
+            }
+            gv_tutorial_car_combat_counter++;
+            break;
+        }
+        }
+    }
+
+    void _s13_final_battle::show_mission_text(num p0)
+    {
+        set_mission_text_box_flavor(1);
+        set_mission_text(p0);
+        delay(1.5);
+        turn_off_mission_text();
+    }
+
+    void _s13_final_battle::update_open_city_times()
+    {
+        _s13_final_battle::update_open_city_shen_times();
+        g_next_can_time = (game_clock_timer + 15);
+    }
+
+    void _s13_final_battle::update_open_city_shen_times()
+    {
+        if (gv_shen_speed_normal) {
+            g_next_shenani_time = (game_clock_timer + 35);
+        } else {
+            g_next_shenani_time = (game_clock_timer + 3);
+        }
+    }
+
+    num _s13_final_battle::convert_to_progression_step(num p0)
+    {
+        num v1 = 31;
+        switch (p0) {
+        case 1:
+        {
+            v1 = 0;
+            break;
+        }
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 35:
+        {
+            v1 = 2;
+            break;
+        }
+        case 36:
+        {
+            v1 = 3;
+            break;
+        }
+        case 3:
+        {
+            v1 = 4;
+            break;
+        }
+        case 4:
+        {
+            v1 = 5;
+            break;
+        }
+        case 40:
+        {
+            v1 = 6;
+            break;
+        }
+        case 5:
+        {
+            v1 = 7;
+            break;
+        }
+        case 6:
+        {
+            v1 = 8;
+            break;
+        }
+        case 30:
+        {
+            v1 = 9;
+            break;
+        }
+        case 7:
+        {
+            v1 = 10;
+            break;
+        }
+        case 11:
+        {
+            v1 = 11;
+            break;
+        }
+        case 38:
+        {
+            v1 = 12;
+            break;
+        }
+        case 31:
+        {
+            v1 = 13;
+            break;
+        }
+        case 15:
+        {
+            v1 = 14;
+            break;
+        }
+        case 16:
+        {
+            v1 = 15;
+            break;
+        }
+        case 25:
+        {
+            v1 = 16;
+            break;
+        }
+        case 34:
+        {
+            v1 = 17;
+            break;
+        }
+        case 8:
+        {
+            v1 = 18;
+            break;
+        }
+        case 9:
+        {
+            v1 = 19;
+            break;
+        }
+        case 32:
+        {
+            v1 = 20;
+            break;
+        }
+        case 17:
+        {
+            v1 = 21;
+            break;
+        }
+        case 33:
+        {
+            v1 = 22;
+            break;
+        }
+        case 27:
+        {
+            v1 = 23;
+            break;
+        }
+        case 10:
+        {
+            v1 = 24;
+            break;
+        }
+        case 28:
+        {
+            v1 = 25;
+            break;
+        }
+        case 18:
+        {
+            v1 = 26;
+            break;
+        }
+        case 19:
+        {
+            v1 = 27;
+            break;
+        }
+        case 20:
+        {
+            v1 = 28;
+            break;
+        }
+        case 23:
+        {
+            v1 = 29;
+            break;
+        }
+        case 22:
+        {
+            v1 = 30;
+            break;
+        }
+        case 41:
+        {
+            v1 = 31;
+            break;
+        }
+        case 24:
+        {
+            v1 = 32;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _s13_final_battle::set_tour_tokens()
+    {
+        num v0 = 0;
+        num v1 = 0;
+        while ((v0 < 16)) {
+            if ((gv_tour_diff_ulocked >= gv_tour_difficulty[v0])) {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 0;
+            } else {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 1;
+            }
+            v0++;
+        }
+    }
+
+    void _s13_final_battle::set_up_tokens(num p0, num p4)
+    {
+        if ((_s13_final_battle::convert_to_progression_step(p0) <= _s13_final_battle::convert_to_progression_step(35))) {
+            _s13_final_battle::disable_all_tokens();
+        } else {
+            _s13_final_battle::enable_pickup_tokens();
+            if (((g_mission_type == 0) || (g_mission_type == 1))) {
+                _s13_final_battle::set_torch_token(p4);
+                if (is_hero_spidey()) {
+                    _s13_final_battle::set_tour_tokens();
+                    enable_tokens_of_type(4, 1);
+                    enable_tokens_of_type(5, 0);
+                } else {
+                    enable_tokens_of_type(4, 0);
+                    if (gv_story_finished) {
+                        enable_tokens_of_type(5, 1);
+                    }
+                }
+                if (((_s13_final_battle::convert_to_progression_step(p0) > _s13_final_battle::convert_to_progression_step(40)) && is_hero_spidey())) {
+                    enable_tokens_of_type(6, 1);
+                } else {
+                    enable_tokens_of_type(6, 0);
+                }
+            }
+        }
+    }
+
+    void _s13_final_battle::set_spiderman_health()
+    {
+        switch (gv_health_ulocked) {
+        case 3:
+        {
+            turn_on_hero_health(3, hero());
+            break;
+        }
+        case 2:
+        {
+            turn_on_hero_health(2, hero());
+            break;
+        }
+        case 1:
+        {
+            turn_on_hero_health(1, hero());
+            break;
+        }
+        default:
+        {
+            turn_on_hero_health(0, hero());
+            break;
+        }
+        }
+        (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+    }
+
+    void _s13_final_battle::city_goals_hint()
+    {
+        while ((!gv_master_prog[gv_obj_list_needed])) {
+            delay(180);
+            while ((g_mission_status != 0)) {
+                delay(1);
+            }
+            if ((!gv_master_prog[gv_obj_list_needed])) {
+                set_mission_text_box_flavor(1);
+                set_mission_text(275);
+                delay(5);
+                turn_off_mission_text();
+            }
+        }
+    }
+
+    void _s13_final_battle::process_master_objective()
+    {
+        num v0 = 0;
+        while (((v0 < 13) && (((gv_tour_prog[v0] && gv_token_prog[v0]) && gv_shen_prog[v0]) && gv_race_prog[v0]))) {
+            if ((!gv_master_prog[v0])) {
+                gv_master_prog[v0] = 1;
+                gv_shen_speed_normal = 1;
+                _s13_final_battle::update_open_city_shen_times();
+                if (((v0 == gv_obj_list_needed) && (v0 > 0))) {
+                    kill_threads(_s13_final_battle::city_goals_hint);
+                    if ((_s13_final_battle::convert_to_progression_step(gv_num_current_story) <= _s13_final_battle::convert_to_progression_step(3))) {
+                        set_dialog_box_flavor(1);
+                        bring_up_dialog_box_title(133, 1, 132);
+                    } else {
+                        set_dialog_box_flavor(2);
+                        bring_up_dialog_box_title(274, 1, 175);
+                    }
+                }
+            }
+            v0 = (v0 + 1);
+        }
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _s13_final_battle::set_progression_display_vars()
+    {
+        num v1 = 0;
+        num v0 = 0;
+        num v3 = 0;
+        num v5 = 0;
+        num v4 = 0;
+        num v2 = 0;
+        num v6 = 0;
+        num v7 = 0;
+        num v8 = 0;
+        num v9 = 0;
+        if ((gv_obj_list_needed > 0)) {
+            v6 = gv_shen_req[(gv_obj_list_needed - 1)];
+            v7 = gv_tour_req[(gv_obj_list_needed - 1)];
+            v8 = gv_token_req[(gv_obj_list_needed - 1)];
+            v9 = gv_race_req[(gv_obj_list_needed - 1)];
+        }
+        v1 = gv_shens_successfully_completed;
+        v0 = gv_combat_tours_completed;
+        v2 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+        v3 = v2;
+        v4 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+        v5 = v4;
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_COUNT", gv_shens_successfully_completed);
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_MAX", 100);
+        set_game_info_num("CITY_EVENTS_COMPLETED_COUNT", v1);
+        set_game_info_num("CITY_EVENTS_COMPLETED_MAX", gv_shen_req[gv_obj_list_needed]);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_COUNT", gv_combat_tours_completed);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_MAX", 36);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_COUNT", v0);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_MAX", gv_tour_req[gv_obj_list_needed]);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_COUNT", v2);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_MAX", 60);
+        set_game_info_num("RACE_POINTS_EARNED_COUNT", v3);
+        set_game_info_num("RACE_POINTS_EARNED_MAX", gv_race_req[gv_obj_list_needed]);
+        set_game_info_num("TOKENS_COLLECTED_TOT_COUNT", v4);
+        set_game_info_num("TOKENS_COLLECTED_TOT_MAX", 190);
+        set_game_info_num("TOKENS_COLLECTED_COUNT", v5);
+        set_game_info_num("TOKENS_COLLECTED_MAX", gv_token_req[gv_obj_list_needed]);
+    }
+
+    void _s13_final_battle::set_torch_token(num p0)
+    {
+        num v0 = 0;
+        if ((((!gv_torch_race_00_done) && (!gv_torch_race_unlocked_2)) && (gv_easy_trick_races_completed >= gv_torch_race_unlock_req_easy))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_2 = 1;
+        } else if ((((!gv_torch_race_01_done) && (!gv_torch_race_unlocked_3)) && (gv_medium_trick_races_completed >= gv_torch_race_unlock_req_med))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_3 = 1;
+        } else if ((((!gv_torch_race_02_done) && (!gv_torch_race_unlocked_4)) && (gv_hard_trick_races_completed >= gv_torch_race_unlock_req_hard))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_4 = 1;
+        } else if ((((!gv_torch_race_03_done) && (!gv_torch_race_unlocked_5)) && (gv_insane_trick_races_completed >= gv_torch_race_unlock_req_insane))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_5 = 1;
+        }
+        v0 = (((gv_torch_race_unlocked_2 || gv_torch_race_unlocked_3) || gv_torch_race_unlocked_4) || gv_torch_race_unlocked_5);
+        if (v0) {
+            enable_tokens_of_type(8, 1);
+        }
+        if (g_torch_message_flag) {
+            g_torch_message_flag = 0;
+            set_dialog_box_flavor(2);
+            bring_up_dialog_box_title(232, 1, 77);
+        }
+    }
+
+    void _s13_final_battle::handle_objective_list(num p0)
+    {
+        num v1 = 0;
+        num v2 = 0;
+        switch (p0) {
+        case 3:
+        {
+            v1 = 0;
+            num v3 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+            num v4 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_race_req[v1];
+                if (((v3 >= v4) && (!gv_race_prog[v1]))) {
+                    gv_race_prog[v1] = 1;
+                    _s13_final_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 2:
+        {
+            v1 = 0;
+            num v3 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+            num v4 = 0;
+            num unused_value724 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_token_req[v1];
+                if (((v3 >= v4) && (!gv_token_prog[v1]))) {
+                    gv_token_prog[v1] = 1;
+                    _s13_final_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if (((gv_shens_successfully_completed >= 100) && (!gv_shens_finished))) {
+                gv_shens_finished = 1;
+                set_dialog_box_flavor(2);
+                bring_up_dialog_box_title(308, 1, 175);
+            }
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_shen_req[v1];
+                if (((gv_shens_successfully_completed >= v3) && (!gv_shen_prog[v1]))) {
+                    gv_shen_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _s13_final_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 5:
+        {
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_tour_req[v1];
+                if (((gv_combat_tours_completed >= v3) && (!gv_tour_prog[v1]))) {
+                    gv_tour_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _s13_final_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        }
+        _s13_final_battle::set_progression_display_vars();
+        if (((((!gv_shen_prog[gv_obj_list_needed]) && gv_tour_prog[gv_obj_list_needed]) && gv_token_prog[gv_obj_list_needed]) && gv_race_prog[gv_obj_list_needed])) {
+            gv_shen_speed_normal = 0;
+            _s13_final_battle::update_open_city_shen_times();
+        }
+    }
+
+    ai_auditor::ai_auditor()
+    {
+        field_0 = 0;
+    }
+
+    common_thug_manager::common_thug_manager()
+    {
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = 0;
+        field_92 = 0;
+        field_96 = 0;
+        field_100 = 0;
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = -1;
+        field_96 = 0;
+        field_100 = 0;
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_0[v0] = 31;
+            v0++;
+        }
+        field_92 = g_hood_gang;
+    }
+
+    common_thug_manager::~common_thug_manager()
+    {
+    }
+
+    common_simple_civ_manager::common_simple_civ_manager()
+    {
+        field_76 = 0;
+    }
+
+    common_simple_civ_manager::~common_simple_civ_manager()
+    {
+    }
+
+    common_gmu_manager::common_gmu_manager()
+    {
+        field_76 = 0;
+        field_80 = 0;
+        field_76 = 0;
+    }
+
+    common_gmu_manager::~common_gmu_manager()
+    {
+    }
+
+    common_vehicle_manager::common_vehicle_manager()
+    {
+        field_88 = 0;
+        field_92 = 0;
+        field_88 = 0;
+    }
+
+    common_vehicle_manager::~common_vehicle_manager()
+    {
+    }
+
+    goal_tracker::goal_tracker()
+    {
+        field_0 = 0;
+        field_0 = 0;
+    }
+
+    goal_tracker::~goal_tracker()
+    {
+        (this).shutdown();
+    }
+
+    void goal_tracker::shutdown()
+    {
+    }
+
+    city_point_manager::city_point_manager()
+    {
+    }
+
+    city_point_manager::~city_point_manager()
+    {
+        (this).shutdown();
+    }
+
+    void city_point_manager::shutdown()
+    {
+    }
+
+    void _s13_final_battle::make_fires(num p0)
+    {
+        if ((!_s13_final_battle::global_16)) {
+            _s13_final_battle::global_20 = create_entity_list();
+            num v0 = 0;
+            while ((v0 < p0)) {
+                entity fx_firesmokeless_4m = create_entity("effects\\aeps\\fx_firesmokeless_4m");
+                (fx_firesmokeless_4m).set_visible(0);
+                (_s13_final_battle::global_20).add(fx_firesmokeless_4m);
+                v0++;
+            }
+            _s13_final_battle::make_fire_light(p0);
+            _s13_final_battle::global_16 = 1;
+        }
+    }
+
+    void _s13_final_battle::make_fire_light(num p0)
+    {
+        _s13_final_battle::global_24 = create_entity_list();
+        num v0 = 0;
+        while ((v0 < p0)) {
+            entity fx_fire_light2 = create_entity("effects\\entities\\fx_fire_light2");
+            (fx_fire_light2).set_visible(0);
+            (_s13_final_battle::global_24).add(fx_fire_light2);
+            v0++;
+        }
+    }
+
+    void _s13_final_battle::add_fire_trigger(vector3d p0)
+    {
+        trigger v0;
+        v0 = create_trigger(p0, 5);
+        bind_signal(signal_id(v0, "trigger::ENTER"), _s13_final_battle::start_fire_damage(v0));
+        bind_signal(signal_id(v0, "trigger::LEAVE"), _s13_final_battle::stop_fire_damage());
+    }
+
+    void _s13_final_battle::start_fire_damage(trigger p0)
+    {
+        (hero()).ai_wait_say_sound_group("s13_fire_damage", 2, 2);
+        (_s13_final_battle::s13_damage).enable(p0, 0);
+    }
+
+    void _s13_final_battle::stop_fire_damage()
+    {
+        (_s13_final_battle::s13_damage).disable();
+    }
+
+    void _s13_final_battle::place_fire(vector3d p0, num p12)
+    {
+        ((_s13_final_battle::global_20).get_index(p12)).set_rel_position(p0);
+        ((_s13_final_battle::global_24).get_index(p12)).set_rel_position(p0);
+        ((_s13_final_battle::global_20).get_index(p12)).set_visible(1);
+        ((_s13_final_battle::global_24).get_index(p12)).set_visible(1);
+        _s13_final_battle::add_fire_trigger(p0);
+    }
+
+    void _s13_final_battle::north_fire_start_effects()
+    {
+        _s13_final_battle::make_fires(11);
+        _s13_final_battle::north_fire_effect();
+        start_thread(_s13_final_battle::animate_fire_lights(0, 2));
+    }
+
+    void _s13_final_battle::north_fire_effect()
+    {
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_60, 2);
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_108, 3);
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_120, 4);
+    }
+
+    void _s13_final_battle::south_fire_start_effects()
+    {
+        _s13_final_battle::south_fire_effect();
+        start_thread(_s13_final_battle::animate_fire_lights(2, 4));
+    }
+
+    void _s13_final_battle::south_fire_effect()
+    {
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_72, 6);
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_84, 7);
+        start_thread(_s13_final_battle::fire_vo());
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_96, 8);
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_132, 9);
+        delay(3);
+        _s13_final_battle::place_fire((_s13_final_battle::FINAL_BATTLE).field_144, 10);
+    }
+
+    void _s13_final_battle::fire_vo()
+    {
+        (hero()).ai_wait_say_file("s13_02gp20_spi_ohyeahthat", 0, 2);
+    }
+
+    void _s13_final_battle::animate_fire_lights(num p0, num p4)
+    {
+        vector3d v0 = vector3d(0.8, 0.6, 0);
+        vector3d v1 = vector3d(0.4, 0, 0.2);
+        if ((p4 > (_s13_final_battle::global_24).size())) {
+            (p4 == (_s13_final_battle::global_24).size());
+        }
+        while (_s13_final_battle::global_36) {
+            num v2 = p0;
+            while (((v2 < p4) && _s13_final_battle::global_36)) {
+                num v4 = float_random(0.3);
+                num v3 = float_random(0.4);
+                if ((v4 < 0.03)) {
+                    v4 = 0.03;
+                }
+                if ((v3 < 0.03)) {
+                    v3 = 0.03;
+                }
+                (((_s13_final_battle::global_24).get_index(v2)).get_member("Omni01")).wait_change_color(v0, v0, v4);
+                (((_s13_final_battle::global_24).get_index(v2)).get_member("Omni01")).wait_change_color(v1, v1, v3);
+                v2++;
+            }
+        }
+    }
+
+    _s13_final_battle::_s13_final_battle(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            (_s13_final_battle::FINAL_BATTLE).startup();
+            _s13_final_battle::set_TOD_and_shoreline(2);
+            g_mission_status = 7;
+            g_mission_type = 4;
+            _s13_final_battle::setup_debug_menu();
+            malor(((_s13_final_battle::FINAL_BATTLE).field_0).get_position(), 0);
+            (hero()).set_xz_facing(((_s13_final_battle::FINAL_BATTLE).field_0).get_facing());
+            freeze_hero(1);
+            spiderman_camera_autocorrect(1);
+            _s13_final_battle::checkpoint_manager();
+            break;
+        }
+        }
+    }
+
+    _s13_final_battle::~_s13_final_battle()
+    {
+        g_mission_type = 0;
+        blackscreen_on(0);
+        turn_off_mission_text();
+        _s13_final_battle::end_mission_music();
+        (hero()).set_ai_param_int("loco_allow_aerial_hit_react", 0);
+        enable_mini_map(1);
+        enable_traffic(1);
+        enable_civilians(1);
+        kill_threads(_s13_final_battle::sound_watcher);
+        if ((_s13_final_battle::global_40).is_valid()) {
+            (_s13_final_battle::global_40).stop(0);
+        }
+    }
+
+    void _s13_final_battle::checkpoint_manager()
+    {
+        (district("QH")).wait_for_load();
+        _s13_final_battle::setup_s13_throw_entities();
+        switch (g_story_checkpoint) {
+        case 0:
+        {
+            _s13_final_battle::begin_story();
+            break;
+        }
+        case 1:
+        {
+            _s13_final_battle::start_story();
+            break;
+        }
+        }
+    }
+
+    void _s13_final_battle::begin_story()
+    {
+        _s13_final_battle::play_intro_igc();
+        _s13_final_battle::start_story();
+    }
+
+    void _s13_final_battle::start_story()
+    {
+        _s13_final_battle::set_up_scene();
+    }
+
+    void _s13_final_battle::play_intro_igc()
+    {
+        enable_subtitles();
+        subtitle(332, 0.4, 3.5, 0, 0, 0);
+        play_prerender("S13_FnBT_IGC1");
+        disable_subtitles();
+        blackscreen_on(0);
+        g_story_checkpoint = 1;
+    }
+
+    void _s13_final_battle::set_up_scene()
+    {
+        enable_mini_map(0);
+        enable_traffic(0);
+        enable_civilians(0);
+        _s13_final_battle::S13_music_thread();
+        (hero()).set_ai_param_int("loco_allow_aerial_hit_react", 1);
+        _s13_final_battle::global_44 = ((_s13_final_battle::FINAL_BATTLE).field_16).spawn_it();
+        (hero()).set_scripted_target(_s13_final_battle::global_44);
+        turn_on_boss_health(1, _s13_final_battle::global_44);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        _s13_final_battle::global_48 = ((_s13_final_battle::FINAL_BATTLE).field_20).spawn_it();
+        (_s13_final_battle::global_48).enable_collisions();
+        (_s13_final_battle::global_48).change_ai_base_machine("traskcopter_s13");
+        start_thread(_s13_final_battle::north_fire_start_effects());
+        start_thread(_s13_final_battle::watch_for_biggerfire());
+        start_thread(_s13_final_battle::watch_for_mission_win());
+        start_thread(_s13_final_battle::watch_for_chopper_fail());
+        start_thread(_s13_final_battle::watch_for_chopper_damage());
+        start_thread(_s13_final_battle::sound_watcher());
+        _s13_final_battle::global_52 = 0;
+        _s13_final_battle::global_56 = 0;
+        add_glass_house("common\\ghouses\\s13_house");
+        blackscreen_off(1);
+        (_s13_final_battle::my_rain).start_rain();
+        start_thread(_s13_final_battle::play_chopper_sound());
+        freeze_hero(0);
+        (_s13_final_battle::global_44).change_ai_base_machine("venom_s13");
+        raise_signal("MISSION_MUSIC_P1_START");
+        start_thread(_s13_final_battle::starting_vo());
+        set_mission_text_box_flavor(1);
+        set_mission_text(127);
+        _s13_final_battle::kill_mission_text(4);
+    }
+
+    void _s13_final_battle::watch_for_biggerfire()
+    {
+        while (((_s13_final_battle::global_44).get_ifc_num("HIT_POINTS") > 200)) {
+            _global_slc::wait_frame();
+        }
+        start_thread(_s13_final_battle::south_fire_start_effects());
+    }
+
+    void _s13_final_battle::starting_vo()
+    {
+        (_s13_final_battle::global_44).ai_wait_say_file("s13_02gp07_ven_bigroar", 0, 2);
+        (_s13_final_battle::global_44).ai_wait_say_file("s13_02gp02_ven_iknowhowto", 0, 2);
+    }
+
+    void _s13_final_battle::watch_for_mission_win()
+    {
+        while (((_s13_final_battle::global_44).get_ifc_num("HIT_POINTS") > 0)) {
+            _global_slc::wait_frame();
+        }
+        if ((!_s13_final_battle::global_64)) {
+            blackscreen_on(1);
+            delay(1);
+            turn_off_boss_health();
+            cut_scene v0 = create_cut_scene("cutscenes\\s13_final_battle\\scripted\\s13_venom_death.cut");
+            (v0).wait_play();
+            blackscreen_on(0);
+            g_story_checkpoint = 0;
+            g_mission_status = 2;
+            raise_signal("MISSION_END");
+            while (is_mission_active()) {
+                _global_slc::wait_frame();
+            }
+        }
+    }
+
+    void _s13_final_battle::watch_for_chopper_fail()
+    {
+        while (((_s13_final_battle::global_48).get_ifc_num("HIT_POINTS") > 450)) {
+            _global_slc::wait_frame();
+        }
+        _s13_final_battle::global_64 = 1;
+        (_s13_final_battle::global_44).change_ai_base_machine("idle_base");
+        cut_scene v0 = create_cut_scene("cutscenes\\s13_final_battle\\scripted\\s13_chopper_closeup.cut");
+        (_s13_final_battle::global_48).set_ifc_num("GRAVITY", 0);
+        (v0).wait_play();
+        if ((g_mission_status != 3)) {
+            _s13_final_battle::mission_fail_spidey_specific(251);
+        }
+    }
+
+    void _s13_final_battle::watch_for_chopper_damage()
+    {
+        bind_signal_once(signal_id(_s13_final_battle::global_44, "_s13_final_battle::VENOM_MOVES_TRASK"), _s13_final_battle::start_chopper_dmg_panel());
+    }
+
+    void _s13_final_battle::start_chopper_dmg_panel()
+    {
+        cut_scene v0 = create_cut_scene("cutscenes\\s13_final_battle\\scripted\\s13_chopper_dmg.cut");
+        (v0).wait_play();
+    }
+
+    void _s13_final_battle::mission_called_from_debug_menu()
+    {
+        g_enable_sh = 0;
+        g_enable_story = 1;
+        gv_num_current_story = 22;
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _s13_final_battle::setup_debug_menu()
+    {
+        debug_menu_entry v0 = create_debug_menu_entry("WIN S13");
+        (v0).set_handler("s13_win(debug_menu_entry)");
+        debug_menu_entry v1 = create_debug_menu_entry("PREVIEW MOVES");
+        (v1).set_handler("s13_preview_moves(debug_menu_entry)");
+    }
+
+    void _s13_final_battle::s13_win(debug_menu_entry p0)
+    {
+        if ((!_s13_final_battle::global_64)) {
+            cut_scene v0 = create_cut_scene("cutscenes\\s13_final_battle\\scripted\\s13_venom_death.cut");
+            (v0).wait_play();
+            g_story_checkpoint = 0;
+            g_mission_status = 2;
+            raise_signal("MISSION_END");
+            malor(vector3d(-133.839, 180.781, 1370.514), 1);
+        }
+    }
+
+    void _s13_final_battle::s13_preview_moves(debug_menu_entry p0)
+    {
+        (_s13_final_battle::global_44).change_ai_base_machine("venom_preview");
+        debug_menu_entry v0 = create_debug_menu_entry("STOMP");
+        (v0).set_handler("S13_preview_stomp(debug_menu_entry)");
+    }
+
+    void _s13_final_battle::S13_preview_stomp(debug_menu_entry p0)
+    {
+        raise_signal(_s13_final_battle::global_44, "_s13_final_battle::PREVIEW_TRANS_MELEE_5_MSG");
+    }
+
+    void _s13_final_battle::setup_s13_throw_entities()
+    {
+        entity v0;
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_156).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC01");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_160).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC02");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_164).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC03");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_168).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC04");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_172).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC05");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_176).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC06");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_180).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC07");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_184).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_AC08");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_188).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_radio_antenna");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_192).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_radio_antenna01");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_196).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_radio_antenna02");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_200).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_radio_antenna03");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_500).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_radio_antenna04");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_504).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_radio_antenna05");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_208).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_powerbox01");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_212).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_powerbox02");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_216).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel01");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_220).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel02");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_224).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel03");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_228).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel04");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_232).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel05");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_236).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel06");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_240).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel07");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_244).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel08");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_248).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel09");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_252).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel10");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_256).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel11");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_260).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel12");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_264).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel13");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_268).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel14");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_272).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel15");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_276).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel16");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_280).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel17");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_284).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel18");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_288).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel19");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_304).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel23");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_308).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel24");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_320).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel27");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_324).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel28");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_328).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel29");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_332).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel30");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_336).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel31");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_340).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel32");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_344).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel33");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_348).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel34");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_352).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel35");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_356).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel36");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_360).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel37");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_364).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel38");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_368).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel39");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_372).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel40");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_376).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel41");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_380).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel42");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_384).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel43");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_388).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel44");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_392).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel45");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_396).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel46");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_400).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel47");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_404).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel48");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_408).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel49");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_412).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel50");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_416).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel51");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_420).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel52");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_424).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel53");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_428).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel54");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_432).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel55");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_436).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel56");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_440).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel57");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_444).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel58");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_448).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel59");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_452).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel60");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_456).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel61");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_460).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel62");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_464).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel63");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_468).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel64");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_472).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel65");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_476).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel66");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_480).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel67");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_488).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel69");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_492).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel70");
+        v0 = ((_s13_final_battle::FINAL_BATTLE).field_496).spawn_it();
+        _s13_final_battle::spawn_move_and_set(v0, "QH_barrel71");
+    }
+
+    void _s13_final_battle::spawn_move_and_set(entity p0, str p4)
+    {
+        if (entity_exists(p4)) {
+            entity v0 = find_entity(p4);
+            (p0).set_rel_position((v0).get_rel_position());
+            (p0).set_xz_facing((v0).get_facing());
+        }
+    }
+
+    void _s13_final_battle::play_chopper_sound()
+    {
+        _s13_final_battle::global_40 = create_sound_inst("trask_helicopter_hover_lp");
+        (_s13_final_battle::global_40).play_3d((_s13_final_battle::global_48).get_abs_position(), 0);
+    }
+
+    void _s13_final_battle::sound_watcher()
+    {
+        if ((_s13_final_battle::global_68 == 0)) {
+            _s13_final_battle::global_68 = 1;
+            bind_signal_once(signal_id(_s13_final_battle::global_44, "_s13_final_battle::VENOM_HITS_TRASK"), _s13_final_battle::trask_got_hit());
+            bind_signal_once(signal_id(hero(), "entity::DAMAGED"), _s13_final_battle::spidey_got_hit());
+        }
+    }
+
+    void _s13_final_battle::trask_got_hit()
+    {
+        (_s13_final_battle::global_48).ai_say_sound_group("s13_trask_lines", 2, 2);
+        delay(1.5);
+        (_s13_final_battle::global_44).ai_say_sound_group("s13_venom_trask", 0, 1);
+        delay(9);
+        bind_signal_once(signal_id(_s13_final_battle::global_44, "_s13_final_battle::VENOM_HITS_TRASK"), _s13_final_battle::trask_got_hit());
+    }
+
+    void _s13_final_battle::spidey_got_hit()
+    {
+        (hero()).ai_say_sound_group("s13_tentacle_hit", 0, 1);
+        delay(9);
+        bind_signal_once(signal_id(hero(), "entity::DAMAGED"), _s13_final_battle::spidey_got_hit());
+    }
+
+    str _s13_final_battle::global_112 = "";
+
+    str _s13_final_battle::global_116 = "";
+
+    str _s13_final_battle::global_224 = "";
+
+    str _s13_final_battle::global_228 = "";
+
+}

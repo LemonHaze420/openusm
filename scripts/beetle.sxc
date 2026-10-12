@@ -1,0 +1,1190 @@
+namespace beetle {
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern vector3d _global_slc::cross(vector3d,vector3d);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern num _global_slc::get_time_inc();
+    extern entity _global_slc::hero();
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_continuous_rotation(vector3d,num,num);
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern entity entity::get_member(str);
+    extern num entity::get_render_alpha();
+    extern vector3d entity::get_x_facing();
+    extern vector3d entity::get_y_facing();
+    extern vector3d entity::get_z_facing();
+    extern num entity::has_member(str);
+    extern num entity::is_valid();
+    extern num entity::operator!=(entity);
+    extern num entity::operator==(entity);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_facing(vector3d,vector3d);
+    extern void entity::set_inode_param_int(str,str,num);
+    extern void entity::set_invulnerable(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::wait_change_render_scale(vector3d,num);
+    extern entity item::get_visual_item();
+    extern void sound_inst::play_3d(vector3d,num);
+    extern void sound_inst::set_entity(entity);
+    extern void sound_inst::stop(num);
+    extern num vector3d::length2();
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _beetle
+    {
+    public:
+        static effects_common beetle_common = effects_common::create_named("beetle_common");
+        static beetle_effects go_beetle = beetle_effects::create_named("go_beetle");
+        static entity global_8;
+        static num global_12[16];
+        static entity global_76[16];
+        static num global_140 = 0;
+        static entity global_144;
+        static entity global_148;
+        static entity global_152;
+        static entity global_156;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static entity global_172;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static sound_inst global_184;
+        static num global_188 = 0;
+        static sound_inst global_192;
+        static entity global_196;
+        static entity global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228 = 0;
+        static num global_232 = 0;
+        static num global_236 = 0;
+        static num global_240 = 0;
+        static str global_244;
+        static str global_248;
+        static num global_252 = 0;
+        static num global_256 = 0;
+        static num global_260 = 0;
+        static num global_264;
+        static num global_268;
+        static num global_272 = 0;
+        static num global_276 = 0;
+        static num global_280 = 0;
+        static num global_284 = 0;
+        static num global_288 = 0;
+        static num global_292 = 0;
+        static num global_296 = 0;
+        static num global_300 = 0;
+        static num global_304 = 0;
+        static num global_308 = 0;
+        static num global_312 = 0;
+        static num global_316 = 0;
+        static num global_320 = 0;
+        static num global_324 = 0;
+        static num global_328 = 0;
+        static num global_332 = 0;
+        static num global_336 = 0;
+        static num global_340 = 0;
+        static num global_344 = 0;
+        static num global_348 = 0;
+        static num global_352 = 0;
+        static str global_356;
+        static str global_360;
+        static num global_364 = 0;
+        static num global_368;
+        static num global_372;
+        static num global_376;
+        static num global_380;
+        static num global_384;
+        static num global_388;
+        static num global_392;
+        static num global_396;
+        static num global_400 = 0;
+        static num global_404;
+        static num global_408;
+        static num global_412;
+        static num global_416;
+        static num global_420;
+        static num global_424;
+        static num global_428;
+        static num global_432;
+        static num global_436;
+        static num global_440;
+        static num global_444;
+        static num global_448;
+        static num global_452;
+        static num global_456;
+        _beetle(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void wait_fade_alpha(entity p4, num p8);
+        void wait_fade_alpha_in(entity p4, num p8);
+        void wait_scale_entity(entity p4, num p8, num p12);
+        void wait_set_render_scale(entity p4, vector3d p8, num p20);
+        void wait_destroy(entity p4, num p8);
+    };
+
+    class beetle_effects
+    {
+    public:
+        entity field_0;
+        entity field_4;
+        entity field_8;
+        entity field_12;
+        entity field_16;
+        num unused_20[2];
+        entity field_28;
+        entity field_32;
+        entity field_36;
+        num unused_40[1];
+        entity_list field_44;
+        num field_48;
+        num unused_52[1];
+        entity field_56[10];
+        entity field_96[10];
+        beetle_effects();
+        entity get_blade_left();
+        entity get_blade_right();
+        void init(entity p4);
+        void upd_blade();
+        void start_charge_missile(entity p4);
+        void stop_charge_missile();
+        void create_missile(entity p4, num p8);
+        void delete_missile(num p4);
+        void start_charge_shockwave(entity p4);
+        void stop_charge_shockwave();
+        void create_charge_shockwave(entity p4, num p8, num p12);
+        void delete_charge_shockwave(num p4);
+        void proximity_barrier_thread(entity p4, entity p8, num p12);
+        void smoke_nade(vector3d p4);
+        void proximity_barrier(vector3d p4, num p16);
+        void animate_ring(entity p4, num p8);
+        void init_proxmine();
+        void free_proxmine();
+        void add_proxmine(entity p4, entity p8, entity p12);
+        void remove_proxmine(item p4, vector3d p8);
+        void drop_shockwave_mine(item p4, entity p8, vector3d p12, vector3d p24);
+        void destroy_shockwave_mine(item p4, entity p8, vector3d p12, vector3d p24);
+        void multi_shockwave_rings(vector3d p4, num p16);
+        void scale_then_fade(entity p4);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        entity field_8[16];
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void turn_on_blade_left(num p4);
+        void turn_off_blade_left();
+        void turn_on_blade_right(num p4);
+        void turn_off_blade_right();
+        void activate_charge_attack();
+        void deactivate_charge_attack();
+        void laser_blade_upd(entity p4);
+        void laser_sweep_upd(entity p4);
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+        void laser_sweep_attack_begin_callback();
+        void start_laser_sweep_loop_sound();
+        void laser_sweep_attack_end_callback();
+        void flight_layer_activate();
+        void flight_layer_deactivate();
+        void proximity_mine_tracker(item p4, entity p8, vector3d p12, vector3d p24);
+        void proximity_mine_explode(item p4, entity p8, vector3d p12, vector3d p24);
+        void proximity_mine_launch(item p4, entity p8, vector3d p12, vector3d p24);
+        void smoke_mine_launch(item p4, entity p8, vector3d p12, vector3d p24);
+        void smoke_mine_explode(item p4, entity p8, vector3d p12, vector3d p24);
+        void proximity_barrier_launch(item p4, entity p8, vector3d p12, vector3d p24);
+        void laser_destroy(item p4, entity p8, vector3d p12, vector3d p24);
+        void laser_launch(item p4, entity p8, vector3d p12, vector3d p24);
+        void shockwave_launch(item p4, entity p8, vector3d p12, vector3d p24);
+        void shockwave_delete(item p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    class missile_charge
+    {
+    public:
+        missile_charge(entity p4);
+        ~missile_charge();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Shockwave_Charge_Script
+    {
+    public:
+        Shockwave_Charge_Script(entity p4);
+        ~Shockwave_Charge_Script();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Shockwave_Attack_Script
+    {
+    public:
+        Shockwave_Attack_Script(entity p4);
+        ~Shockwave_Attack_Script();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class laser_sweeping
+    {
+    public:
+        num field_0;
+        laser_sweeping(entity p4);
+        ~laser_sweeping();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void on_attack_begin();
+        void on_attack_end();
+    };
+
+    class laser_aiming_long
+    {
+    public:
+        laser_aiming_long(entity p4);
+        ~laser_aiming_long();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class laser_fired
+    {
+    public:
+        laser_fired(entity p4);
+        ~laser_fired();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class shock_waved
+    {
+    public:
+        shock_waved(entity p4);
+        ~shock_waved();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class threw_grenade
+    {
+    public:
+        threw_grenade(entity p4);
+        ~threw_grenade();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Program_Wall_Script
+    {
+    public:
+        Program_Wall_Script(entity p4);
+        ~Program_Wall_Script();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Show_Blade
+    {
+    public:
+        Show_Blade(entity p4);
+        ~Show_Blade();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Chargeup_Blade_Script
+    {
+    public:
+        Chargeup_Blade_Script(entity p4);
+        ~Chargeup_Blade_Script();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::wait_fade_alpha(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v1 = (p4).get_render_alpha();
+        num v2 = (v1 / p8);
+        while ((v0 < p8)) {
+            (p4).set_render_alpha((v1 - (v2 * v0)));
+            wait_frame();
+            v0++;
+        }
+        (p4).set_visible(0);
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::wait_fade_alpha_in(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v2 = (p4).get_render_alpha();
+        num v1 = ((1 - v2) / p8);
+        while ((v0 < p8)) {
+            wait_frame();
+            (p4).set_render_alpha((v1 * v0));
+            v0++;
+        }
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::wait_scale_entity(entity p4, num p8, num p12)
+    {
+        if ((p12 < 0.001)) {
+            p12 = 0.001;
+        }
+        (p4).wait_change_render_scale(vector3d(p8, p8, p8), p12);
+    }
+
+    void effects_common::wait_set_render_scale(entity p4, vector3d p8, num p20)
+    {
+        (p4).wait_change_render_scale(p8, p20);
+    }
+
+    void effects_common::wait_destroy(entity p4, num p8)
+    {
+        if ((p4).is_valid()) {
+            delay(p8);
+            destroy_entity(p4);
+        }
+    }
+
+    beetle_effects::beetle_effects()
+    {
+        field_48 = 0;
+        field_36 = entity("NULL");
+        field_44 = create_entity_list();
+    }
+
+    entity beetle_effects::get_blade_left()
+    {
+        return field_12;
+    }
+
+    entity beetle_effects::get_blade_right()
+    {
+        return field_16;
+    }
+
+    void beetle_effects::init(entity p4)
+    {
+        field_0 = p4;
+        field_4 = (p4).get_member("GUN_ARM_L");
+        field_8 = (p4).get_member("GUN_ARM_R");
+        field_12 = create_entity("effects\\aeps\\fx_beetle_blade", "blade_l");
+        (field_12).set_visible(0);
+        (field_12).set_distance_clip(200);
+        field_16 = create_entity("effects\\aeps\\fx_beetle_blade", "blade_r");
+        (field_16).set_visible(0);
+        (field_16).set_distance_clip(200);
+        start_thread_on(this, (this).upd_blade());
+    }
+
+    void beetle_effects::upd_blade()
+    {
+        while (1) {
+            vector3d v0 = ((field_4).get_facing() * -1);
+            (field_12).set_rel_position((field_4).get_abs_position());
+            (field_12).set_facing(v0, (field_8).get_y_facing());
+            (field_16).set_rel_position((field_8).get_abs_position());
+            (field_16).set_facing((field_8).get_facing(), (field_8).get_y_facing());
+            wait_frame();
+        }
+    }
+
+    void beetle_effects::start_charge_missile(entity p4)
+    {
+        kill_threads_on(this, beetle_effects::stop_charge_missile);
+        start_thread_on(this, (this).create_missile(p4, 0.5));
+    }
+
+    void beetle_effects::stop_charge_missile()
+    {
+        kill_threads_on(this, beetle_effects::create_missile);
+        start_thread_on(this, (this).delete_missile(0.5));
+    }
+
+    void beetle_effects::create_missile(entity p4, num p8)
+    {
+        delay(p8);
+        destroy_entity(field_28);
+        field_28 = create_entity("effects\\aeps\\fx_beetle_chrgup2");
+        (field_28).set_parent(p4);
+    }
+
+    void beetle_effects::delete_missile(num p4)
+    {
+        delay(p4);
+        destroy_entity(field_28);
+        field_28 = entity("NULL");
+    }
+
+    void beetle_effects::start_charge_shockwave(entity p4)
+    {
+        kill_threads_on(this, beetle_effects::delete_charge_shockwave);
+        start_thread_on(this, (this).create_charge_shockwave(p4, 0, 1));
+    }
+
+    void beetle_effects::stop_charge_shockwave()
+    {
+        kill_threads_on(this, beetle_effects::create_charge_shockwave);
+        start_thread_on(this, (this).delete_charge_shockwave(0));
+    }
+
+    void beetle_effects::create_charge_shockwave(entity p4, num p8, num p12)
+    {
+        delay(p8);
+        destroy_entity(field_32);
+        field_32 = create_entity("effects\\aeps\\fx_beetle_chrgup_big");
+        (field_32).set_parent(p4);
+        (field_32).set_render_scale(vector3d(0, 0, 0));
+        (_beetle::beetle_common).wait_scale_entity(field_32, 1, p12);
+    }
+
+    void beetle_effects::delete_charge_shockwave(num p4)
+    {
+        delay(p4);
+        destroy_entity(field_32);
+        field_32 = entity("NULL");
+    }
+
+    void beetle_effects::proximity_barrier_thread(entity p4, entity p8, num p12)
+    {
+        while (1) {
+            if ((distance3d((hero()).get_abs_position(), (p8).get_abs_position()) < p12)) {
+                entity fx_bproxy = create_entity("effects\\entities\\fx_bproxy");
+                (fx_bproxy).apply_continuous_rotation(vector3d(0, 0, 1), 65, 1);
+                (fx_bproxy).set_rel_position((p8).get_abs_position());
+                wait_frame();
+                destroy_entity(p8);
+                wait_frame();
+                destroy_entity(p4);
+                return;
+            }
+            delay(0.25);
+        }
+    }
+
+    void beetle_effects::smoke_nade(vector3d p4)
+    {
+        entity fx_beetle_sbmb = create_entity("effects\\entities\\fx_beetle_sbmb");
+        (fx_beetle_sbmb).set_rel_position(p4);
+        (fx_beetle_sbmb).set_distance_clip(1000);
+        start_thread_on(this, (_beetle::beetle_common).wait_destroy(fx_beetle_sbmb, 16));
+    }
+
+    void beetle_effects::proximity_barrier(vector3d p4, num p16)
+    {
+        entity fx_bmine = create_entity("effects\\entities\\fx_bmine");
+        (fx_bmine).set_rel_position(p4);
+        (fx_bmine).set_distance_clip(500);
+        (fx_bmine).set_visible(1);
+        entity fx_mine_ring = create_entity("effects\\entities\\fx_mine_ring");
+        (fx_mine_ring).set_parent(fx_bmine);
+        (fx_mine_ring).set_distance_clip(500);
+        start_thread_on(this, (this).animate_ring(fx_mine_ring, p16));
+        start_thread_on(this, (this).proximity_barrier_thread(fx_bmine, fx_mine_ring, p16));
+    }
+
+    void beetle_effects::animate_ring(entity p4, num p8)
+    {
+        while ((p4).is_valid()) {
+            (_beetle::beetle_common).wait_scale_entity(p4, (p8 * 38.5), 0.4);
+            (_beetle::beetle_common).wait_fade_alpha(p4, 15);
+            (p4).set_render_scale(vector3d(1, 1, 1));
+            (p4).set_visible(1);
+        }
+    }
+
+    void beetle_effects::init_proxmine()
+    {
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_56[v0] = entity("NULL");
+            field_96[v0] = entity("NULL");
+            v0++;
+        }
+    }
+
+    void beetle_effects::free_proxmine()
+    {
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_56[v0] = entity("NULL");
+            field_96[v0] = entity("NULL");
+            v0++;
+        }
+    }
+
+    void beetle_effects::add_proxmine(entity p4, entity p8, entity p12)
+    {
+        num v0 = 0;
+        while ((v0 < 10)) {
+            if ((field_56[v0] == entity("NULL"))) {
+                field_56[v0] = p8;
+                field_96[v0] = p12;
+                return;
+            }
+            v0++;
+        }
+    }
+
+    void beetle_effects::remove_proxmine(item p4, vector3d p8)
+    {
+        num v2 = 100000;
+        num v1 = -1;
+        num v0 = 0;
+        while ((v0 < 10)) {
+            if ((field_56[v0] != entity("NULL"))) {
+                num v3 = ((p8 - (field_56[v0]).get_abs_position())).length2();
+                if ((v3 < v2)) {
+                    v1 = v0;
+                    v2 = v3;
+                }
+            }
+            v0++;
+        }
+        if ((v1 >= 0)) {
+            destroy_entity(field_56[v1]);
+            wait_frame();
+            destroy_entity(field_96[v1]);
+            field_56[v1] = entity("NULL");
+            field_96[v1] = entity("NULL");
+        }
+    }
+
+    void beetle_effects::drop_shockwave_mine(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        entity fx_bmine = create_entity("effects\\entities\\fx_bmine");
+        (fx_bmine).set_rel_position(p12);
+        (fx_bmine).set_distance_clip(150);
+        (fx_bmine).set_parent(p8);
+        entity fx_beetle_s_pulse = create_entity("effects\\aeps\\fx_beetle_s_pulse");
+        (fx_beetle_s_pulse).set_state(2, 1);
+        (fx_beetle_s_pulse).set_parent(fx_bmine);
+        (fx_beetle_s_pulse).set_distance_clip(150);
+        (this).add_proxmine((p4).get_visual_item(), fx_bmine, fx_beetle_s_pulse);
+    }
+
+    void beetle_effects::destroy_shockwave_mine(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (this).remove_proxmine(p4, p12);
+    }
+
+    void beetle_effects::multi_shockwave_rings(vector3d p4, num p16)
+    {
+        num v0 = 0;
+        while ((v0 < p16)) {
+            entity fx_bshockw = create_entity("effects\\entities\\fx_bshockw");
+            (fx_bshockw).set_rel_position(p4);
+            (fx_bshockw).set_distance_clip(150);
+            (fx_bshockw).set_render_scale(vector3d(0.1, 0.1, 0.1));
+            start_thread_on(this, (this).scale_then_fade(fx_bshockw));
+            delay(0.1);
+            v0++;
+        }
+    }
+
+    void beetle_effects::scale_then_fade(entity p4)
+    {
+        (p4).set_render_alpha(0);
+        start_thread_on(this, (_beetle::beetle_common).wait_fade_alpha_in(p4, 13));
+        (p4).wait_change_render_scale(vector3d(7, 7, 7), 0.35);
+        destroy_entity(p4);
+    }
+
+    _beetle::_beetle(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        (_beetle::go_beetle).init_proxmine();
+        field_0 = p4;
+        if ((_beetle::global_8 == entity("NULL"))) {
+            num v0 = 0;
+            (_beetle::global_8).set_distance_clip(200);
+            (_beetle::go_beetle).init(p4);
+            while ((v0 < 16)) {
+                _beetle::global_12[v0] = 0;
+                _beetle::global_76[v0] = entity("NULL");
+                v0++;
+            }
+            _beetle::global_140 = 0;
+            _beetle::global_8 = p4;
+            _beetle::global_144 = entity("NULL");
+            _beetle::global_148 = entity("NULL");
+            if ((p4).has_member("GUN_ARM_R")) {
+                _beetle::global_144 = (p4).get_member("GUN_ARM_R");
+            }
+            if ((p4).has_member("GUN_ARM_L")) {
+                _beetle::global_148 = (p4).get_member("GUN_ARM_L");
+            }
+            _beetle::global_152 = create_entity("effects\\entities\\fx_scorched_decal");
+            destroy_entity(_beetle::global_152);
+            _beetle::global_156 = create_entity("effects\\entities\\fx_scorched_decal");
+            (_beetle::global_156).set_visible(1);
+            (_beetle::global_156).set_parent(_beetle::global_148);
+            start_thread_on(this, (this).laser_blade_upd(p4));
+            start_thread_on(this, (this).laser_sweep_upd(p4));
+        }
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        (_beetle::go_beetle).free_proxmine();
+    }
+
+    void ENX_MASTER_OBJECT::turn_on_blade_left(num p4)
+    {
+        kill_threads_on(this, ENX_MASTER_OBJECT::turn_off_blade_left);
+        ((_beetle::go_beetle).get_blade_left()).set_render_scale(vector3d(0, 0, 0));
+        ((_beetle::go_beetle).get_blade_left()).set_visible(1);
+        start_thread_on(this, (_beetle::my_common).wait_set_render_scale((_beetle::go_beetle).get_blade_left(), vector3d(p4, p4, p4), 0.4));
+    }
+
+    void ENX_MASTER_OBJECT::turn_off_blade_left()
+    {
+        kill_threads_on(this, ENX_MASTER_OBJECT::turn_on_blade_left);
+        start_thread_on(this, (_beetle::my_common).wait_set_render_scale((_beetle::go_beetle).get_blade_left(), vector3d(0.3, 0.15, 0.3), 0.1));
+        delay(0.5);
+        ((_beetle::go_beetle).get_blade_left()).set_visible(0);
+    }
+
+    void ENX_MASTER_OBJECT::turn_on_blade_right(num p4)
+    {
+        kill_threads_on(this, ENX_MASTER_OBJECT::turn_off_blade_right);
+        ((_beetle::go_beetle).get_blade_right()).set_render_scale(vector3d(0, 0, 0));
+        ((_beetle::go_beetle).get_blade_right()).set_visible(1);
+        start_thread_on(this, (_beetle::my_common).wait_set_render_scale((_beetle::go_beetle).get_blade_right(), vector3d(p4, p4, p4), 0.4));
+    }
+
+    void ENX_MASTER_OBJECT::turn_off_blade_right()
+    {
+        kill_threads_on(this, ENX_MASTER_OBJECT::turn_on_blade_right);
+        start_thread_on(this, (_beetle::my_common).wait_set_render_scale((_beetle::go_beetle).get_blade_right(), vector3d(0.3, 0.15, 0.3), 0.1));
+        delay(0.5);
+        ((_beetle::go_beetle).get_blade_right()).set_visible(0);
+    }
+
+    void ENX_MASTER_OBJECT::activate_charge_attack()
+    {
+        if ((!_beetle::global_164)) {
+            raise_signal(_beetle::global_8, "_beetle::STARTING_BLADE_CHARGE");
+            (this).turn_on_blade_right(1);
+            (this).turn_on_blade_left(1);
+            _beetle::global_164 = 1;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::deactivate_charge_attack()
+    {
+        if (_beetle::global_164) {
+            (this).turn_off_blade_right();
+            (this).turn_off_blade_left();
+            _beetle::global_164 = 0;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::laser_blade_upd(entity p4)
+    {
+        while (1) {
+            wait_frame();
+            if ((_beetle::global_168 > 0)) {
+                _beetle::global_168 = (_beetle::global_168 - get_time_inc());
+                if ((_beetle::global_168 < 0)) {
+                    _beetle::global_168 = 0;
+                    (this).deactivate_charge_attack();
+                }
+            } else if ((_beetle::global_168 < 0)) {
+                _beetle::global_168 = (_beetle::global_168 + get_time_inc());
+                if ((_beetle::global_168 > 0)) {
+                    _beetle::global_168 = 0;
+                    (this).activate_charge_attack();
+                }
+            }
+        }
+    }
+
+    void ENX_MASTER_OBJECT::laser_sweep_upd(entity p4)
+    {
+        if ((_beetle::global_172 == entity("NULL"))) {
+            _beetle::global_172 = create_entity("effects\\entities\\fx_beetle_multibeam");
+            (_beetle::global_172).set_render_scale(vector3d(0, 0, 0));
+            (_beetle::global_172).set_visible(1);
+            (_beetle::global_172).set_distance_clip(200);
+        }
+        while (1) {
+            _beetle::global_176 = (_beetle::global_176 - get_time_inc());
+            if ((_beetle::global_176 > 0.25)) {
+                vector3d v8 = vector3d(0, 0, 0);
+                vector3d v2 = (_beetle::global_144).get_x_facing();
+                vector3d v5 = (v8 - (_beetle::global_144).get_z_facing());
+                vector3d v9 = cross(v2, v5);
+                vector3d v10 = (((v2 * 0.2) + (v5 * 0.12)) - (v9 * 0.05));
+                (_beetle::global_172).set_rel_position(((_beetle::global_144).get_abs_position() + v10));
+                (_beetle::global_172).set_facing(v2, v5);
+                num retained_value891 = 2;
+                num v7 = (1 + retained_value891);
+                vector3d v11 = (_beetle::global_172).get_abs_position();
+                vector3d v0 = (_beetle::global_172).get_z_facing();
+                vector3d v12 = (v11 + (v0 * v7));
+                vector3d v14 = (v11 + (v0 * 55));
+                vector3d v1 = (hero()).get_abs_position();
+                vector3d v3 = v12;
+                num v4 = v7;
+                while ((v4 < 55)) {
+                    num v13 = (v4 / 55);
+                    num v6 = (((v13 * (10 / 2)) + ((1 - v13) * 0.5)) + retained_value891);
+                    if ((((v1 - v3)).length2() < (v6 * v6))) {
+                        (hero()).apply_directed_damage_cat(5, (v1 - v3), "Wounded_Step_Back_Oriented", 0);
+                        v4 = (2 * 55);
+                    } else {
+                        v3 = (v3 + (v0 * (1 * v6)));
+                        v4 = (v4 + (1 * v6));
+                    }
+                }
+            } else {
+                if ((_beetle::global_176 > -1)) {
+                    (_beetle::global_172).set_visible(0);
+                }
+                if (_beetle::global_180) {
+                    (_beetle::global_184).stop(0);
+                    _beetle::global_180 = 0;
+                    _beetle::global_188 = 0;
+                }
+            }
+            wait_frame();
+        }
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        entity v0;
+        vector3d v1;
+        vector3d v2;
+        num v3 = 1;
+        num v4 = 0;
+        if ((p4 == field_0)) {
+            v0 = p8;
+            v1 = p24;
+            v2 = p12;
+        } else {
+            v0 = p4;
+            v1 = p12;
+            v2 = p24;
+        }
+        while ((v4 < 16)) {
+            if ((v0 == field_8[v4])) {
+                v3 = 0;
+                v4 = 16;
+            }
+            v4++;
+        }
+        if (v3) {
+            (field_0).apply_directed_damage_cat(10, (v2 - v1), "Big_Hit", 1);
+            v4 = (16 - 1);
+            while ((v4 > 0)) {
+                field_8[v4] = field_8[(v4 - 1)];
+                v4--;
+            }
+            field_8[0] = v0;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::laser_sweep_attack_begin_callback()
+    {
+        (_beetle::global_172).set_visible(1);
+        start_thread_on(this, (_beetle::my_common).wait_set_render_scale(_beetle::global_172, vector3d(1, 10, 55), 0.5));
+        if (((_beetle::global_176 < 0) && (!_beetle::global_188))) {
+            _beetle::global_192 = create_sound_inst("bee_laser_sweep_start");
+            (_beetle::global_192).set_entity(_beetle::global_8);
+            (_beetle::global_192).play_3d((_beetle::global_8).get_abs_position(), 0);
+            _beetle::global_188 = 1;
+            start_thread_on(this, (this).start_laser_sweep_loop_sound());
+        }
+        _beetle::global_176 = 50;
+    }
+
+    void ENX_MASTER_OBJECT::start_laser_sweep_loop_sound()
+    {
+        delay(2);
+        _beetle::global_184 = create_sound_inst("bee_laser_sweep_lp_1");
+        (_beetle::global_184).set_entity(_beetle::global_8);
+        (_beetle::global_184).play_3d((_beetle::global_8).get_abs_position(), 0);
+        _beetle::global_180 = 1;
+    }
+
+    void ENX_MASTER_OBJECT::laser_sweep_attack_end_callback()
+    {
+        _beetle::global_176 = 0.1;
+        start_thread_on(this, (_beetle::my_common).wait_set_render_scale(_beetle::global_172, vector3d(0, 0, 0), _beetle::global_176));
+    }
+
+    void ENX_MASTER_OBJECT::flight_layer_activate()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::flight_layer_deactivate()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::proximity_mine_tracker(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).drop_shockwave_mine(p4, p8, p12, p24);
+    }
+
+    void ENX_MASTER_OBJECT::proximity_mine_explode(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).destroy_shockwave_mine(p4, p8, p12, p24);
+    }
+
+    void ENX_MASTER_OBJECT::proximity_mine_launch(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).drop_shockwave_mine(p4, p8, p12, p24);
+    }
+
+    void ENX_MASTER_OBJECT::smoke_mine_launch(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).drop_shockwave_mine(p4, p8, p12, p24);
+    }
+
+    void ENX_MASTER_OBJECT::smoke_mine_explode(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).destroy_shockwave_mine(p4, p8, p12, p24);
+        (_beetle::go_beetle).smoke_nade(p12);
+    }
+
+    void ENX_MASTER_OBJECT::proximity_barrier_launch(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).proximity_barrier(p12, 6);
+    }
+
+    void ENX_MASTER_OBJECT::laser_destroy(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        destroy_entity(_beetle::global_196);
+    }
+
+    void ENX_MASTER_OBJECT::laser_launch(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+    }
+
+    void ENX_MASTER_OBJECT::shockwave_launch(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (_beetle::go_beetle).multi_shockwave_rings(p12, 12);
+    }
+
+    void ENX_MASTER_OBJECT::shockwave_delete(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((_beetle::global_200).is_valid()) {
+        }
+    }
+
+    missile_charge::missile_charge(entity p4)
+    {
+    }
+
+    missile_charge::~missile_charge()
+    {
+    }
+
+    void missile_charge::activate()
+    {
+        (_beetle::go_beetle).start_charge_missile(_beetle::global_144);
+    }
+
+    void missile_charge::deactivate()
+    {
+        (_beetle::go_beetle).stop_charge_missile();
+    }
+
+    void missile_charge::frame_advance(num p4, num p8)
+    {
+    }
+
+    Shockwave_Charge_Script::Shockwave_Charge_Script(entity p4)
+    {
+    }
+
+    Shockwave_Charge_Script::~Shockwave_Charge_Script()
+    {
+    }
+
+    void Shockwave_Charge_Script::activate()
+    {
+        (_beetle::global_8).set_invulnerable(1);
+        (_beetle::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+        (_beetle::go_beetle).start_charge_shockwave(_beetle::global_8);
+    }
+
+    void Shockwave_Charge_Script::deactivate()
+    {
+        (_beetle::global_8).set_invulnerable(0);
+        (_beetle::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 1);
+        (_beetle::go_beetle).stop_charge_shockwave();
+    }
+
+    void Shockwave_Charge_Script::frame_advance(num p4, num p8)
+    {
+    }
+
+    Shockwave_Attack_Script::Shockwave_Attack_Script(entity p4)
+    {
+    }
+
+    Shockwave_Attack_Script::~Shockwave_Attack_Script()
+    {
+    }
+
+    void Shockwave_Attack_Script::activate()
+    {
+        (_beetle::global_8).set_invulnerable(1);
+        (_beetle::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+    }
+
+    void Shockwave_Attack_Script::deactivate()
+    {
+        (_beetle::global_8).set_invulnerable(0);
+        (_beetle::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 1);
+    }
+
+    void Shockwave_Attack_Script::frame_advance(num p4, num p8)
+    {
+    }
+
+    laser_sweeping::laser_sweeping(entity p4)
+    {
+        field_0 = 0;
+    }
+
+    laser_sweeping::~laser_sweeping()
+    {
+    }
+
+    void laser_sweeping::activate()
+    {
+    }
+
+    void laser_sweeping::deactivate()
+    {
+    }
+
+    void laser_sweeping::frame_advance(num p4, num p8)
+    {
+    }
+
+    void laser_sweeping::on_attack_begin()
+    {
+    }
+
+    void laser_sweeping::on_attack_end()
+    {
+    }
+
+    laser_aiming_long::laser_aiming_long(entity p4)
+    {
+    }
+
+    laser_aiming_long::~laser_aiming_long()
+    {
+    }
+
+    void laser_aiming_long::activate()
+    {
+    }
+
+    void laser_aiming_long::deactivate()
+    {
+    }
+
+    void laser_aiming_long::frame_advance(num p4, num p8)
+    {
+    }
+
+    laser_fired::laser_fired(entity p4)
+    {
+        raise_signal("LASER_FIRED");
+    }
+
+    laser_fired::~laser_fired()
+    {
+    }
+
+    void laser_fired::activate()
+    {
+    }
+
+    void laser_fired::deactivate()
+    {
+    }
+
+    void laser_fired::frame_advance(num p4, num p8)
+    {
+    }
+
+    shock_waved::shock_waved(entity p4)
+    {
+        raise_signal(_beetle::global_8, "_beetle::SHOCK_WAVED");
+    }
+
+    shock_waved::~shock_waved()
+    {
+    }
+
+    void shock_waved::activate()
+    {
+    }
+
+    void shock_waved::deactivate()
+    {
+    }
+
+    void shock_waved::frame_advance(num p4, num p8)
+    {
+    }
+
+    threw_grenade::threw_grenade(entity p4)
+    {
+        raise_signal("GRENADE_THROWN");
+    }
+
+    threw_grenade::~threw_grenade()
+    {
+    }
+
+    void threw_grenade::activate()
+    {
+    }
+
+    void threw_grenade::deactivate()
+    {
+    }
+
+    void threw_grenade::frame_advance(num p4, num p8)
+    {
+    }
+
+    Program_Wall_Script::Program_Wall_Script(entity p4)
+    {
+    }
+
+    Program_Wall_Script::~Program_Wall_Script()
+    {
+    }
+
+    void Program_Wall_Script::activate()
+    {
+        (_beetle::global_8).set_inode_param_int("beetle", "setting_wall", 1);
+    }
+
+    void Program_Wall_Script::deactivate()
+    {
+        (_beetle::global_8).set_inode_param_int("beetle", "setting_wall", 0);
+    }
+
+    void Program_Wall_Script::frame_advance(num p4, num p8)
+    {
+    }
+
+    Show_Blade::Show_Blade(entity p4)
+    {
+    }
+
+    Show_Blade::~Show_Blade()
+    {
+    }
+
+    void Show_Blade::activate()
+    {
+        _beetle::global_168 = -0.01;
+    }
+
+    void Show_Blade::deactivate()
+    {
+        _beetle::global_168 = 0.3;
+    }
+
+    void Show_Blade::frame_advance(num p4, num p8)
+    {
+    }
+
+    Chargeup_Blade_Script::Chargeup_Blade_Script(entity p4)
+    {
+    }
+
+    Chargeup_Blade_Script::~Chargeup_Blade_Script()
+    {
+    }
+
+    void Chargeup_Blade_Script::activate()
+    {
+    }
+
+    void Chargeup_Blade_Script::deactivate()
+    {
+    }
+
+    void Chargeup_Blade_Script::frame_advance(num p4, num p8)
+    {
+    }
+
+    str _beetle::global_244 = "";
+
+    str _beetle::global_248 = "";
+
+    str _beetle::global_356 = "";
+
+    str _beetle::global_360 = "";
+
+}

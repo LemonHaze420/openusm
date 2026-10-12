@@ -1,0 +1,165 @@
+namespace VCL_MODCAR {
+    extern entity _global_slc::create_entity(str);
+    extern trigger _global_slc::create_trigger(entity,num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_trigger(trigger);
+    extern entity _global_slc::hero();
+    extern num _global_slc::random(num);
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_damage(num);
+    extern entity entity::get_member(str);
+    extern vector3d entity::get_rel_position();
+    extern num entity::is_a_car();
+    extern num entity::is_valid();
+    extern num entity::is_visible();
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_state(num,num);
+    extern void signaller::clear_callbacks();
+    extern num trigger::contains(entity);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _vcl_modcar
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        _vcl_modcar(num p0);
+        void wait_frame(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        trigger field_4;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void begin_smoking(entity p4);
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+        void fire_damage();
+        void stop_smoking(entity p4);
+    };
+
+    void _vcl_modcar::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    _vcl_modcar::_vcl_modcar(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        bind_signal_on(this, signal_id(p4, "entity::DESTROYED"), (this).begin_smoking(p4));
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        destroy_entity(field_0);
+    }
+
+    void ENX_MASTER_OBJECT::begin_smoking(entity p4)
+    {
+        field_0 = create_entity("effects\\aeps\\fx_fire_1m");
+        (field_0).set_state(2, 1);
+        entity fx_fire_1m = (p4).get_member("HOOD");
+        vector3d v1 = vector3d((random(1) - 0.5), 0, (random(1) - 0.5));
+        field_4 = create_trigger(field_0, 1);
+        (field_0).set_parent(p4);
+        (field_0).set_rel_position(((fx_fire_1m).get_rel_position() + v1));
+        bind_signal_on(this, signal_id(field_4, "trigger::ENTER"), (this).fire_damage());
+        while (((p4).is_valid() && (p4).is_visible())) {
+            wait_frame();
+        }
+        (field_4).clear_callbacks();
+        destroy_trigger(field_4);
+        destroy_entity(field_0);
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((p4).is_a_car()) {
+            (p8).apply_damage(5);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::fire_damage()
+    {
+        while ((field_4).contains(hero())) {
+            (hero()).apply_damage(1);
+            _vcl_modcar::wait_frame(3);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::stop_smoking(entity p4)
+    {
+        destroy_entity(field_0);
+    }
+
+    str _vcl_modcar::global_40 = "";
+
+    str _vcl_modcar::global_44 = "";
+
+    str _vcl_modcar::global_152 = "";
+
+    str _vcl_modcar::global_156 = "";
+
+}

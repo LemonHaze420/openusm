@@ -1,0 +1,460 @@
+namespace HJ {
+    extern num g_mission_status;
+    extern num g_story_checkpoint;
+    extern num g_mission_type;
+    extern num gv_num_current_story;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern entity _global_slc::create_time_limited_entity(str,num);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern void _global_slc::end_cut_scenes();
+    extern num _global_slc::entity_exists(str);
+    extern void _global_slc::exit_water(entity);
+    extern entity _global_slc::find_entity(str);
+    extern trigger _global_slc::find_trigger(str);
+    extern void _global_slc::freeze_hero(num);
+    extern num _global_slc::get_time_of_day();
+    extern entity _global_slc::hero();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern num _global_slc::is_mission_loading();
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::shut_up_all_ai_voice_boxes();
+    extern void _global_slc::spiderman_camera_set_hero_underwater(num);
+    extern num _global_slc::spiderman_is_on_wall();
+    extern void _global_slc::stop_all_sounds();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::unload_script();
+    extern void _global_slc::wait_frame();
+    extern num entity::ai_say_sound_group(str,num,num);
+    extern void entity::ai_shut_up();
+    extern void entity::apply_damage(num);
+    extern void entity::apply_subdue(num);
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern num entity::get_ifc_num(str);
+    extern num entity::is_a_car();
+    extern num entity::is_valid();
+    extern num entity::operator!=(entity);
+    extern num entity::operator==(entity);
+    extern void entity::physical_ifc_cancel_all_velocity();
+    extern void entity::reset_ai();
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_facing(vector3d,vector3d);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_physical(num);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_visible(num);
+    extern void cut_scene::wait_play();
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern void sound_inst::play(num);
+    extern void sound_inst::set_entity(entity);
+    extern entity trigger::get_triggered_ent();
+    extern void trigger::set_multiple_entrance(num);
+    extern void trigger::set_use_any_char(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::z();
+
+    class _hj
+    {
+    public:
+        static shoreline_effects shorelineEffects = shoreline_effects::create_named("shorelineEffects");
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static str global_44;
+        static str global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64;
+        static num global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static str global_156;
+        static str global_160;
+        static num global_164 = 0;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _hj(num p0);
+        ~_hj();
+        void anybody_sinks(entity p0);
+        void daytime_tint_effect(entity p0);
+        void mission_fail_venom();
+        void mission_fail_spidey();
+        void do_it(entity p0);
+        void generic_spidey_lose_panel();
+        void failure_dialog(num p0);
+        void generic_venom_lose_panel();
+        void clear_all_scripts();
+        void faux_sink(trigger p0);
+    };
+
+    class shoreline_effects
+    {
+    public:
+        entity_list field_0;
+        num field_4;
+        shoreline_effects();
+        void find_shoreline_markers(str p4);
+        void place_breakwater(entity p4, num p8);
+        void tint_all_for_TOD();
+        void tint_for_TOD(entity p4);
+        void destroy_shoreline();
+    };
+
+    void _hj::faux_sink(trigger p0)
+    {
+        if (((p0).get_triggered_ent()).is_valid()) {
+            _hj::anybody_sinks((p0).get_triggered_ent());
+        }
+    }
+
+    void _hj::anybody_sinks(entity p0)
+    {
+        raise_signal(p0, "_cop_pistol::ENTITY_JUST_GOT_IN_WATER");
+        entity v0;
+        vector3d v2;
+        if (((!(p0).is_a_car()) && (p0 != hero()))) {
+            (p0).ai_shut_up();
+        }
+        if ((p0).is_a_car()) {
+            v0 = create_time_limited_entity("effects\\aeps\\fx_carsplash", (2 + 1));
+        } else {
+            v0 = create_time_limited_entity("effects\\aeps\\fx_charactersplash", (2 + 1));
+        }
+        v2 = vector3d(((p0).get_abs_position()).x(), -3, ((p0).get_abs_position()).z());
+        (v0).set_rel_position(v2);
+        _hj::daytime_tint_effect(v0);
+        {
+            sound_inst v3;
+            if ((p0).is_a_car()) {
+                v3 = create_sound_inst("car_oceansplash");
+            } else {
+                v3 = create_sound_inst("sm_oceansplash");
+            }
+            (v3).set_entity(p0);
+            (v3).play(0);
+        }
+        (p0).reset_ai();
+        (p0).physical_ifc_cancel_all_velocity();
+        if ((p0 != hero())) {
+            (p0).set_visible(0);
+            (p0).apply_damage(2000);
+            (p0).apply_subdue(200);
+        } else {
+            freeze_hero(1);
+            (hero()).set_visible(0);
+            (hero()).set_physical(0);
+            vector3d v1 = (hero()).get_abs_position();
+            (hero()).set_rel_position(vector3d((v1).x(), -2, (v1).z()));
+            spiderman_camera_set_hero_underwater(1);
+        }
+        delay(2);
+        if ((p0 == hero())) {
+            blackscreen_on(0.2);
+            delay(0.2);
+            spiderman_camera_set_hero_underwater(0);
+            if ((g_mission_type == 4)) {
+                freeze_hero(0);
+                (hero()).set_visible(1);
+                (hero()).set_physical(1);
+                if ((is_hero_venom() && (g_mission_status == 7))) {
+                    g_mission_status = 3;
+                    _hj::mission_fail_venom();
+                } else if ((g_mission_status == 7)) {
+                    g_mission_status = 3;
+                    _hj::mission_fail_spidey();
+                }
+            } else {
+                (hero()).ai_say_sound_group("get_wet", 2, 2);
+                freeze_hero(0);
+                (hero()).set_visible(1);
+                (hero()).set_physical(1);
+                start_thread(_hj::do_it(p0));
+                blackscreen_off(0.5);
+                exit_water(p0);
+            }
+        }
+        raise_signal(p0, "_cop_pistol::ENTITY_SINKS");
+    }
+
+    void _hj::do_it(entity p0)
+    {
+        while ((!spiderman_is_on_wall())) {
+            wait_frame();
+        }
+        raise_signal(p0, "_cop_pistol::ENTITY_EXITED_WATER_ON_WALL");
+    }
+
+    void _hj::daytime_tint_effect(entity p0)
+    {
+        num v0 = get_time_of_day();
+        if ((v0 == 1)) {
+            (p0).set_render_color(vector3d(0.55, 0.7, 0.55));
+        } else if ((v0 == 2)) {
+            (p0).set_render_color(vector3d(0.5, 0.6, 0.6));
+        } else if ((v0 == 3)) {
+            (p0).set_render_color(vector3d(0.25, 0.64, 1));
+        }
+    }
+
+    void _hj::mission_fail_spidey()
+    {
+        g_mission_status = 3;
+        stop_vibration();
+        stop_all_sounds();
+        set_dialog_box_flavor(3);
+        (hero()).reset_ai();
+        start_thread(_hj::generic_spidey_lose_panel());
+        delay(4.63);
+        _hj::failure_dialog(-1);
+    }
+
+    void _hj::mission_fail_venom()
+    {
+        g_mission_status = 3;
+        stop_vibration();
+        stop_all_sounds();
+        set_dialog_box_flavor(3);
+        (hero()).reset_ai();
+        start_thread(_hj::generic_venom_lose_panel());
+        delay(3.23);
+        _hj::failure_dialog(-1);
+    }
+
+    void _hj::clear_all_scripts()
+    {
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                wait_frame();
+            }
+        }
+        unload_script();
+        while (is_mission_active()) {
+            wait_frame();
+        }
+    }
+
+    void _hj::failure_dialog(num p0)
+    {
+        num v1 = 3;
+        num v0 = 0;
+        shut_up_all_ai_voice_boxes();
+        blackscreen_off(0);
+        wait_frame();
+        if (((gv_num_current_story == 1) || (gv_num_current_story == 2))) {
+            v0 = 1;
+        }
+        if (v0) {
+            v1 = 0;
+        } else if ((p0 == -1)) {
+            v1 = bring_up_dialog_box_title(30, 0, 31);
+        } else {
+            v1 = bring_up_dialog_box_title(p0, 0, 31);
+        }
+        if ((v1 == 0)) {
+            blackscreen_on(0);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            end_cut_scenes();
+            _hj::clear_all_scripts();
+        } else {
+            blackscreen_on(0);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            g_story_checkpoint = 0;
+            end_cut_scenes();
+            raise_signal("MISSION_END_FAIL");
+            _hj::clear_all_scripts();
+        }
+    }
+
+    void _hj::generic_spidey_lose_panel()
+    {
+        end_cut_scenes();
+        cut_scene v0 = create_cut_scene("cutscenes\\in_game\\spidey_failpanel");
+        (v0).wait_play();
+    }
+
+    void _hj::generic_venom_lose_panel()
+    {
+        end_cut_scenes();
+        cut_scene v0 = create_cut_scene("cutscenes\\in_game\\venom_failpanel");
+        (v0).wait_play();
+    }
+
+    shoreline_effects::shoreline_effects()
+    {
+        field_4 = 0;
+    }
+
+    str _hj::global_44 = "";
+
+    str _hj::global_48 = "";
+
+    str _hj::global_156 = "";
+
+    str _hj::global_160 = "";
+
+    void shoreline_effects::find_shoreline_markers(str p4)
+    {
+        if ((!field_4)) {
+            field_4 = 1;
+            field_0 = create_entity_list();
+            num v1 = 1;
+            str v3 = "";
+            str v2 = "";
+            while ((v1 < 17)) {
+                if ((v1 < 10)) {
+                    v3 = (p4 + "0");
+                } else {
+                    v3 = p4;
+                }
+                v2 = (v3 + to_integer_string(v1));
+                if (entity_exists(v2)) {
+                    (this).place_breakwater(find_entity(v2), 0);
+                }
+                wait_frame();
+                v1++;
+            }
+            v1 = 1;
+            p4 = (p4 + "_b");
+            while ((v1 < 15)) {
+                if ((v1 < 10)) {
+                    v3 = (p4 + "0");
+                } else {
+                    v3 = p4;
+                }
+                v2 = (v3 + to_integer_string(v1));
+                if (entity_exists(v2)) {
+                    (this).place_breakwater(find_entity(v2), 1);
+                }
+                wait_frame();
+                v1++;
+            }
+            bind_signal_on(this, signal_id("UPDATE_SHORELINE"), (this).tint_all_for_TOD());
+        }
+    }
+
+    void shoreline_effects::place_breakwater(entity p4, num p8)
+    {
+        entity fx_shorebreak_wide;
+        if (p8) {
+            fx_shorebreak_wide = create_entity("effects\\aeps\\fx_shorebreak_wide");
+        } else {
+            fx_shorebreak_wide = create_entity("effects\\aeps\\fx_shorebreak");
+        }
+        (fx_shorebreak_wide).set_distance_clip(150);
+        (fx_shorebreak_wide).set_rel_position((p4).get_abs_position());
+        (fx_shorebreak_wide).set_facing((p4).get_facing(), vector3d(0, 1, 0));
+        (this).tint_for_TOD(fx_shorebreak_wide);
+        (field_0).add(fx_shorebreak_wide);
+    }
+
+    void shoreline_effects::tint_all_for_TOD()
+    {
+        if (((field_0).size() > 0)) {
+            num v0 = 0;
+            while ((v0 < (field_0).size())) {
+                (this).tint_for_TOD((field_0).get_index(v0));
+                v0++;
+            }
+        }
+    }
+
+    void shoreline_effects::tint_for_TOD(entity p4)
+    {
+        num v0 = get_time_of_day();
+        if ((v0 == 1)) {
+            (p4).set_render_color(vector3d(0.55, 0.7, 0.55));
+        } else if ((v0 == 2)) {
+            (p4).set_render_color(vector3d(0.5, 0.6, 0.6));
+        } else if ((v0 == 3)) {
+            (p4).set_render_color(vector3d(0.25, 0.64, 1));
+        }
+    }
+
+    void shoreline_effects::destroy_shoreline()
+    {
+        if (field_4) {
+            if (((field_0).size() > 0)) {
+                field_4 = 0;
+                num v0 = 0;
+                while ((v0 < (field_0).size())) {
+                    destroy_entity((field_0).get_index(v0));
+                    wait_frame();
+                    v0++;
+                }
+                destroy_entity_list(field_0);
+            }
+        }
+    }
+
+    _hj::_hj(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            (_hj::shorelineEffects).find_shoreline_markers("HJ_FX_SHORELINE");
+            trigger v0 = find_trigger("HJ_FAKE_water_trigger01");
+            (v0).set_use_any_char(1);
+            (v0).set_multiple_entrance(1);
+            bind_signal(signal_id(v0, "trigger::ENTER"), _hj::faux_sink(v0));
+            break;
+        }
+        }
+    }
+
+    _hj::~_hj()
+    {
+    }
+
+}

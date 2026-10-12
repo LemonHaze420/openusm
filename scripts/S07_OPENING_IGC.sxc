@@ -1,0 +1,153 @@
+namespace S07_OPENING_IGC {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern num _global_slc::is_mission_active();
+    extern void _global_slc::wait_frame();
+    extern void cut_scene::wait_play();
+
+    class _s07_opening_igc
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204 = 0;
+        static effects_common spidey_common = effects_common::create_named("spidey_common");
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static spidey_effects spidey_left_web = spidey_effects::create_named("spidey_left_web");
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        _s07_opening_igc(num p0);
+        ~_s07_opening_igc();
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class spidey_effects
+    {
+    public:
+        num unused_0[3];
+        num field_12;
+        num field_16;
+        num unused_20[1];
+        spidey_effects();
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    spidey_effects::spidey_effects()
+    {
+        field_12 = 1;
+        field_16 = 1;
+        wait_frame();
+    }
+
+    _s07_opening_igc::_s07_opening_igc(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_mission_status = 7;
+            g_ambient_music_allowed = 0;
+            cut_scene v1 = create_cut_scene("cutscenes\\s07_green_goblin\\igc\\s07_green_goblin_igc1\\s07_gg_igc1");
+            blackscreen_off(0.01);
+            (v1).wait_play();
+            blackscreen_on(0.01);
+            g_mission_status = 2;
+            g_ambient_music_allowed = 1;
+            raise_signal("MISSION_END");
+            while (is_mission_active()) {
+                wait_frame();
+            }
+            break;
+        }
+        }
+    }
+
+    _s07_opening_igc::~_s07_opening_igc()
+    {
+    }
+
+    str _s07_opening_igc::global_40 = "";
+
+    str _s07_opening_igc::global_44 = "";
+
+    str _s07_opening_igc::global_152 = "";
+
+    str _s07_opening_igc::global_156 = "";
+
+}

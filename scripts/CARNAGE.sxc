@@ -1,0 +1,500 @@
+namespace CARNAGE {
+    extern num _global_slc::add_civilian_info_entity(entity,num,num,num);
+    extern polytube _global_slc::create_polytube();
+    extern void _global_slc::delay(num);
+    extern entity _global_slc::hero();
+    extern num _global_slc::random(num);
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern void entity::compute_sector();
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_inode_param_int(str,str);
+    extern entity entity::get_member(str);
+    extern num entity::operator==(entity);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_inode_param_int(str,str,num);
+    extern void entity::set_invulnerable(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_visible(num);
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern void polytube::ifl_lock(num);
+    extern void polytube::ifl_play();
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material_ifl(str);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tiles_per_meter(num);
+    extern void polytube::set_tube_radius(num);
+    extern num vector3d::length();
+    extern num vector3d::length2();
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _carnage
+    {
+    public:
+        static num global_0 = 0;
+        static num global_4 = 0;
+        static num global_8 = 0;
+        static entity global_12;
+        static carnage_effects my_carnage = carnage_effects::create_named("my_carnage");
+        static num global_20 = 0;
+        static num global_24 = 300;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static str global_44;
+        static str global_48;
+        static num global_52;
+        static num global_56;
+        static num global_60;
+        static num global_64;
+        static num global_68;
+        static num global_72;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88;
+        static num global_92;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static str global_180;
+        static str global_184;
+        static num global_188 = 0;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224 = 0;
+        static num global_228 = 5;
+        static num global_232 = 1;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        static num global_260;
+        static num global_264;
+        static num global_268;
+        static num global_272;
+        _carnage(num p0);
+        void appear(entity p0);
+    };
+
+    class carnage_effects
+    {
+    public:
+        num unused_0[1];
+        num field_4;
+        carnage_effects();
+        void effects_on(entity p4);
+        void setup_tenticles(entity p4);
+        void make_tenticle(entity p4, entity p8, vector3d p12, num p24, num p28);
+        void random_frame(polytube p4);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        entity field_4[3];
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void gain_management();
+        void raise_regan_rate();
+        void lower_regan_rate();
+        void SET_CARNAGE_HP_LIMIT_PHASE_1();
+        void SET_CARNAGE_HP_LIMIT_PHASE_2();
+        void SET_CARNAGE_HP_LIMIT_PHASE_3();
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    class feed_attack
+    {
+    public:
+        feed_attack(entity p4);
+        ~feed_attack();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class carnage_tentacle_slam
+    {
+    public:
+        num field_0;
+        carnage_tentacle_slam(entity p4);
+        ~carnage_tentacle_slam();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class carnage_tentacle_burst_charge
+    {
+    public:
+        num field_0;
+        num field_4;
+        carnage_tentacle_burst_charge(entity p4);
+        ~carnage_tentacle_burst_charge();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void damage_hero();
+    };
+
+    class carnage_tentacle_burst
+    {
+    public:
+        num field_0;
+        carnage_tentacle_burst(entity p4);
+        ~carnage_tentacle_burst();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    void _carnage::appear(entity p0)
+    {
+        (p0).set_visible(1);
+    }
+
+    carnage_effects::carnage_effects()
+    {
+        field_4 = 0;
+    }
+
+    void carnage_effects::effects_on(entity p4)
+    {
+        field_4 = 1;
+        num local0 = 0;
+        (this).setup_tenticles(p4);
+    }
+
+    void carnage_effects::setup_tenticles(entity p4)
+    {
+        (this).make_tenticle(p4, (p4).get_member("Bip01 R Calf"), vector3d(0.75, 2, -1.4), 0.5, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 L Calf"), vector3d(-2, 1, -1.4), 0.5, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 R Calf"), vector3d(0.75, 1.5, -1.4), 0.25, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 L Calf"), vector3d(-3, 1.5, -1.4), 0.25, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 R Hand"), vector3d(0.75, 2.5, -1.4), 0.3, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 L Hand"), vector3d(-2, 1.5, -1.4), 0.4, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 R Clavicle"), vector3d(0.6, 1.5, -0.5), 0.6, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 L Clavicle"), vector3d(-0.75, 2, -0.5), 0.75, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Spine2"), vector3d(0.5, 1.8, -1), 0.5, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Spine2"), vector3d(-0.75, 2, -1), 0.4, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Spine1"), vector3d(0.4, 1.5, -0.6), 0.4, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Spine1"), vector3d(-0.75, 2, -0.4), 0.35, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Spine"), vector3d(0.3, 1.5, -0.2), 0.3, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Spine"), vector3d(-0.75, 2, -0.4), 0.3, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 R UpperArm"), vector3d(0.6, 1.5, -0.3), 0.5, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 L UpperArm"), vector3d(-0.75, 2, -0.5), 0.4, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 R UpperArm"), vector3d(0.6, 1.5, 0), 0.3, 2);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 L UpperArm"), vector3d(-0.75, 2, 0), 0.2, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Head"), vector3d(0, 1.5, 0), 0.4, 1);
+        (this).make_tenticle(p4, (p4).get_member("Bip01 Head"), vector3d(-0.5, 2, 0), 0.3, 2);
+    }
+
+    void carnage_effects::make_tenticle(entity p4, entity p8, vector3d p12, num p24, num p28)
+    {
+        num v3 = 0;
+        polytube v0 = create_polytube();
+        (v0).set_rel_position(vector3d(0, 0, 0));
+        (v0).reserve_control_pts(2);
+        while ((v3 < 2)) {
+            wait_frame();
+            (v0).add_control_pt(vector3d(0, -10, 0));
+            v3++;
+        }
+        (v0).set_tube_radius((p24 * 0.25));
+        (v0).set_num_sides(2);
+        (v0).build(1, 1);
+        if ((p28 == 2)) {
+            (v0).set_material_ifl("fx_carn_tentacles2");
+        } else {
+            (v0).set_material_ifl("fx_carn_tentacles");
+        }
+        (v0).set_tiles_per_meter((0.96 / p24));
+        (v0).compute_sector();
+        (v0).set_distance_clip(10000);
+        (v0).set_visible(1);
+        _carnage::appear(v0);
+        (v0).set_parent(p8);
+        vector3d v4 = (((p4).get_abs_position() + p12) - (p8).get_abs_position());
+        num v5 = (v4).length();
+        vector3d v1 = (v4 / v5);
+        num v2 = (p24 / 8);
+        (v0).set_control_pt(1, ((p8).get_abs_position() + (v1 * v2)));
+        (v0).set_control_pt(0, ((p8).get_abs_position() + (v1 * (p24 + v2))));
+        start_thread_on(this, (this).random_frame(v0));
+    }
+
+    void carnage_effects::random_frame(polytube p4)
+    {
+        if ((15 < 1)) {
+            return;
+        }
+        num v0 = random(15);
+        while ((v0 < 1)) {
+            v0 = random(15);
+            wait_frame();
+        }
+        (p4).ifl_lock(v0);
+        wait_frame();
+        (p4).ifl_play();
+    }
+
+    _carnage::_carnage(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        num v0 = 0;
+        _carnage::global_0 = (300 * 0.9);
+        _carnage::global_4 = (300 * 0.8);
+        _carnage::global_8 = (300 * 0.7);
+        while ((v0 < 3)) {
+            field_4[v0] = entity("NULL");
+            v0++;
+        }
+        _carnage::global_12 = p4;
+        field_0 = p4;
+        add_civilian_info_entity(field_0, 1, 15, 1);
+        add_civilian_info_entity(field_0, 5, 25, 0.5);
+        bind_signal_on(this, signal_id("RAISE_CARNAGE_REGAN_RATE"), (this).raise_regan_rate());
+        bind_signal_on(this, signal_id("LOWER_CARNAGE_REGAN_RATE"), (this).lower_regan_rate());
+        bind_signal_on(this, signal_id("SET_CARNAGE_HP_LIMIT_1"), (this).SET_CARNAGE_HP_LIMIT_PHASE_1());
+        bind_signal_on(this, signal_id("SET_CARNAGE_HP_LIMIT_2"), (this).SET_CARNAGE_HP_LIMIT_PHASE_2());
+        bind_signal_on(this, signal_id("SET_CARNAGE_HP_LIMIT_3"), (this).SET_CARNAGE_HP_LIMIT_PHASE_3());
+        start_thread_on(this, (this).gain_management());
+        (_carnage::my_carnage).effects_on(field_0);
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::gain_management()
+    {
+        num local0 = 0;
+        _carnage::global_20 = 2;
+        num local1 = 0;
+        num local2 = 0;
+        num local3 = 0;
+    }
+
+    void ENX_MASTER_OBJECT::raise_regan_rate()
+    {
+        _carnage::global_20 = 0.1;
+    }
+
+    void ENX_MASTER_OBJECT::lower_regan_rate()
+    {
+        _carnage::global_20 = 2;
+    }
+
+    void ENX_MASTER_OBJECT::SET_CARNAGE_HP_LIMIT_PHASE_1()
+    {
+        _carnage::global_24 = _carnage::global_0;
+    }
+
+    void ENX_MASTER_OBJECT::SET_CARNAGE_HP_LIMIT_PHASE_2()
+    {
+        _carnage::global_24 = _carnage::global_4;
+    }
+
+    void ENX_MASTER_OBJECT::SET_CARNAGE_HP_LIMIT_PHASE_3()
+    {
+        _carnage::global_24 = _carnage::global_8;
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        entity v0;
+        vector3d v1;
+        vector3d v2;
+        num v3 = 1;
+        num v4 = 0;
+        if ((p4 == field_0)) {
+            v0 = p8;
+            v1 = p24;
+            v2 = p12;
+        } else {
+            v0 = p4;
+            v1 = p12;
+            v2 = p24;
+        }
+        while ((v4 < 3)) {
+            if ((v0 == field_4[v4])) {
+                v3 = 0;
+                v4 = 3;
+            }
+            v4++;
+        }
+        if (v3) {
+            (field_0).apply_directed_damage_cat(20, (v2 - v1), "Enter_Prop_Physics", 1);
+            v4 = (3 - 1);
+            while ((v4 > 0)) {
+                field_4[v4] = field_4[(v4 - 1)];
+                v4--;
+            }
+            field_4[0] = v0;
+        }
+    }
+
+    feed_attack::feed_attack(entity p4)
+    {
+        raise_signal("CARNAGE_HAS_FED");
+    }
+
+    feed_attack::~feed_attack()
+    {
+    }
+
+    void feed_attack::activate()
+    {
+    }
+
+    void feed_attack::deactivate()
+    {
+    }
+
+    void feed_attack::frame_advance(num p4, num p8)
+    {
+    }
+
+    carnage_tentacle_slam::carnage_tentacle_slam(entity p4)
+    {
+        field_0 = 0;
+    }
+
+    carnage_tentacle_slam::~carnage_tentacle_slam()
+    {
+    }
+
+    void carnage_tentacle_slam::activate()
+    {
+        field_0 = 0;
+        (_carnage::global_12).set_invulnerable(1);
+        (_carnage::global_12).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+    }
+
+    void carnage_tentacle_slam::deactivate()
+    {
+        (_carnage::global_12).set_invulnerable(0);
+        (_carnage::global_12).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 1);
+    }
+
+    void carnage_tentacle_slam::frame_advance(num p4, num p8)
+    {
+    }
+
+    carnage_tentacle_burst_charge::carnage_tentacle_burst_charge(entity p4)
+    {
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    carnage_tentacle_burst_charge::~carnage_tentacle_burst_charge()
+    {
+    }
+
+    void carnage_tentacle_burst_charge::activate()
+    {
+        field_0 = 0;
+        field_4 = (_carnage::global_12).get_inode_param_int("std_default_trans_inode", "hit_react_enabled");
+        (_carnage::global_12).set_invulnerable(1);
+        (_carnage::global_12).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+        start_thread_on(this, (this).damage_hero());
+    }
+
+    void carnage_tentacle_burst_charge::deactivate()
+    {
+        (_carnage::global_12).set_invulnerable(0);
+        (_carnage::global_12).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", field_4);
+    }
+
+    void carnage_tentacle_burst_charge::frame_advance(num p4, num p8)
+    {
+        field_0 = (field_0 + p4);
+    }
+
+    void carnage_tentacle_burst_charge::damage_hero()
+    {
+        while (1) {
+            num retained_value91 = 2;
+            num retained_value92 = 1;
+            vector3d v0 = ((hero()).get_abs_position() - (_carnage::global_12).get_abs_position());
+            num v1 = (v0).length2();
+            if ((v1 < (retained_value91 * retained_value91))) {
+                (hero()).apply_directed_damage_cat(retained_value92, v0, "Wounded_Step_Back", 1);
+                delay(1);
+            }
+            wait_frame();
+        }
+    }
+
+    carnage_tentacle_burst::carnage_tentacle_burst(entity p4)
+    {
+        field_0 = 0;
+    }
+
+    carnage_tentacle_burst::~carnage_tentacle_burst()
+    {
+    }
+
+    void carnage_tentacle_burst::activate()
+    {
+        field_0 = (_carnage::global_12).get_inode_param_int("std_default_trans_inode", "hit_react_enabled");
+        (_carnage::global_12).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+    }
+
+    void carnage_tentacle_burst::deactivate()
+    {
+        (_carnage::global_12).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", field_0);
+    }
+
+    void carnage_tentacle_burst::frame_advance(num p4, num p8)
+    {
+    }
+
+    str _carnage::global_44 = "";
+
+    str _carnage::global_48 = "";
+
+    str _carnage::global_180 = "";
+
+    str _carnage::global_184 = "";
+
+}

@@ -1,0 +1,152 @@
+namespace VCL_TRASKCOPTER {
+    extern void _global_slc::delay(num);
+    extern entity _global_slc::hero();
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern vector3d entity::get_abs_position();
+    extern entity entity::get_member(str);
+    extern num entity::is_valid();
+    extern void entity::physical_ifc_apply_force(vector3d,num);
+    extern vector3d vector3d::operator-(vector3d);
+    extern num vector3d::xz_norm();
+    extern num vector3d::y();
+
+    class _vcl_traskcopter
+    {
+    public:
+        static num global_0 = 0.5;
+        static num global_4 = 10;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static num global_44 = 0;
+        static str global_48;
+        static str global_52;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static num global_68;
+        static num global_72;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static str global_160;
+        static str global_164;
+        static num global_168 = 0;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204 = 0;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _vcl_traskcopter(num p0);
+        num abs(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        num unused_0[1];
+        num field_4;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void rotor_damage(entity p4);
+        void hurt_spidey(entity p4, vector3d p8, vector3d p20);
+    };
+
+    _vcl_traskcopter::_vcl_traskcopter(num p0)
+    {
+    }
+
+    num _vcl_traskcopter::abs(num p0)
+    {
+        if ((p0 < 0)) {
+            num v0 = (-1 * p0);
+            return v0;
+        } else {
+            return p0;
+        }
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_4 = 0;
+        start_thread_on(this, (this).rotor_damage(p4));
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::rotor_damage(entity p4)
+    {
+        entity v0 = hero();
+        entity v1 = (p4).get_member("ROTOR_MAIN_SPIN");
+        while ((p4).is_valid()) {
+            if ((!field_4)) {
+                vector3d v3 = (v0).get_abs_position();
+                vector3d v2 = (v1).get_abs_position();
+                num v6 = (v3).y();
+                num v7 = (v2).y();
+                if ((_vcl_traskcopter::abs((v6 - v7)) < _vcl_traskcopter::global_0)) {
+                    vector3d v4 = (v3 - v2);
+                    num v5 = (v4).xz_norm();
+                    if ((v5 < _vcl_traskcopter::global_4)) {
+                        start_thread_on(this, (this).hurt_spidey(v0, v2, v4));
+                    }
+                }
+            }
+            wait_frame();
+        }
+    }
+
+    void ENX_MASTER_OBJECT::hurt_spidey(entity p4, vector3d p8, vector3d p20)
+    {
+        field_4 = 1;
+        (p4).apply_directed_damage_cat(10, p20, "Enter_Prop_Physics", 1);
+        (p4).physical_ifc_apply_force(p20, 40);
+        delay(1);
+        field_4 = 0;
+    }
+
+    str _vcl_traskcopter::global_48 = "";
+
+    str _vcl_traskcopter::global_52 = "";
+
+    str _vcl_traskcopter::global_160 = "";
+
+    str _vcl_traskcopter::global_164 = "";
+
+}

@@ -1,0 +1,115 @@
+namespace ITM_MARKTRICK_PLATA {
+    extern void entity::ifl_lock(num);
+
+    class _itm_marktrick_plata
+    {
+    public:
+        static num global_0 = 0;
+        static num global_4 = 0;
+        static num global_8 = 0;
+        static num global_12 = 0;
+        static str global_16;
+        static str global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _itm_marktrick_plata(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        num field_12;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void turn_it_on();
+        void turn_it_off();
+    };
+
+    _itm_marktrick_plata::_itm_marktrick_plata(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_12 = 0;
+        field_12 = 1;
+        field_0 = p4;
+        bind_signal_on(this, signal_id(field_0, "entity::ENABLE_TRICK_WAYPOINT"), (this).turn_it_on());
+        bind_signal_on(this, signal_id(field_0, "entity::DISABLE_TRICK_WAYPOINT"), (this).turn_it_off());
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::turn_it_on()
+    {
+        (field_0).ifl_lock(0);
+    }
+
+    void ENX_MASTER_OBJECT::turn_it_off()
+    {
+        (field_0).ifl_lock(1);
+    }
+
+    str _itm_marktrick_plata::global_16 = "";
+
+    str _itm_marktrick_plata::global_20 = "";
+
+    str _itm_marktrick_plata::global_152 = "";
+
+    str _itm_marktrick_plata::global_156 = "";
+
+}

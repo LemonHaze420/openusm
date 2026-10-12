@@ -1,0 +1,261 @@
+namespace GANG_POI_CREATOR {
+    extern vector3d POI_ICON_ENEMY_OFFSET;
+    extern num gv_ftb_members_defeated;
+    extern num gv_srk_members_defeated;
+    extern num gv_merc_members_defeated;
+    extern num gv_skin_members_defeated;
+    extern num _global_slc::add_civilian_info_entity(entity,num,num,num);
+    extern entity_tracker _global_slc::create_entity_tracker(entity);
+    extern trigger _global_slc::create_trigger(entity,num);
+    extern void _global_slc::destroy_entity_tracker(entity_tracker);
+    extern void _global_slc::destroy_trigger(trigger);
+    extern entity _global_slc::hero();
+    extern num _global_slc::remove_civilian_info(num);
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_ifc_num(str);
+    extern num entity::is_a_car();
+    extern num entity::is_valid();
+    extern void entity::set_ifc_num(str,num);
+    extern void entity_tracker::set_health_widget_active(num);
+    extern void entity_tracker::set_mini_map_active(num);
+    extern void entity_tracker::set_poi_active(num);
+    extern void entity_tracker::set_poi_icon(num);
+    extern num trigger::contains(entity);
+    extern vector3d vector3d::operator-(vector3d);
+
+    class _gang_poi_creator
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _gang_poi_creator(num p0);
+        entity_tracker entity_tracker_maker(entity p0, num p4, vector3d p8);
+        void update_stat_numbers(entity p0);
+        entity_tracker thug_poi_create_tracker(entity p0);
+        trigger thug_poi_create_trigger(entity p0, num p4);
+        void turn_me_off(entity_tracker p0, trigger p4, entity p8);
+        void switch_to_detailed_poi(entity_tracker p0, entity p4);
+        void switch_to_general_poi(entity_tracker p0, entity p4);
+        void thug_no_poi_reset(entity p0, entity_tracker p4, trigger p8);
+        void straight_to_hell(entity_tracker p0, trigger p4);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity_tracker field_0;
+        trigger field_4;
+        num field_8;
+        entity field_12;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    entity_tracker _gang_poi_creator::entity_tracker_maker(entity p0, num p4, vector3d p8)
+    {
+        entity_tracker v0;
+        if ((p0).is_valid()) {
+            v0 = create_entity_tracker(p0);
+            (v0).set_poi_icon(p4);
+            (v0).set_mini_map_active(0);
+            (v0).set_poi_active(0);
+        }
+        return v0;
+    }
+
+    entity_tracker _gang_poi_creator::thug_poi_create_tracker(entity p0)
+    {
+        entity_tracker v0 = _gang_poi_creator::entity_tracker_maker(p0, 2, POI_ICON_ENEMY_OFFSET);
+        (v0).set_poi_active(0);
+        (v0).set_mini_map_active(0);
+        (v0).set_health_widget_active(0);
+        return v0;
+    }
+
+    trigger _gang_poi_creator::thug_poi_create_trigger(entity p0, num p4)
+    {
+        trigger v0 = create_trigger(p0, p4);
+        return v0;
+    }
+
+    void _gang_poi_creator::switch_to_detailed_poi(entity_tracker p0, entity p4)
+    {
+        if (((p4).get_ifc_num("SD_NUM_3") == 0)) {
+            (p0).set_health_widget_active(1);
+            (p0).set_mini_map_active(1);
+        }
+    }
+
+    void _gang_poi_creator::switch_to_general_poi(entity_tracker p0, entity p4)
+    {
+        if (((p4).get_ifc_num("SD_NUM_3") == 0)) {
+        }
+    }
+
+    void _gang_poi_creator::thug_no_poi_reset(entity p0, entity_tracker p4, trigger p8)
+    {
+        if (((p0).get_ifc_num("SD_NUM_3") == 2)) {
+            (p0).set_ifc_num("SD_NUM_3", 0);
+            if ((p8).contains(hero())) {
+                (p4).set_health_widget_active(1);
+                (p4).set_mini_map_active(1);
+            } else {
+                (p4).set_health_widget_active(0);
+                (p4).set_mini_map_active(0);
+            }
+        }
+    }
+
+    void _gang_poi_creator::turn_me_off(entity_tracker p0, trigger p4, entity p8)
+    {
+        if (((p8).get_ifc_num("SD_NUM_3") == 4)) {
+        } else {
+            destroy_trigger(p4);
+            destroy_entity_tracker(p0);
+            (p8).set_ifc_num("SD_NUM_3", 3);
+            _gang_poi_creator::update_stat_numbers(p8);
+        }
+    }
+
+    void _gang_poi_creator::update_stat_numbers(entity p0)
+    {
+        num v1 = (p0).get_ifc_num("SD_NUM_5");
+        switch (v1) {
+        case 4:
+        case 5:
+        case 6:
+        {
+            gv_ftb_members_defeated++;
+            break;
+        }
+        case 7:
+        case 8:
+        case 9:
+        {
+            gv_srk_members_defeated++;
+            break;
+        }
+        case 13:
+        case 14:
+        case 15:
+        {
+            gv_merc_members_defeated++;
+            break;
+        }
+        case 1:
+        case 2:
+        case 3:
+        {
+            gv_skin_members_defeated++;
+            break;
+        }
+        }
+    }
+
+    void _gang_poi_creator::straight_to_hell(entity_tracker p0, trigger p4)
+    {
+        destroy_trigger(p4);
+        (p0).set_poi_active(0);
+        (p0).set_health_widget_active(0);
+        (p0).set_mini_map_active(0);
+        destroy_entity_tracker(p0);
+    }
+
+    _gang_poi_creator::_gang_poi_creator(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_8 = -1;
+        field_0 = _gang_poi_creator::thug_poi_create_tracker(p4);
+        field_4 = _gang_poi_creator::thug_poi_create_trigger(p4, 40);
+        field_12 = p4;
+        bind_signal_once_on(this, signal_id(p4, "entity::SUBDUED"), _gang_poi_creator::turn_me_off(field_0, field_4, p4));
+        bind_signal_on(this, signal_id(field_4, "trigger::ENTER"), _gang_poi_creator::switch_to_detailed_poi(field_0, p4));
+        bind_signal_on(this, signal_id(field_4, "trigger::LEAVE"), _gang_poi_creator::switch_to_general_poi(field_0, p4));
+        bind_signal_on(this, signal_id(p4, "entity::RESET_THUG_POI"), _gang_poi_creator::thug_no_poi_reset(p4, field_0, field_4));
+        field_8 = add_civilian_info_entity(p4, 1, 15, 0);
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        _gang_poi_creator::straight_to_hell(field_0, field_4);
+        if ((field_8 != -1)) {
+            remove_civilian_info(field_8);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((p4).is_a_car()) {
+            vector3d v0 = (p8).get_abs_position();
+            vector3d v1 = (p4).get_abs_position();
+            (field_12).apply_directed_damage_cat(20, (v0 - v1), "Enter_Prop_Physics", 1);
+        }
+    }
+
+    str _gang_poi_creator::global_40 = "";
+
+    str _gang_poi_creator::global_44 = "";
+
+    str _gang_poi_creator::global_152 = "";
+
+    str _gang_poi_creator::global_156 = "";
+
+}

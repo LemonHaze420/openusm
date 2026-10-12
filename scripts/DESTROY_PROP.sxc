@@ -1,0 +1,98 @@
+namespace DESTROY_PROP {
+    extern void _global_slc::destroy_entity(entity);
+
+    class _destroy_prop
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        _destroy_prop(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void do_cleanup(entity p4);
+    };
+
+    _destroy_prop::_destroy_prop(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        bind_signal_once_on(this, signal_id(p4, "entity::PROP_PHYSICS_STOP"), (this).do_cleanup(p4));
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::do_cleanup(entity p4)
+    {
+        destroy_entity(p4);
+    }
+
+    str _destroy_prop::global_40 = "";
+
+    str _destroy_prop::global_44 = "";
+
+    str _destroy_prop::global_152 = "";
+
+    str _destroy_prop::global_156 = "";
+
+}

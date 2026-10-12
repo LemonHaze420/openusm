@@ -1,0 +1,574 @@
+namespace JOHNNY_STORM {
+    extern num g_trick_race_running;
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern polytube _global_slc::create_polytube();
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern void _global_slc::wait_frame();
+    extern void entity::compute_sector();
+    extern vector3d entity::get_abs_position();
+    extern entity entity::get_member(str);
+    extern num entity::get_render_alpha();
+    extern void entity::ifl_lock(num);
+    extern num entity::is_valid();
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern vector3d polytube::get_control_pt(num);
+    extern num polytube::get_num_control_pts();
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_additive(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tiles_per_meter(num);
+    extern void polytube::set_tube_radius(num);
+    extern num vector3d::length();
+    extern num vector3d::operator!=(vector3d);
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _johnny_storm
+    {
+    public:
+        static effects_common johnny_common = effects_common::create_named("johnny_common");
+        static entity global_4;
+        static johnny_effects johnny_storm_effects = johnny_effects::create_named("johnny_storm_effects");
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static num global_44 = 0;
+        static num global_48 = 0;
+        static str global_52;
+        static str global_56;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static num global_68 = 0;
+        static num global_72;
+        static num global_76;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static str global_164;
+        static str global_168;
+        static num global_172 = 0;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_216 = 0;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static num global_232 = 0;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        static num global_260;
+        static num global_264;
+        static num global_268;
+        _johnny_storm(num p0);
+        void appear(entity p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void wait_fade_alpha(entity p4, num p8);
+        void destroy_list(entity_list p4);
+        void animate_trail(entity p4, polytube p8, num p12, num p16);
+        void set_trail_tiling(polytube p4);
+        void set_trail_length(num p4);
+        void shrink_trail(polytube p4, num p8);
+        void shrink_trail_fast(polytube p4, num p8);
+    };
+
+    class johnny_effects
+    {
+    public:
+        entity_list field_0;
+        num field_4;
+        num field_8;
+        johnny_effects();
+        void flame_moving(entity p4);
+        void rotate_flames(entity p4);
+        void flame_idle(entity p4);
+        void make_storm_trail(entity p4, vector3d p8, num p20);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void turn_flame_on();
+        void toggle_flame();
+    };
+
+    void _johnny_storm::appear(entity p0)
+    {
+        (p0).set_visible(1);
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::wait_fade_alpha(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v1 = (p4).get_render_alpha();
+        num v2 = (v1 / p8);
+        while ((v0 < p8)) {
+            (p4).set_render_alpha((v1 - (v2 * v0)));
+            wait_frame();
+            v0++;
+        }
+        (p4).set_visible(0);
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::destroy_list(entity_list p4)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_visible(0);
+            destroy_entity((p4).get_index(v0));
+            v0++;
+        }
+        destroy_entity_list(p4);
+    }
+
+    void effects_common::animate_trail(entity p4, polytube p8, num p12, num p16)
+    {
+        wait_frame();
+        (this).set_trail_length(p12);
+        vector3d v5 = (p4).get_abs_position();
+        num v0 = (p8).get_num_control_pts();
+        num v7 = 0;
+        num v1 = (p8).get_render_alpha();
+        while ((v7 < v0)) {
+            (p8).set_control_pt(v7, v5);
+            v7++;
+        }
+        while ((field_0 && (p4).is_valid())) {
+            num v2 = 0;
+            num v3 = (v0 - 1);
+            num unused_value779 = 0.25;
+            vector3d v4;
+            v5 = (p4).get_abs_position();
+            num v6 = 0;
+            if (field_4) {
+                start_thread_on(this, (this).wait_fade_alpha(p8, 60));
+            }
+            while ((v3 > 0)) {
+                (p8).set_control_pt(0, (p4).get_abs_position());
+                v4 = (p8).get_control_pt((v3 - 1));
+                v6 = distance3d((p4).get_abs_position(), (p8).get_control_pt((v0 - 1)));
+                if ((!p16)) {
+                    (this).set_trail_tiling(p8);
+                }
+                if ((v6 < 10)) {
+                    num v8 = (v6 / 11);
+                    if ((v8 > 0)) {
+                        (p8).set_render_alpha(v8);
+                    } else {
+                        (p8).set_render_alpha(0);
+                    }
+                } else {
+                    (p8).set_render_alpha(v1);
+                }
+                if ((v6 < 0.4)) {
+                    v6 = 0.4;
+                }
+                if ((v2 > 12)) {
+                    v2--;
+                    if (p16) {
+                        (this).shrink_trail_fast(p8, v0);
+                    } else {
+                        (this).shrink_trail(p8, v0);
+                    }
+                } else if ((distance3d((p4).get_abs_position(), v5) >= (v6 / (v0 - v3)))) {
+                    v5 = (p4).get_abs_position();
+                    (p8).set_visible(1);
+                    (p8).set_control_pt(v3, v4);
+                    v3--;
+                } else {
+                    v2++;
+                    wait_frame();
+                }
+            }
+        }
+        destroy_entity(p8);
+    }
+
+    void effects_common::set_trail_tiling(polytube p4)
+    {
+        num v0 = 1;
+        num v1 = 0;
+        while ((v0 < (p4).get_num_control_pts())) {
+            v1 = (v1 + distance3d((p4).get_control_pt((v0 - 1)), (p4).get_control_pt(v0)));
+            v0++;
+        }
+        (p4).set_tiles_per_meter((0.96 / v1));
+        num v2 = (v1 / 25);
+        if (((v2 < 2) && (v2 > 0.3))) {
+            (p4).set_tube_radius(v2);
+        }
+    }
+
+    void effects_common::set_trail_length(num p4)
+    {
+        field_8 = p4;
+    }
+
+    void effects_common::shrink_trail(polytube p4, num p8)
+    {
+        num v0 = (p8 - 1);
+        if (((p4).get_control_pt(0) != (p4).get_control_pt(v0))) {
+            while ((v0 > 0)) {
+                num v1 = distance3d((p4).get_control_pt(v0), (p4).get_control_pt((v0 - 1)));
+                if ((v1 < 2)) {
+                    (p4).set_control_pt(v0, (p4).get_control_pt((v0 - 1)));
+                } else {
+                    vector3d v3 = ((p4).get_control_pt((v0 - 1)) - (p4).get_control_pt(v0));
+                    num v4 = (v3).length();
+                    vector3d v2 = (v3 / v4);
+                    (p4).set_control_pt(v0, ((p4).get_control_pt(v0) + (v2 * (v1 / 2))));
+                }
+                v0--;
+            }
+        } else {
+            (p4).set_visible(0);
+        }
+    }
+
+    void effects_common::shrink_trail_fast(polytube p4, num p8)
+    {
+        num v0 = (p8 - 5);
+        if (((p4).get_control_pt(0) != (p4).get_control_pt((p8 - 1)))) {
+            while ((v0 > 0)) {
+                (p4).set_control_pt(v0, (p4).get_control_pt((v0 - 1)));
+                (p4).set_control_pt((v0 + 1), (p4).get_control_pt(v0));
+                (p4).set_control_pt((v0 + 2), (p4).get_control_pt(v0));
+                (p4).set_control_pt((v0 + 3), (p4).get_control_pt(v0));
+                (p4).set_control_pt((v0 + 4), (p4).get_control_pt(v0));
+                v0--;
+            }
+        } else {
+            (p4).set_visible(0);
+        }
+    }
+
+    johnny_effects::johnny_effects()
+    {
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+    }
+
+    void johnny_effects::flame_moving(entity p4)
+    {
+        if ((!g_trick_race_running)) {
+            if ((field_8 && (!field_4))) {
+                field_4 = 1;
+                kill_threads_on(this, johnny_effects::rotate_flames);
+                (_johnny_storm::johnny_common).destroy_list(field_0);
+            }
+            num v3 = 0;
+            field_0 = create_entity_list();
+            entity fx_jstorm_head = create_entity("effects\\aeps\\fx_jstorm_head");
+            wait_frame();
+            (fx_jstorm_head).set_state(2, 1);
+            (fx_jstorm_head).set_distance_clip(400);
+            (fx_jstorm_head).set_parent((p4).get_member("BIP01 HEAD"));
+            (fx_jstorm_head).set_rel_position(vector3d(-0.25, 0, 0.06));
+            (field_0).add(fx_jstorm_head);
+            v3 = 0;
+            while ((v3 < 2)) {
+                entity entity_local_v0 = create_entity("effects\\aeps\\fx_jstorm_head");
+                (entity_local_v0).set_state(2, 1);
+                (entity_local_v0).set_distance_clip(400);
+                (field_0).add(entity_local_v0);
+                wait_frame();
+                v3++;
+            }
+            while ((v3 < 21)) {
+                entity fx_jstorm_trail = create_entity("effects\\aeps\\fx_jstorm_trail");
+                (fx_jstorm_trail).set_state(2, 1);
+                (fx_jstorm_trail).set_distance_clip(400);
+                (field_0).add(fx_jstorm_trail);
+                wait_frame();
+                v3++;
+            }
+            ((field_0).get_index(1)).set_parent((p4).get_member("Bip01 R Hand"));
+            ((field_0).get_index(2)).set_parent((p4).get_member("Bip01 L Hand"));
+            ((field_0).get_index(3)).set_parent((p4).get_member("Bip01 R Foot"));
+            ((field_0).get_index(3)).set_rel_position(vector3d(-0.15, 0, 0));
+            ((field_0).get_index(4)).set_parent((p4).get_member("Bip01 L Foot"));
+            ((field_0).get_index(4)).set_rel_position(vector3d(-0.15, 0, 0));
+            ((field_0).get_index(5)).set_parent((p4).get_member("Bip01 R UpperArm"));
+            ((field_0).get_index(5)).set_rel_position(vector3d(-0.15, 0, 0));
+            ((field_0).get_index(5)).set_state(1, 0.3);
+            ((field_0).get_index(6)).set_parent((p4).get_member("Bip01 L UpperArm"));
+            ((field_0).get_index(6)).set_rel_position(vector3d(-0.15, 0, 0));
+            ((field_0).get_index(6)).set_state(1, 0.3);
+            ((field_0).get_index(7)).set_parent((p4).get_member("Bip01 Spine"));
+            ((field_0).get_index(7)).set_rel_position(vector3d(0, 0.15, 0));
+            ((field_0).get_index(7)).set_state(1, 0.5);
+            ((field_0).get_index(8)).set_parent((p4).get_member("Bip01 Spine"));
+            ((field_0).get_index(8)).set_rel_position(vector3d(0, -0.15, 0));
+            ((field_0).get_index(8)).set_state(1, 0.5);
+            ((field_0).get_index(11)).set_parent((p4).get_member("Bip01 R ForeTwist1"));
+            ((field_0).get_index(11)).set_rel_position(vector3d(-0.05, 0, 0));
+            ((field_0).get_index(11)).set_state(1, 0.3);
+            ((field_0).get_index(12)).set_parent((p4).get_member("Bip01 L ForeTwist1"));
+            ((field_0).get_index(12)).set_rel_position(vector3d(-0.05, 0, 0));
+            ((field_0).get_index(12)).set_state(1, 0.3);
+            ((field_0).get_index(13)).set_parent((p4).get_member("Bip01 Spine2"));
+            ((field_0).get_index(13)).set_rel_position(vector3d(0, 0.2, 0));
+            ((field_0).get_index(13)).set_state(1, 0.3);
+            ((field_0).get_index(14)).set_parent((p4).get_member("Bip01 Spine2"));
+            ((field_0).get_index(14)).set_rel_position(vector3d(0, -0.2, 0));
+            ((field_0).get_index(14)).set_state(1, 0.3);
+            ((field_0).get_index(15)).set_parent((p4).get_member("Bip01 L Toe0"));
+            ((field_0).get_index(16)).set_parent((p4).get_member("Bip01 R Toe0"));
+            ((field_0).get_index(17)).set_parent((p4).get_member("Bip01 R Calf"));
+            ((field_0).get_index(17)).set_rel_position(vector3d(-0.25, 0, 0));
+            ((field_0).get_index(18)).set_parent((p4).get_member("Bip01 L Calf"));
+            ((field_0).get_index(18)).set_rel_position(vector3d(-0.25, 0, 0));
+            ((field_0).get_index(19)).set_parent((p4).get_member("Bip01 R Thigh"));
+            ((field_0).get_index(19)).set_rel_position(vector3d(-0.3, 0, 0));
+            ((field_0).get_index(19)).set_state(1, 0.5);
+            ((field_0).get_index(20)).set_parent((p4).get_member("Bip01 L Thigh"));
+            ((field_0).get_index(20)).set_rel_position(vector3d(-0.3, 0, 0));
+            ((field_0).get_index(20)).set_state(1, 0.5);
+            start_thread_on(this, (this).rotate_flames(p4));
+            (this).make_storm_trail(p4, vector3d(1, 0.25, 0), 100);
+        }
+    }
+
+    void johnny_effects::rotate_flames(entity p4)
+    {
+        while ((p4).is_valid()) {
+            vector3d v2 = (((p4).get_member("Bip01 Spine")).get_abs_position() - ((p4).get_member("Bip01 Spine2")).get_abs_position());
+            num v3 = (v2).length();
+            vector3d v1 = (v2 / v3);
+            num v0 = 0;
+            while ((v0 < (field_0).size())) {
+                ((field_0).get_index(v0)).set_po_facing(v1);
+                v0++;
+            }
+            wait_frame();
+        }
+    }
+
+    void johnny_effects::flame_idle(entity p4)
+    {
+        if ((field_8 && field_4)) {
+            field_4 = 0;
+            kill_threads_on(this, johnny_effects::rotate_flames);
+            (_johnny_storm::johnny_common).destroy_list(field_0);
+        }
+        field_0 = create_entity_list();
+        num v0 = 0;
+        str retained_text0 = "JS_FIRE";
+        str v3 = "";
+        entity v1 = create_entity("effects\\aeps\\fx_flame_onhead", "JS_FIRE1");
+        (v1).set_parent((p4).get_member("BIP01 HEAD"));
+        (v1).set_rel_position(vector3d(-0.15, 0, 0));
+        (field_0).add(v1);
+        while ((v0 < 20)) {
+            if ((v0 < 10)) {
+                v3 = ((retained_text0 + "0") + to_integer_string((v0 + 2)));
+            } else {
+                v3 = (retained_text0 + to_integer_string((v0 + 2)));
+            }
+            entity v2 = create_entity("effects\\aeps\\fx_flame_on", v3);
+            (field_0).add(v2);
+            wait_frame();
+            v0++;
+        }
+        field_8 = 1;
+        ((field_0).get_index(1)).set_parent((p4).get_member("Bip01 R Hand"));
+        ((field_0).get_index(2)).set_parent((p4).get_member("Bip01 L Hand"));
+        ((field_0).get_index(3)).set_parent((p4).get_member("Bip01 R Foot"));
+        ((field_0).get_index(3)).set_rel_position(vector3d(-0.15, 0, 0));
+        ((field_0).get_index(4)).set_parent((p4).get_member("Bip01 L Foot"));
+        ((field_0).get_index(4)).set_rel_position(vector3d(-0.15, 0, 0));
+        ((field_0).get_index(5)).set_parent((p4).get_member("Bip01 R UpperArm"));
+        ((field_0).get_index(5)).set_rel_position(vector3d(-0.15, 0, 0));
+        ((field_0).get_index(5)).set_state(1, 0.3);
+        ((field_0).get_index(6)).set_parent((p4).get_member("Bip01 L UpperArm"));
+        ((field_0).get_index(6)).set_rel_position(vector3d(-0.15, 0, 0));
+        ((field_0).get_index(6)).set_state(1, 0.3);
+        ((field_0).get_index(7)).set_parent((p4).get_member("Bip01 Spine"));
+        ((field_0).get_index(7)).set_rel_position(vector3d(0, 0.15, 0));
+        ((field_0).get_index(7)).set_state(1, 0.5);
+        ((field_0).get_index(8)).set_parent((p4).get_member("Bip01 Spine"));
+        ((field_0).get_index(8)).set_rel_position(vector3d(0, -0.15, 0));
+        ((field_0).get_index(8)).set_state(1, 0.5);
+        ((field_0).get_index(9)).set_parent((p4).get_member("Bip01 L Clavicle"));
+        ((field_0).get_index(9)).set_rel_position(vector3d(0, 0.05, 0));
+        ((field_0).get_index(9)).set_state(1, 0.3);
+        ((field_0).get_index(10)).set_parent((p4).get_member("Bip01 R Clavicle"));
+        ((field_0).get_index(10)).set_rel_position(vector3d(0, -0.05, 0));
+        ((field_0).get_index(10)).set_state(1, 0.3);
+        ((field_0).get_index(11)).set_parent((p4).get_member("Bip01 R ForeTwist1"));
+        ((field_0).get_index(11)).set_rel_position(vector3d(-0.05, 0, 0));
+        ((field_0).get_index(11)).set_state(1, 0.3);
+        ((field_0).get_index(12)).set_parent((p4).get_member("Bip01 L ForeTwist1"));
+        ((field_0).get_index(12)).set_rel_position(vector3d(-0.05, 0, 0));
+        ((field_0).get_index(12)).set_state(1, 0.3);
+        ((field_0).get_index(13)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((field_0).get_index(13)).set_rel_position(vector3d(0, 0.2, 0));
+        ((field_0).get_index(13)).set_state(1, 0.3);
+        ((field_0).get_index(14)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((field_0).get_index(14)).set_rel_position(vector3d(0, -0.2, 0));
+        ((field_0).get_index(14)).set_state(1, 0.3);
+        ((field_0).get_index(15)).set_parent((p4).get_member("Bip01 L Toe0"));
+        ((field_0).get_index(16)).set_parent((p4).get_member("Bip01 R Toe0"));
+        ((field_0).get_index(17)).set_parent((p4).get_member("Bip01 R Calf"));
+        ((field_0).get_index(17)).set_rel_position(vector3d(-0.25, 0, 0));
+        ((field_0).get_index(18)).set_parent((p4).get_member("Bip01 L Calf"));
+        ((field_0).get_index(18)).set_rel_position(vector3d(-0.25, 0, 0));
+        ((field_0).get_index(19)).set_parent((p4).get_member("Bip01 R Thigh"));
+        ((field_0).get_index(19)).set_rel_position(vector3d(-0.3, 0, 0));
+        ((field_0).get_index(19)).set_state(1, 0.5);
+        ((field_0).get_index(20)).set_parent((p4).get_member("Bip01 L Thigh"));
+        ((field_0).get_index(20)).set_rel_position(vector3d(-0.3, 0, 0));
+        ((field_0).get_index(20)).set_state(1, 0.5);
+    }
+
+    str _johnny_storm::global_52 = "";
+
+    str _johnny_storm::global_56 = "";
+
+    str _johnny_storm::global_164 = "";
+
+    str _johnny_storm::global_168 = "";
+
+    void johnny_effects::make_storm_trail(entity p4, vector3d p8, num p20)
+    {
+        num v1 = 0;
+        polytube v0 = create_polytube();
+        (v0).reserve_control_pts(14);
+        while ((v1 < 14)) {
+            wait_frame();
+            (v0).add_control_pt(vector3d(0, -10, 0));
+            v1++;
+        }
+        (v0).set_tube_radius(1);
+        (v0).set_num_sides(2);
+        (v0).build(3, 2);
+        (v0).set_material("effects\\textures\\fx_jstorm_trail");
+        (v0).set_tiles_per_meter(0.2);
+        (v0).set_render_color(p8);
+        (v0).set_additive(1);
+        (v0).compute_sector();
+        (v0).set_distance_clip(400);
+        (v0).set_visible(1);
+        _johnny_storm::appear(v0);
+        (_johnny_storm::johnny_common).field_0 = 1;
+        start_thread_on(this, (_johnny_storm::johnny_common).animate_trail(p4, v0, p20, 0));
+    }
+
+    _johnny_storm::_johnny_storm(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_0 = p4;
+        _johnny_storm::global_4 = p4;
+        num unused_value12 = 0;
+        bind_signal_on(this, signal_id("TOGGLE_JOHNNY_FLAME"), (this).toggle_flame());
+        (field_0).ifl_lock(0);
+        (this).turn_flame_on();
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::turn_flame_on()
+    {
+        if ((!field_4)) {
+            field_4 = 1;
+            (_johnny_storm::johnny_storm_effects).flame_idle(_johnny_storm::global_4);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::toggle_flame()
+    {
+        if (field_4) {
+            field_4 = 0;
+            (_johnny_storm::johnny_storm_effects).flame_moving(_johnny_storm::global_4);
+        } else {
+            field_4 = 1;
+            (_johnny_storm::johnny_storm_effects).flame_idle(_johnny_storm::global_4);
+        }
+    }
+
+}

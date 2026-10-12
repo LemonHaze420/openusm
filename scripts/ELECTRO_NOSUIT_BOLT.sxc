@@ -1,0 +1,901 @@
+namespace ELECTRO_NOSUIT_BOLT {
+    extern entity _global_slc::chase_cam();
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern num _global_slc::float_random(num);
+    extern entity _global_slc::hero();
+    extern num _global_slc::random(num);
+    extern void _global_slc::spiderman_camera_add_shake(num,num,num);
+    extern void _global_slc::wait_frame();
+    extern void entity::disable_fading();
+    extern vector3d entity::get_abs_position();
+    extern entity entity::get_member(str);
+    extern num entity::is_valid();
+    extern num entity::is_visible();
+    extern void entity::look_at(vector3d);
+    extern num entity::operator==(entity);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::set_visible_and_disable_fading(num);
+    extern void entity::wait_rotate(vector3d,num,num);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern void sound_inst::play(num);
+    extern void sound_inst::set_entity(entity);
+    extern void sound_inst::stop(num);
+    extern num vector3d::operator!=(vector3d);
+    extern num vector3d::operator==(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _electro_nosuit_bolt
+    {
+    public:
+        static entity_list global_0;
+        static lighting_effects effects_light = lighting_effects::create_named("effects_light");
+        static camera_effects effects_camera = camera_effects::create_named("effects_camera");
+        static effects_common elec_common = effects_common::create_named("elec_common");
+        static num global_16 = 0;
+        static vector3d global_20;
+        static bolt_effects nosuit_bolt_effects = bolt_effects::create_named("nosuit_bolt_effects");
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48;
+        static num global_52;
+        static num global_56;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static str global_76;
+        static str global_80;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96;
+        static num global_100;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static num global_184 = 0;
+        static str global_188;
+        static str global_192;
+        static num global_196 = 0;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static num global_232 = 0;
+        static num global_236 = 0;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256 = 0;
+        static num global_260 = 0;
+        static num global_264 = 0;
+        static num global_268 = 0;
+        static num global_272 = 0;
+        static num global_276 = 0;
+        static num global_280;
+        static num global_284;
+        static num global_288;
+        static num global_292;
+        static num global_296;
+        _electro_nosuit_bolt(num p0);
+        void wait_frame(num p0);
+        void bolt_tracker();
+        void electro_bolt_off();
+        void start_bolt_tracker();
+        void size_bolt(num p0);
+        void shoot_bolt(vector3d p0, vector3d p12);
+        void common_bolt_hit(entity p0, vector3d p4, vector3d p16);
+        void pass_the_bolts(entity_list p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void render_entities(entity_list p4, num p8, num p12);
+        void random_render_entities(entity_list p4);
+        void face_entities(entity_list p4, num p8, num p12, vector3d p16);
+        void rotate_entities(entity_list p4, num p8);
+        void move_entities(entity_list p4, vector3d p8);
+        void destroy_list(entity_list p4);
+    };
+
+    class camera_effects
+    {
+    public:
+        entity field_0;
+        camera_effects();
+        void flash_cam(num p4, num p8);
+        void shake_cam(num p4);
+    };
+
+    class lighting_effects
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        entity_list field_12;
+        effects_common field_16;
+        sound_inst field_20;
+        sound_inst field_24;
+        sound_inst field_28;
+        lighting_effects();
+        void parent_light(entity p4);
+        void move_light(vector3d p4);
+        void light_on(vector3d p4, num p16);
+        void light_off();
+        void set_light_range(num p4, num p8, num p12);
+        void flash_light(vector3d p4, num p16, num p20, num p24, num p28);
+        void pulse_light(num p4, num p8, num p12, num p16, num p20);
+        void cop_lights_on(entity p4);
+        void anim_lights(entity p4, entity p8, entity p12, entity p16, entity p20);
+        void anim_volum_lights(entity p4, entity p8, entity p12);
+        void cop_lights_off();
+        void ambulance_lights_on(entity p4);
+        void make_ambulance_lights(entity p4);
+        void ambulance_open_lights_on(entity p4);
+        void make_ambulance_open_lights(entity p4);
+        void anim_ambulance_lights(num p4, num p8);
+        void ambulance_lights_off();
+        void ambulance_sirens_on(entity p4);
+        void ambulance_chatter_on(entity p4);
+        void ambulance_engine_on(entity p4);
+        void turn_off_ambulance_sounds();
+        void ambulance_sirens(entity p4);
+        void ambulance_chatter(entity p4);
+        void ambulance_engine(entity p4);
+    };
+
+    class bolt_effects
+    {
+    public:
+        entity field_0;
+        entity_list field_4;
+        bolt_effects();
+        void make_bolts();
+        void electro_shoot_bolt(vector3d p4, vector3d p16);
+        void electro_show_hit(vector3d p4);
+        void charge_up_on(entity p4);
+        void charge_up_off();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num unused_4[1];
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void electro_bolt_fly(entity p4, entity p8);
+        void electro_bolt_suicide();
+        void electro_bolt_tracker(entity p4, entity p8);
+        void electro_bolt_hit_explode(item p4, entity p8, vector3d p12, vector3d p24);
+    };
+
+    void _electro_nosuit_bolt::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::render_entities(entity_list p4, num p8, num p12)
+    {
+        num v0 = 0;
+        if ((p8 > (p4).size())) {
+            p8 = (p4).size();
+        }
+        while ((v0 < p8)) {
+            ((p4).get_index(v0)).set_visible(p12);
+            v0++;
+        }
+    }
+
+    void effects_common::random_render_entities(entity_list p4)
+    {
+        num local0 = 0;
+        (this).render_entities(p4, (p4).size(), 0);
+        ((p4).get_index(random((p4).size()))).set_visible_and_disable_fading(1);
+    }
+
+    void effects_common::face_entities(entity_list p4, num p8, num p12, vector3d p16)
+    {
+        num v0 = p8;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).look_at(p16);
+            v0++;
+        }
+    }
+
+    void effects_common::rotate_entities(entity_list p4, num p8)
+    {
+        num v1 = float_random(p8);
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).wait_rotate(vector3d(0, 0, 1), v1, 0);
+            v0++;
+        }
+    }
+
+    void effects_common::move_entities(entity_list p4, vector3d p8)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_rel_position(p8);
+            v0++;
+        }
+    }
+
+    void effects_common::destroy_list(entity_list p4)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_visible(0);
+            destroy_entity((p4).get_index(v0));
+            v0++;
+        }
+        destroy_entity_list(p4);
+    }
+
+    camera_effects::camera_effects()
+    {
+        wait_frame();
+    }
+
+    void camera_effects::flash_cam(num p4, num p8)
+    {
+        num v0 = 0;
+        if ((field_0 == entity("NULL"))) {
+            field_0 = create_entity("fx\\entities\\fx_cam_flash", "camera_flash");
+            (field_0).set_parent(chase_cam());
+            (field_0).set_rel_position(vector3d(0, 0, 0.5));
+            (field_0).set_visible(0);
+        }
+        while ((v0 < p4)) {
+            (field_0).set_visible(1);
+            wait_frame();
+            (field_0).set_visible(0);
+            wait_frame();
+            v0++;
+        }
+        if ((p8 > 0)) {
+            (this).shake_cam(p8);
+        }
+    }
+
+    void camera_effects::shake_cam(num p4)
+    {
+        switch (p4) {
+        case 1:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        case 2:
+        {
+            spiderman_camera_add_shake(0.1, 16, 0.75);
+            spiderman_camera_add_shake(0.04, 20, 0.5);
+            spiderman_camera_add_shake(0.015, 24, 1.5);
+            break;
+        }
+        default:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        }
+    }
+
+    lighting_effects::lighting_effects()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_8 = 0;
+        field_4 = 1;
+        (this).light_off();
+    }
+
+    void lighting_effects::parent_light(entity p4)
+    {
+    }
+
+    void lighting_effects::move_light(vector3d p4)
+    {
+    }
+
+    void lighting_effects::light_on(vector3d p4, num p16)
+    {
+    }
+
+    void lighting_effects::light_off()
+    {
+        field_0 = 0;
+    }
+
+    void lighting_effects::set_light_range(num p4, num p8, num p12)
+    {
+    }
+
+    void lighting_effects::flash_light(vector3d p4, num p16, num p20, num p24, num p28)
+    {
+        num v0 = 0;
+        while ((v0 < p28)) {
+            (this).light_on(p4, p16);
+            _electro_nosuit_bolt::wait_frame(p20);
+            (this).light_off();
+            _electro_nosuit_bolt::wait_frame(p24);
+            v0++;
+        }
+    }
+
+    void lighting_effects::pulse_light(num p4, num p8, num p12, num p16, num p20)
+    {
+        num v0 = 0;
+        field_0 = 1;
+        while (field_0) {
+            (this).set_light_range((p4 / 2), p4, p12);
+            _electro_nosuit_bolt::wait_frame(p16);
+            (this).set_light_range((p4 / 2), p4, p12);
+            _electro_nosuit_bolt::wait_frame(p20);
+            v0++;
+        }
+    }
+
+    void lighting_effects::cop_lights_on(entity p4)
+    {
+        entity fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_coplight_right");
+        (fx_red_coplight_right).set_state(2, 1);
+        (fx_red_coplight_right).set_parent((p4).get_member("police_gear"));
+        (fx_red_coplight_right).set_rel_position(vector3d(-0.6, 0.75, -1.48));
+        (fx_red_coplight_right).set_state(1, -0.4);
+        entity fx_blue_coplight_left = create_entity("effects\\aeps\\fx_blue_coplight_left");
+        (fx_blue_coplight_left).set_state(2, 1);
+        (fx_blue_coplight_left).set_parent((p4).get_member("police_gear"));
+        (fx_blue_coplight_left).set_rel_position(vector3d(0.6, 0.75, -1.48));
+        (fx_blue_coplight_left).set_state(1, -0.4);
+        entity fx_red_coplight_left = create_entity("effects\\aeps\\fx_red_coplight_left");
+        (fx_red_coplight_left).set_state(2, 1);
+        (fx_red_coplight_left).set_parent((p4).get_member("police_gear"));
+        (fx_red_coplight_left).set_rel_position(vector3d(-0.3, 0.75, -1.48));
+        (fx_red_coplight_left).set_state(1, -0.4);
+        entity fx_blue_coplight_right = create_entity("effects\\aeps\\fx_blue_coplight_right");
+        (fx_blue_coplight_right).set_state(2, 1);
+        (fx_blue_coplight_right).set_parent((p4).get_member("police_gear"));
+        (fx_blue_coplight_right).set_rel_position(vector3d(0.3, 0.75, -1.48));
+        (fx_blue_coplight_right).set_state(1, -0.4);
+        field_4 = 1;
+    }
+
+    void lighting_effects::anim_lights(entity p4, entity p8, entity p12, entity p16, entity p20)
+    {
+        while (((p4).is_valid() && field_4)) {
+            (p8).set_visible(0);
+            (p12).set_visible(0);
+            (p16).set_visible(1);
+            (p20).set_visible(1);
+            delay(0.5);
+            (p8).set_visible(1);
+            (p12).set_visible(1);
+            (p16).set_visible(0);
+            (p20).set_visible(0);
+            delay(0.5);
+        }
+        destroy_entity(p8);
+        wait_frame();
+        destroy_entity(p12);
+        wait_frame();
+        destroy_entity(p16);
+        wait_frame();
+        destroy_entity(p20);
+    }
+
+    void lighting_effects::anim_volum_lights(entity p4, entity p8, entity p12)
+    {
+        while (((p4).is_valid() && field_4)) {
+            if ((p8).is_visible()) {
+                (p8).set_visible(0);
+                (p12).set_visible(0);
+                _electro_nosuit_bolt::wait_frame(2);
+            } else {
+                (p8).set_visible(1);
+                (p12).set_visible(1);
+                wait_frame();
+            }
+        }
+        destroy_entity(p8);
+        wait_frame();
+        destroy_entity(p12);
+    }
+
+    void lighting_effects::cop_lights_off()
+    {
+        field_4 = 0;
+    }
+
+    void lighting_effects::ambulance_lights_on(entity p4)
+    {
+        if ((!field_8)) {
+            field_8 = 1;
+            field_12 = create_entity_list();
+            start_thread_on(this, (this).make_ambulance_lights(p4));
+        } else {
+        }
+    }
+
+    void lighting_effects::make_ambulance_lights(entity p4)
+    {
+        num v0 = 0;
+        while ((v0 < 14)) {
+            entity fx_red_coplight_right;
+            if ((v0 < 2)) {
+                fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_coplight_right");
+            } else if ((v0 < 4)) {
+                fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_coplight_left");
+            } else {
+                fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_ambulancelight");
+            }
+            (fx_red_coplight_right).set_state(2, 1);
+            (fx_red_coplight_right).set_parent(p4);
+            (fx_red_coplight_right).set_state(1, -0.3);
+            (field_12).add(fx_red_coplight_right);
+            v0++;
+        }
+        delay(0.166);
+        while ((v0 < 20)) {
+            entity fx_white_ambulancelight = create_entity("effects\\aeps\\fx_white_ambulancelight");
+            (fx_white_ambulancelight).set_state(2, 1);
+            (fx_white_ambulancelight).set_parent(p4);
+            (fx_white_ambulancelight).set_state(1, -0.3);
+            (field_12).add(fx_white_ambulancelight);
+            v0++;
+        }
+        ((field_12).get_index(0)).set_rel_position(vector3d(0.89, 1, -3.45));
+        ((field_12).get_index(1)).set_rel_position(vector3d(-0.89, 1, -3.45));
+        ((field_12).get_index(2)).set_rel_position(vector3d(0.35, 1.4, 0.98));
+        ((field_12).get_index(3)).set_rel_position(vector3d(-0.35, 1.4, 0.98));
+        ((field_12).get_index(11)).set_rel_position(vector3d(1.15, 1.45, 0.55));
+        ((field_12).get_index(14)).set_rel_position(vector3d(1.15, 1.45, 0.15));
+        ((field_12).get_index(11)).set_rel_position(vector3d(-1.15, 1.45, 0.55));
+        ((field_12).get_index(15)).set_rel_position(vector3d(-1.15, 1.45, 0.15));
+        ((field_12).get_index(12)).set_rel_position(vector3d(1.15, 1.45, -3.15));
+        ((field_12).get_index(16)).set_rel_position(vector3d(1.15, 1.45, -2.75));
+        ((field_12).get_index(13)).set_rel_position(vector3d(-1.15, 1.45, -3.15));
+        ((field_12).get_index(17)).set_rel_position(vector3d(-1.15, 1.45, -2.75));
+        ((field_12).get_index(18)).set_rel_position(vector3d(0.48, 0.1, 3.42));
+        ((field_12).get_index(18)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(4)).set_rel_position(vector3d(0.48, 0.2, 3.42));
+        ((field_12).get_index(4)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(19)).set_rel_position(vector3d(-0.48, 0.1, 3.42));
+        ((field_12).get_index(19)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(5)).set_rel_position(vector3d(-0.48, 0.2, 3.42));
+        ((field_12).get_index(5)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(6)).set_rel_position(vector3d(0.95, 1.65, -3.45));
+        ((field_12).get_index(7)).set_rel_position(vector3d(-0.95, 1.65, -3.45));
+        ((field_12).get_index(8)).set_rel_position(vector3d(0.65, 1.4, 0.98));
+        ((field_12).get_index(9)).set_rel_position(vector3d(-0.65, 1.4, 0.98));
+    }
+
+    void lighting_effects::ambulance_open_lights_on(entity p4)
+    {
+        if ((!field_8)) {
+            field_8 = 1;
+            field_12 = create_entity_list();
+            start_thread_on(this, (this).make_ambulance_open_lights(p4));
+        } else {
+        }
+    }
+
+    void lighting_effects::make_ambulance_open_lights(entity p4)
+    {
+        num v0 = 0;
+        while ((v0 < 8)) {
+            entity fx_red_coplight_right;
+            if ((v0 < 2)) {
+                fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_coplight_right");
+            } else if ((v0 < 4)) {
+                fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_coplight_left");
+            } else {
+                fx_red_coplight_right = create_entity("effects\\aeps\\fx_red_ambulancelight");
+            }
+            (fx_red_coplight_right).set_state(2, 1);
+            (fx_red_coplight_right).set_parent(p4);
+            (fx_red_coplight_right).set_state(1, -0.3);
+            (field_12).add(fx_red_coplight_right);
+            v0++;
+        }
+        delay(0.166);
+        while ((v0 < 14)) {
+            entity fx_white_ambulancelight = create_entity("effects\\aeps\\fx_white_ambulancelight");
+            (fx_white_ambulancelight).set_state(2, 1);
+            (fx_white_ambulancelight).set_parent(p4);
+            (fx_white_ambulancelight).set_state(1, -0.3);
+            (field_12).add(fx_white_ambulancelight);
+            v0++;
+        }
+        ((field_12).get_index(0)).set_rel_position(vector3d(0.65, 1.4, 0.98));
+        ((field_12).get_index(1)).set_rel_position(vector3d(-0.65, 1.4, 0.98));
+        ((field_12).get_index(2)).set_rel_position(vector3d(0.35, 1.4, 0.98));
+        ((field_12).get_index(3)).set_rel_position(vector3d(-0.35, 1.4, 0.98));
+        ((field_12).get_index(4)).set_rel_position(vector3d(1.25, 1.45, 0.55));
+        ((field_12).get_index(8)).set_rel_position(vector3d(1.25, 1.45, 0.15));
+        ((field_12).get_index(4)).set_state(1, 0);
+        ((field_12).get_index(8)).set_state(1, 0);
+        ((field_12).get_index(8)).set_render_scale(vector3d(0.5, 0.5, 0.5));
+        ((field_12).get_index(5)).set_rel_position(vector3d(-1.25, 1.45, 0.55));
+        ((field_12).get_index(9)).set_rel_position(vector3d(-1.25, 1.45, 0.15));
+        ((field_12).get_index(5)).set_state(1, 0);
+        ((field_12).get_index(9)).set_state(1, 0);
+        ((field_12).get_index(9)).set_render_scale(vector3d(0.5, 0.5, 0.5));
+        ((field_12).get_index(10)).set_rel_position(vector3d(0.48, 0.1, 3.42));
+        ((field_12).get_index(10)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(6)).set_rel_position(vector3d(0.48, 0.2, 3.42));
+        ((field_12).get_index(6)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(11)).set_rel_position(vector3d(-0.48, 0.1, 3.42));
+        ((field_12).get_index(11)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(7)).set_rel_position(vector3d(-0.48, 0.2, 3.42));
+        ((field_12).get_index(7)).set_render_scale(vector3d(0.4, 0.4, 0.4));
+        ((field_12).get_index(12)).set_rel_position(vector3d(1.47, 1.75, -4));
+        ((field_12).get_index(13)).set_rel_position(vector3d(-1.47, 1.75, -4));
+        ((field_12).get_index(12)).set_render_scale(vector3d(0.8, 0.8, 0.8));
+        ((field_12).get_index(13)).set_render_scale(vector3d(0.8, 0.8, 0.8));
+    }
+
+    void lighting_effects::anim_ambulance_lights(num p4, num p8)
+    {
+        num v0 = 0;
+        while (field_8) {
+            v0 = 0;
+            while ((v0 < p4)) {
+                ((field_12).get_index(v0)).set_visible(0);
+                v0++;
+            }
+            while ((v0 < p8)) {
+                ((field_12).get_index(v0)).set_visible(1);
+                v0++;
+            }
+            delay(0.15);
+            v0 = 0;
+            while ((v0 < p4)) {
+                ((field_12).get_index(v0)).set_visible(1);
+                v0++;
+            }
+            while ((v0 < p8)) {
+                ((field_12).get_index(v0)).set_visible(0);
+                v0++;
+            }
+            delay(0.15);
+        }
+    }
+
+    void lighting_effects::ambulance_lights_off()
+    {
+        if (field_8) {
+            field_8 = 0;
+            delay(0.15);
+            (field_16).destroy_list(field_12);
+        }
+    }
+
+    void lighting_effects::ambulance_sirens_on(entity p4)
+    {
+        start_thread_on(this, (this).ambulance_sirens(p4));
+    }
+
+    void lighting_effects::ambulance_chatter_on(entity p4)
+    {
+        start_thread_on(this, (this).ambulance_chatter(p4));
+    }
+
+    void lighting_effects::ambulance_engine_on(entity p4)
+    {
+        start_thread_on(this, (this).ambulance_engine(p4));
+    }
+
+    void lighting_effects::turn_off_ambulance_sounds()
+    {
+        kill_threads_on(this, lighting_effects::ambulance_sirens);
+        kill_threads_on(this, lighting_effects::ambulance_chatter);
+        kill_threads_on(this, lighting_effects::ambulance_engine);
+        (field_20).stop(0);
+        (field_24).stop(0);
+        (field_28).stop(0);
+    }
+
+    void lighting_effects::ambulance_sirens(entity p4)
+    {
+        field_20 = create_sound_inst("pol_siren_long_lp_1");
+        (field_20).set_entity(p4);
+        (field_20).play(0);
+    }
+
+    void lighting_effects::ambulance_chatter(entity p4)
+    {
+        num v1 = 0;
+        while ((p4).is_valid()) {
+            v1 = random(4);
+            switch (v1) {
+            case 0:
+            {
+                field_24 = create_sound_inst("amb_ambulance_radio_1");
+                break;
+            }
+            case 1:
+            {
+                field_24 = create_sound_inst("amb_ambulance_radio_2");
+                break;
+            }
+            case 2:
+            {
+                field_24 = create_sound_inst("amb_ambulance_radio_3");
+                break;
+            }
+            case 3:
+            {
+                field_24 = create_sound_inst("amb_ambulance_radio_4");
+                break;
+            }
+            }
+            (field_24).set_entity(p4);
+            (field_24).play(0);
+            delay(20);
+        }
+    }
+
+    void lighting_effects::ambulance_engine(entity p4)
+    {
+        num local0 = 0;
+        field_28 = create_sound_inst("vh_ambulance_engine_idle");
+        (field_28).set_entity(p4);
+        (field_28).play(0);
+    }
+
+    void _electro_nosuit_bolt::pass_the_bolts(entity_list p0)
+    {
+        _electro_nosuit_bolt::global_0 = p0;
+    }
+
+    void _electro_nosuit_bolt::common_bolt_hit(entity p0, vector3d p4, vector3d p16)
+    {
+        (p0).set_rel_position(p4);
+        (_electro_nosuit_bolt::effects_light).move_light(p4);
+        start_thread((_electro_nosuit_bolt::effects_light).flash_light(p16, 0.067, 1.5, 1, 4));
+        start_thread((_electro_nosuit_bolt::effects_camera).flash_cam(3, 1));
+        _electro_nosuit_bolt::wait_frame(24);
+        destroy_entity(p0);
+        (_electro_nosuit_bolt::effects_light).light_off();
+    }
+
+    void _electro_nosuit_bolt::electro_bolt_off()
+    {
+        (_electro_nosuit_bolt::elec_common).render_entities(_electro_nosuit_bolt::global_0, (_electro_nosuit_bolt::global_0).size(), 0);
+        _electro_nosuit_bolt::global_16 = 0;
+    }
+
+    void _electro_nosuit_bolt::start_bolt_tracker()
+    {
+        if ((!_electro_nosuit_bolt::global_16)) {
+            _electro_nosuit_bolt::global_16 = 1;
+            _global_slc::wait_frame();
+            start_thread(_electro_nosuit_bolt::bolt_tracker());
+        }
+    }
+
+    void _electro_nosuit_bolt::bolt_tracker()
+    {
+        vector3d v0 = vector3d(0, 0, 0);
+        while (_electro_nosuit_bolt::global_16) {
+            _electro_nosuit_bolt::wait_frame(2);
+            if ((v0 == ((_electro_nosuit_bolt::global_0).get_index(0)).get_abs_position())) {
+                _electro_nosuit_bolt::electro_bolt_off();
+            }
+            v0 = ((_electro_nosuit_bolt::global_0).get_index(0)).get_abs_position();
+        }
+    }
+
+    void _electro_nosuit_bolt::shoot_bolt(vector3d p0, vector3d p12)
+    {
+        num v0 = distance3d(p0, p12);
+        _electro_nosuit_bolt::start_bolt_tracker();
+        if ((p12 != _electro_nosuit_bolt::global_20)) {
+            if ((v0 < 7)) {
+                (_electro_nosuit_bolt::elec_common).face_entities(_electro_nosuit_bolt::global_0, 0, (_electro_nosuit_bolt::global_0).size(), p12);
+                (_electro_nosuit_bolt::elec_common).rotate_entities(_electro_nosuit_bolt::global_0, 6.2832);
+                (_electro_nosuit_bolt::elec_common).move_entities(_electro_nosuit_bolt::global_0, p0);
+                _electro_nosuit_bolt::size_bolt(v0);
+            } else {
+                (_electro_nosuit_bolt::elec_common).move_entities(_electro_nosuit_bolt::global_0, p12);
+                (_electro_nosuit_bolt::elec_common).face_entities(_electro_nosuit_bolt::global_0, 0, (_electro_nosuit_bolt::global_0).size(), p0);
+                (_electro_nosuit_bolt::elec_common).rotate_entities(_electro_nosuit_bolt::global_0, 6.2832);
+                _electro_nosuit_bolt::size_bolt(7);
+            }
+            (_electro_nosuit_bolt::elec_common).random_render_entities(_electro_nosuit_bolt::global_0);
+            _electro_nosuit_bolt::global_20 = p12;
+        }
+    }
+
+    void _electro_nosuit_bolt::size_bolt(num p0)
+    {
+        num v1 = 1;
+        num v2 = 1;
+        if ((p0 > 30)) {
+            v1 = float_random(10);
+            v2 = float_random(10);
+        } else if ((p0 > 20)) {
+            v1 = float_random(8);
+            v2 = float_random(8);
+        } else if ((p0 > 10)) {
+            v1 = float_random(4);
+            v2 = float_random(4);
+        } else {
+            v1 = float_random(2);
+            v2 = float_random(2);
+        }
+        if ((v1 < 1)) {
+            v1 = 1;
+        }
+        if ((v2 < 1)) {
+            v2 = 1;
+        }
+        num v0 = 0;
+        while ((v0 < (_electro_nosuit_bolt::global_0).size())) {
+            ((_electro_nosuit_bolt::global_0).get_index(v0)).set_render_scale(vector3d((p0 / v1), (p0 / v2), p0));
+            v0++;
+        }
+    }
+
+    bolt_effects::bolt_effects()
+    {
+        field_4 = create_entity_list();
+        (this).make_bolts();
+    }
+
+    void bolt_effects::make_bolts()
+    {
+        entity fx_electro_bolt_b1 = create_entity("effects\\entities\\fx_electro_bolt_b1");
+        (fx_electro_bolt_b1).set_state(2, 1);
+        (fx_electro_bolt_b1).disable_fading();
+        (fx_electro_bolt_b1).set_distance_clip(500);
+        wait_frame();
+        entity fx_electro_bolt_b2 = create_entity("effects\\entities\\fx_electro_bolt_b2");
+        (fx_electro_bolt_b2).set_state(2, 1);
+        (fx_electro_bolt_b2).disable_fading();
+        (fx_electro_bolt_b2).set_distance_clip(500);
+        wait_frame();
+        entity fx_electro_bolt_b3 = create_entity("effects\\entities\\fx_electro_bolt_b3");
+        (fx_electro_bolt_b3).set_state(2, 1);
+        (fx_electro_bolt_b3).disable_fading();
+        (fx_electro_bolt_b3).set_distance_clip(500);
+        (field_4).add(fx_electro_bolt_b1);
+        (field_4).add(fx_electro_bolt_b2);
+        (field_4).add(fx_electro_bolt_b3);
+    }
+
+    void bolt_effects::electro_shoot_bolt(vector3d p4, vector3d p16)
+    {
+        _electro_nosuit_bolt::shoot_bolt(p4, p16);
+    }
+
+    void bolt_effects::electro_show_hit(vector3d p4)
+    {
+        entity fx_electrohit_b = create_entity("effects\\aeps\\fx_electrohit_b");
+        (fx_electrohit_b).set_state(2, 1);
+        _electro_nosuit_bolt::common_bolt_hit(fx_electrohit_b, p4, vector3d(1, 1, 0));
+    }
+
+    void bolt_effects::charge_up_on(entity p4)
+    {
+        if (((p4).is_valid() && (field_0 == entity("NULL")))) {
+            field_0 = (field_4).get_index(0);
+            _electro_nosuit_bolt::pass_the_bolts(field_4);
+        }
+    }
+
+    void bolt_effects::charge_up_off()
+    {
+    }
+
+    _electro_nosuit_bolt::_electro_nosuit_bolt(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_0 = p4;
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::electro_bolt_fly(entity p4, entity p8)
+    {
+        start_thread_on(this, (this).electro_bolt_tracker(p4, p8));
+    }
+
+    void ENX_MASTER_OBJECT::electro_bolt_suicide()
+    {
+        kill_threads_on(this, ENX_MASTER_OBJECT::electro_bolt_tracker);
+        _electro_nosuit_bolt::electro_bolt_off();
+    }
+
+    void ENX_MASTER_OBJECT::electro_bolt_tracker(entity p4, entity p8)
+    {
+        bind_signal_once_on(this, signal_id(p8, "entity::FADED_OUT"), (this).electro_bolt_suicide());
+        (_electro_nosuit_bolt::nosuit_bolt_effects).charge_up_on(field_0);
+        while (1) {
+            (_electro_nosuit_bolt::nosuit_bolt_effects).electro_shoot_bolt((p4).get_abs_position(), (p8).get_abs_position());
+            wait_frame();
+        }
+    }
+
+    void ENX_MASTER_OBJECT::electro_bolt_hit_explode(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        if ((distance3d(p12, (hero()).get_abs_position()) < 1)) {
+            (_electro_nosuit_bolt::nosuit_bolt_effects).electro_show_hit(p12);
+        }
+        (_electro_nosuit_bolt::nosuit_bolt_effects).charge_up_off();
+    }
+
+    str _electro_nosuit_bolt::global_76 = "";
+
+    str _electro_nosuit_bolt::global_80 = "";
+
+    str _electro_nosuit_bolt::global_188 = "";
+
+    str _electro_nosuit_bolt::global_192 = "";
+
+}

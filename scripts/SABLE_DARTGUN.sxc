@@ -1,0 +1,147 @@
+namespace SABLE_DARTGUN {
+    extern entity _global_slc::find_entity(str);
+    extern entity _global_slc::hero();
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_inode_param_float(str,str);
+    extern num entity::operator==(entity);
+    extern void entity::poison(num,num);
+    extern void entity::set_inode_param_float(str,str,num);
+    extern num vector3d::length2();
+    extern vector3d vector3d::operator-(vector3d);
+
+    class _sable_dartgun
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _sable_dartgun(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void body_effect(item p4, entity p8, vector3d p12, vector3d p24);
+        num hit_hero(entity p4);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    _sable_dartgun::_sable_dartgun(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::body_effect(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        vector3d v1 = (p12 - (hero()).get_abs_position());
+        num v0 = (v1).length2();
+        if ((v0 < (1.5 * 1.5))) {
+            entity v2 = find_entity("SILVER_SABLE_FULL");
+            num v3 = (v2).get_inode_param_float("sable", "dart_effect_slowdown_factor");
+            v3 = 0;
+            (v2).set_inode_param_float("sable", "dart_effect_slowdown_factor", v3);
+            (hero()).poison(5, 2);
+            raise_signal("S10_HIT_FROM_DARTGUN");
+        }
+    }
+
+    num ENX_MASTER_OBJECT::hit_hero(entity p4)
+    {
+        entity v0 = hero();
+        if ((p4 == v0)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    str _sable_dartgun::global_40 = "";
+
+    str _sable_dartgun::global_44 = "";
+
+    str _sable_dartgun::global_152 = "";
+
+    str _sable_dartgun::global_156 = "";
+
+}

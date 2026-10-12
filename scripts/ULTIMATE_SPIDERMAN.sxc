@@ -1,0 +1,691 @@
+namespace ULTIMATE_SPIDERMAN {
+    extern num g_mission_status;
+    extern num g_story_checkpoint;
+    extern num g_mission_type;
+    extern num g_enable_story;
+    extern num g_enable_hot_pursuit;
+    extern vector3d RESPAWN_PETERS_HOUSE;
+    extern vector3d RESPAWN_DAILY_BUGLE;
+    extern vector3d RESPAWN_ESU;
+    extern vector3d RESPAWN_CENTRAL_PARK;
+    extern num gv_num_current_story;
+    extern num gv_current_max_hitpoints;
+    extern num gv_health_ulocked;
+    extern num _global_slc::add_civilian_info_entity(entity,num,num,num);
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern entity _global_slc::chase_cam();
+    extern entity _global_slc::create_entity(str);
+    extern polytube _global_slc::create_polytube();
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern void _global_slc::end_cut_scenes();
+    extern district _global_slc::find_district_for_point(vector3d);
+    extern entity _global_slc::hero();
+    extern num _global_slc::is_hero_spidey();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern void _global_slc::malor(vector3d,num);
+    extern num _global_slc::remove_civilian_info_entity(entity,num);
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::spiderman_camera_clear_fixedstatic();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::turn_off_mission_text();
+    extern void _global_slc::turn_on_hero_health(num,entity);
+    extern void _global_slc::unload_script();
+    extern void _global_slc::wait_for_streamer_to_reach_equilibrium();
+    extern void _global_slc::wait_frame();
+    extern void entity::ai_shut_up();
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern void entity::compute_sector();
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_ifc_num(str);
+    extern entity entity::get_member(str);
+    extern num entity::get_render_alpha();
+    extern num entity::is_a_car();
+    extern num entity::operator==(entity);
+    extern num entity::physical_ifc_is_biped_physics_running();
+    extern void entity::physical_ifc_stop_biped_physics();
+    extern void entity::reset_ai();
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_scale(num);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_additive(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_max_length(num);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tiles_per_meter(num);
+    extern void polytube::set_tube_radius(num);
+    extern num vector3d::length();
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern num vector3d::operator==(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num district::get_neighborhood();
+    extern void district::wait_for_load();
+
+    class _ultimate_spiderman
+    {
+    public:
+        static spidey_effects the_spidey_effects = spidey_effects::create_named("the_spidey_effects");
+        static motion_trail_effects g_spidey_motion_trails = motion_trail_effects::create_named("g_spidey_motion_trails");
+        static num global_8 = 0;
+        static num global_12 = 0;
+        static num global_16 = 0;
+        static num global_20 = 0;
+        static str global_24;
+        static str global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48;
+        static num global_52;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static num global_68;
+        static num global_72;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static str global_160;
+        static str global_164;
+        static num global_168 = 0;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204 = 0;
+        static num global_208;
+        static num global_212;
+        static effects_common spidey_common = effects_common::create_named("spidey_common");
+        static effects_common fx_common = effects_common::create_named("fx_common");
+        static num global_224;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        _ultimate_spiderman(num p0);
+        void cancel_vibrations();
+        void handle_respawn(num p0);
+        void go_to_my_neighborhood(vector3d p0);
+        void hero_death();
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void wait_fade_alpha(entity p4, num p8);
+    };
+
+    class spidey_effects
+    {
+    public:
+        num unused_0[1];
+        entity field_4;
+        entity field_8;
+        num field_12;
+        num field_16;
+        num unused_20[1];
+        spidey_effects();
+        void setup_spidey_sense();
+        void spidey_sense(entity p4);
+        void hide_spidey_sense(num p4);
+    };
+
+    class motion_trail_effects
+    {
+    public:
+        effects_common field_0;
+        num unused_4[1];
+        motion_trail_effects();
+        void make_motion_trail(entity p4, entity p8);
+        void fade_then_die(entity p4, num p8);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        entity field_12[4];
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void set_spiderman_health();
+        void im_dangerous();
+        void danger_stuff();
+        void terrain_fx_event(vector3d p4, string_hash p16);
+        void spidey_sense_effect_start(entity p4);
+        void prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24);
+        void spidey_sense_effect_stop();
+        void make_motion_trail(entity p4, entity p8);
+        void end_motion_trail(entity p4, entity p8);
+    };
+
+    class web_tie
+    {
+    public:
+        web_tie(entity p4);
+        ~web_tie();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class foo_bar
+    {
+    public:
+        foo_bar(entity p4);
+        ~foo_bar();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    void _ultimate_spiderman::go_to_my_neighborhood(vector3d p0)
+    {
+        district v2;
+        district v1;
+        num v3 = 0;
+        if ((hero()).physical_ifc_is_biped_physics_running()) {
+            (hero()).physical_ifc_stop_biped_physics();
+        }
+        if (is_hero_venom()) {
+            malor(RESPAWN_CENTRAL_PARK, 1);
+        } else {
+            v2 = find_district_for_point(p0);
+            v3 = (v2).get_neighborhood();
+            switch (v3) {
+            case 0:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            case 1:
+            {
+                malor(RESPAWN_ESU, 1);
+                break;
+            }
+            case 2:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            case 3:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            default:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            }
+        }
+        v1 = find_district_for_point((hero()).get_abs_position());
+        (v1).wait_for_load();
+        wait_for_streamer_to_reach_equilibrium();
+    }
+
+    void _ultimate_spiderman::hero_death()
+    {
+        (hero()).ai_shut_up();
+        start_thread(_ultimate_spiderman::cancel_vibrations());
+        if (g_enable_story) {
+            num v2 = 0;
+            num v0 = 0;
+            if ((g_mission_status == 7)) {
+                g_mission_status = 3;
+            } else {
+                v2 = 1;
+            }
+            if ((!v2)) {
+                if (((gv_num_current_story == 1) || (gv_num_current_story == 2))) {
+                    v0 = 1;
+                }
+                delay(3);
+                turn_off_mission_text();
+                set_dialog_box_flavor(3);
+                num v1 = 3;
+                if (v0) {
+                    if (is_hero_venom()) {
+                        v1 = bring_up_dialog_box_title(253, 1, 31);
+                    } else {
+                        v1 = bring_up_dialog_box_title(252, 1, 31);
+                    }
+                } else if (is_hero_venom()) {
+                    v1 = bring_up_dialog_box_title(253, 0, 31);
+                } else {
+                    v1 = bring_up_dialog_box_title(252, 0, 31);
+                }
+                blackscreen_on(1);
+                delay(1);
+                (hero()).reset_ai();
+                spiderman_camera_clear_fixedstatic();
+                end_cut_scenes();
+                if (((v1 == 0) || (v1 == 2))) {
+                    unload_script();
+                } else {
+                    g_story_checkpoint = 0;
+                    raise_signal("MISSION_END_FAIL");
+                }
+            }
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        } else {
+            delay(3);
+            turn_off_mission_text();
+            set_dialog_box_flavor(3);
+            num v2 = 3;
+            if (g_enable_hot_pursuit) {
+                _ultimate_spiderman::handle_respawn(0);
+            } else if (((g_mission_type != 1) && is_mission_active())) {
+                if (is_hero_venom()) {
+                    v2 = bring_up_dialog_box_title(253, 0, 31);
+                } else {
+                    v2 = bring_up_dialog_box_title(252, 0, 31);
+                }
+                while ((v2 == 3)) {
+                    wait_frame();
+                }
+                if ((v2 == 0)) {
+                    start_thread(_ultimate_spiderman::handle_respawn(1));
+                    delay(1);
+                    raise_signal("DEATH_RETRY_YES");
+                } else {
+                    raise_signal("MISSION_END_FAIL");
+                    raise_signal("DEATH_RETRY_NO");
+                    _ultimate_spiderman::handle_respawn(0);
+                }
+            } else {
+                if (is_hero_venom()) {
+                    v2 = bring_up_dialog_box_title(268, 1, 31);
+                } else {
+                    v2 = bring_up_dialog_box_title(267, 1, 31);
+                }
+                while ((v2 == 3)) {
+                    wait_frame();
+                }
+                _ultimate_spiderman::handle_respawn(0);
+            }
+        }
+    }
+
+    void _ultimate_spiderman::cancel_vibrations()
+    {
+        delay(1.5);
+        stop_vibration();
+    }
+
+    void _ultimate_spiderman::handle_respawn(num p0)
+    {
+        blackscreen_on(1);
+        delay(1);
+        spiderman_camera_clear_fixedstatic();
+        (hero()).reset_ai();
+        if ((g_mission_type == 1)) {
+            unload_script();
+        }
+        if (g_enable_hot_pursuit) {
+            g_enable_hot_pursuit = 0;
+            unload_script();
+        }
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        if ((!p0)) {
+            _ultimate_spiderman::go_to_my_neighborhood((hero()).get_abs_position());
+            blackscreen_off(1);
+            delay(1);
+        }
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::wait_fade_alpha(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v1 = (p4).get_render_alpha();
+        num v2 = (v1 / p8);
+        while ((v0 < p8)) {
+            (p4).set_render_alpha((v1 - (v2 * v0)));
+            wait_frame();
+            v0++;
+        }
+        (p4).set_visible(0);
+        (p4).set_render_alpha(1);
+    }
+
+    spidey_effects::spidey_effects()
+    {
+        field_12 = 1;
+        field_16 = 1;
+        wait_frame();
+    }
+
+    void spidey_effects::setup_spidey_sense()
+    {
+        field_8 = create_entity("effects\\aeps\\fx_spidey_tingling");
+        wait_frame();
+        (field_8).set_state(2, 1);
+        (field_8).set_state(1, 0.15);
+        (field_8).set_visible(0);
+        field_4 = create_entity("effects\\entites\\fx_sm_tingling");
+        (field_4).set_visible(0);
+    }
+
+    void spidey_effects::spidey_sense(entity p4)
+    {
+        if ((field_4 == entity("NULL"))) {
+            start_thread_on(this, (this).setup_spidey_sense());
+        }
+        (field_4).set_parent((p4).get_member("Bip01 Head"));
+        (field_8).set_parent((p4).get_member("Bip01 Head"));
+        (field_8).set_rel_position(vector3d(-0.2, 0, 0));
+        num v0 = distance3d((p4).get_abs_position(), (chase_cam()).get_abs_position());
+        v0 = (v0 * 0.35);
+        if ((v0 > 3)) {
+            v0 = 3;
+        } else if ((v0 < 1)) {
+            v0 = 1;
+        }
+        (field_4).set_scale(v0);
+        (field_4).set_visible(1);
+        (field_8).set_visible(1);
+    }
+
+    void spidey_effects::hide_spidey_sense(num p4)
+    {
+        delay(p4);
+        (field_4).set_visible(0);
+        (field_8).set_visible(0);
+    }
+
+    motion_trail_effects::motion_trail_effects()
+    {
+        wait_frame();
+    }
+
+    void motion_trail_effects::make_motion_trail(entity p4, entity p8)
+    {
+        num v4 = 0;
+        vector3d v1 = (p8).get_abs_position();
+        polytube v0 = create_polytube();
+        (v0).set_rel_position(v1);
+        (v0).reserve_control_pts(3);
+        (v0).set_tube_radius(0.35);
+        (v0).set_num_sides(2);
+        (v0).build(8, 2);
+        (v0).set_material("effects\\textures\\fx_m_trail");
+        (v0).set_tiles_per_meter((0.94 / 1.3));
+        (v0).set_max_length(1.3);
+        (v0).compute_sector();
+        (v0).set_distance_clip(10000);
+        (v0).set_additive(1);
+        (v0).set_visible(0);
+        while ((v4 < 3)) {
+            wait_frame();
+            (v0).add_control_pt(v1);
+            v4++;
+        }
+        while ((v1 == (p8).get_abs_position())) {
+            wait_frame();
+        }
+        (v0).set_visible(1);
+        vector3d v2 = (p8).get_abs_position();
+        vector3d v6 = (v1 - v2);
+        num v7 = (v6).length();
+        vector3d v5 = (v6 / v7);
+        vector3d v8 = (p4).get_abs_position();
+        vector3d v9 = (v8 - v2);
+        num v10 = (v9).length();
+        vector3d v3 = (v9 / v10);
+        (v0).set_control_pt(2, v2);
+        (v0).set_control_pt(1, (v2 + (v5 * (1.3 / 2))));
+        (v0).set_control_pt(0, (v2 + (v3 * 1.3)));
+        start_thread_on(this, (this).fade_then_die(v0, 8));
+    }
+
+    void motion_trail_effects::fade_then_die(entity p4, num p8)
+    {
+        (field_0).wait_fade_alpha(p4, p8);
+        destroy_entity(p4);
+    }
+
+    _ultimate_spiderman::_ultimate_spiderman(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        num v0 = 0;
+        field_0 = p4;
+        bind_signal_on(this, signal_id(field_0, "entity::SUBDUED"), _ultimate_spiderman::hero_death());
+        bind_signal_on(this, signal_id(field_0, "entity::ATTACK"), (this).im_dangerous());
+        while ((v0 < 4)) {
+            field_12[v0] = entity("NULL");
+            v0++;
+        }
+        if (is_hero_spidey()) {
+            (this).set_spiderman_health();
+        } else {
+            (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            turn_on_hero_health(5, hero());
+        }
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::set_spiderman_health()
+    {
+        switch (gv_health_ulocked) {
+        case 3:
+        {
+            turn_on_hero_health(3, hero());
+            break;
+        }
+        case 2:
+        {
+            turn_on_hero_health(2, hero());
+            break;
+        }
+        case 1:
+        {
+            turn_on_hero_health(1, hero());
+            break;
+        }
+        default:
+        {
+            turn_on_hero_health(0, hero());
+            break;
+        }
+        }
+        (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+    }
+
+    void ENX_MASTER_OBJECT::im_dangerous()
+    {
+        if ((!field_4)) {
+            start_thread_on(this, (this).danger_stuff());
+        } else if ((field_8 > 6)) {
+            field_8++;
+        } else {
+            field_8 = (field_8 + 2);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::danger_stuff()
+    {
+        field_4 = 1;
+        field_8 = 0;
+        add_civilian_info_entity(field_0, 1, 15, 0.5);
+        delay(6);
+        while ((field_8 > 0)) {
+            delay(1);
+            field_8--;
+        }
+        remove_civilian_info_entity(field_0, 1);
+        field_4 = 0;
+    }
+
+    void ENX_MASTER_OBJECT::terrain_fx_event(vector3d p4, string_hash p16)
+    {
+    }
+
+    void ENX_MASTER_OBJECT::spidey_sense_effect_start(entity p4)
+    {
+        (_ultimate_spiderman::the_spidey_effects).spidey_sense(p4);
+        raise_signal(hero(), "_ultimate_spiderman::SPIDEY_SENSE");
+    }
+
+    void ENX_MASTER_OBJECT::prop_physics_collision(entity p4, entity p8, vector3d p12, vector3d p24)
+    {
+        entity v0;
+        vector3d v1;
+        vector3d v2;
+        num v3 = 0;
+        if (((gv_num_current_story == 22) || (p4).is_a_car())) {
+            v0 = p4;
+            v1 = (v0).get_abs_position();
+            v2 = (hero()).get_abs_position();
+            v3 = 1;
+            num v4 = 0;
+            while ((v4 < 4)) {
+                if ((v0 == field_12[v4])) {
+                    v3 = 0;
+                    v4 = 4;
+                }
+                v4++;
+            }
+            if (v3) {
+                (hero()).apply_directed_damage_cat(10, (v2 - v1), "Enter_Prop_Physics", 1);
+                v4 = (4 - 1);
+                while ((v4 > 0)) {
+                    field_12[v4] = field_12[(v4 - 1)];
+                    v4--;
+                }
+                field_12[0] = v0;
+            }
+        }
+    }
+
+    void ENX_MASTER_OBJECT::spidey_sense_effect_stop()
+    {
+        (_ultimate_spiderman::the_spidey_effects).hide_spidey_sense(0.01);
+    }
+
+    void ENX_MASTER_OBJECT::make_motion_trail(entity p4, entity p8)
+    {
+        (_ultimate_spiderman::g_spidey_motion_trails).make_motion_trail(p4, p8);
+    }
+
+    void ENX_MASTER_OBJECT::end_motion_trail(entity p4, entity p8)
+    {
+    }
+
+    web_tie::web_tie(entity p4)
+    {
+    }
+
+    web_tie::~web_tie()
+    {
+    }
+
+    void web_tie::activate()
+    {
+        raise_signal("SPIDEY_SHOT_WEB");
+    }
+
+    void web_tie::deactivate()
+    {
+    }
+
+    void web_tie::frame_advance(num p4, num p8)
+    {
+    }
+
+    foo_bar::foo_bar(entity p4)
+    {
+    }
+
+    foo_bar::~foo_bar()
+    {
+    }
+
+    void foo_bar::activate()
+    {
+    }
+
+    void foo_bar::deactivate()
+    {
+    }
+
+    void foo_bar::frame_advance(num p4, num p8)
+    {
+        if (p8) {
+        }
+    }
+
+    str _ultimate_spiderman::global_24 = "";
+
+    str _ultimate_spiderman::global_28 = "";
+
+    str _ultimate_spiderman::global_160 = "";
+
+    str _ultimate_spiderman::global_164 = "";
+
+}

@@ -1,0 +1,637 @@
+namespace venom_s11 {
+    extern num g_mission_status;
+    extern num g_story_checkpoint;
+    extern num g_mission_type;
+    extern vector3d NULL_VECTOR;
+    extern num g_enable_story;
+    extern num g_enable_hot_pursuit;
+    extern vector3d RESPAWN_PETERS_HOUSE;
+    extern vector3d RESPAWN_DAILY_BUGLE;
+    extern vector3d RESPAWN_ESU;
+    extern vector3d RESPAWN_CENTRAL_PARK;
+    extern num gv_num_current_story;
+    extern num _global_slc::add_civilian_info_entity(entity,num,num,num);
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern void _global_slc::create_decal(str,vector3d,num,vector3d);
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::end_cut_scenes();
+    extern district _global_slc::find_district_for_point(vector3d);
+    extern entity _global_slc::hero();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern void _global_slc::malor(vector3d,num);
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::spiderman_camera_clear_fixedstatic();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::turn_off_mission_text();
+    extern void _global_slc::unload_script();
+    extern void _global_slc::wait_for_streamer_to_reach_equilibrium();
+    extern void _global_slc::wait_frame();
+    extern void entity::ai_shut_up();
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern num entity::get_ifc_num(str);
+    extern entity entity::get_member(str);
+    extern void entity::ifl_play();
+    extern num entity::is_valid();
+    extern num entity::operator==(entity);
+    extern num entity::physical_ifc_is_biped_physics_running();
+    extern void entity::physical_ifc_stop_biped_physics();
+    extern void entity::pre_roll(num);
+    extern void entity::reset_ai();
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num string_hash::operator==(str);
+    extern num district::get_neighborhood();
+    extern void district::wait_for_load();
+
+    class _venom_s11
+    {
+    public:
+        static entity_list global_0;
+        static entity global_4;
+        static num global_8 = 0;
+        static entity global_12;
+        static venom_effects my_venom = venom_effects::create_named("my_venom");
+        static num global_20 = 0;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static str global_36;
+        static str global_40;
+        static num global_44;
+        static num global_48;
+        static num global_52;
+        static num global_56;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80;
+        static num global_84;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static str global_172;
+        static str global_176;
+        static num global_180 = 0;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216 = 0;
+        static num global_220;
+        static num global_224;
+        static effects_common venom_common = effects_common::create_named("venom_common");
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        _venom_s11(num p0);
+        void cancel_vibrations();
+        void handle_respawn(num p0);
+        void go_to_my_neighborhood(vector3d p0);
+        void hero_death();
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class venom_effects
+    {
+    public:
+        num unused_0[1];
+        venom_effects();
+        void feeding_effect(entity p4);
+        void expel_effect(entity p4);
+        void make_damage_effects(num p4);
+        void increment_puff();
+        void damageEffect(entity p4);
+        void concrete_landing(vector3d p4);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void started_feed();
+        void stopped_feed();
+        void feed_pulse();
+        void watch_feed();
+        void drain_management();
+        void terrain_fx_event(vector3d p4, string_hash p16);
+        void make_wall_damage(entity p4);
+    };
+
+    class feed_attack
+    {
+    public:
+        entity field_0;
+        feed_attack(entity p4);
+        ~feed_attack();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Feed_Loop
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        num field_12;
+        Feed_Loop(entity p4);
+        ~Feed_Loop();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class feed_end
+    {
+    public:
+        entity field_0;
+        feed_end(entity p4);
+        ~feed_end();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    void _venom_s11::go_to_my_neighborhood(vector3d p0)
+    {
+        district v2;
+        district v1;
+        num v3 = 0;
+        if ((hero()).physical_ifc_is_biped_physics_running()) {
+            (hero()).physical_ifc_stop_biped_physics();
+        }
+        if (is_hero_venom()) {
+            malor(RESPAWN_CENTRAL_PARK, 1);
+        } else {
+            v2 = find_district_for_point(p0);
+            v3 = (v2).get_neighborhood();
+            switch (v3) {
+            case 0:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            case 1:
+            {
+                malor(RESPAWN_ESU, 1);
+                break;
+            }
+            case 2:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            case 3:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            default:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            }
+        }
+        v1 = find_district_for_point((hero()).get_abs_position());
+        (v1).wait_for_load();
+        wait_for_streamer_to_reach_equilibrium();
+    }
+
+    void _venom_s11::hero_death()
+    {
+        (hero()).ai_shut_up();
+        start_thread(_venom_s11::cancel_vibrations());
+        if (g_enable_story) {
+            num v2 = 0;
+            num v0 = 0;
+            if ((g_mission_status == 7)) {
+                g_mission_status = 3;
+            } else {
+                v2 = 1;
+            }
+            if ((!v2)) {
+                if (((gv_num_current_story == 1) || (gv_num_current_story == 2))) {
+                    v0 = 1;
+                }
+                delay(3);
+                turn_off_mission_text();
+                set_dialog_box_flavor(3);
+                num v1 = 3;
+                if (v0) {
+                    if (is_hero_venom()) {
+                        v1 = bring_up_dialog_box_title(253, 1, 31);
+                    } else {
+                        v1 = bring_up_dialog_box_title(252, 1, 31);
+                    }
+                } else if (is_hero_venom()) {
+                    v1 = bring_up_dialog_box_title(253, 0, 31);
+                } else {
+                    v1 = bring_up_dialog_box_title(252, 0, 31);
+                }
+                blackscreen_on(1);
+                delay(1);
+                (hero()).reset_ai();
+                spiderman_camera_clear_fixedstatic();
+                end_cut_scenes();
+                if (((v1 == 0) || (v1 == 2))) {
+                    unload_script();
+                } else {
+                    g_story_checkpoint = 0;
+                    raise_signal("MISSION_END_FAIL");
+                }
+            }
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        } else {
+            delay(3);
+            turn_off_mission_text();
+            set_dialog_box_flavor(3);
+            num v2 = 3;
+            if (g_enable_hot_pursuit) {
+                _venom_s11::handle_respawn(0);
+            } else if (((g_mission_type != 1) && is_mission_active())) {
+                if (is_hero_venom()) {
+                    v2 = bring_up_dialog_box_title(253, 0, 31);
+                } else {
+                    v2 = bring_up_dialog_box_title(252, 0, 31);
+                }
+                while ((v2 == 3)) {
+                    wait_frame();
+                }
+                if ((v2 == 0)) {
+                    start_thread(_venom_s11::handle_respawn(1));
+                    delay(1);
+                    raise_signal("DEATH_RETRY_YES");
+                } else {
+                    raise_signal("MISSION_END_FAIL");
+                    raise_signal("DEATH_RETRY_NO");
+                    _venom_s11::handle_respawn(0);
+                }
+            } else {
+                if (is_hero_venom()) {
+                    v2 = bring_up_dialog_box_title(268, 1, 31);
+                } else {
+                    v2 = bring_up_dialog_box_title(267, 1, 31);
+                }
+                while ((v2 == 3)) {
+                    wait_frame();
+                }
+                _venom_s11::handle_respawn(0);
+            }
+        }
+    }
+
+    void _venom_s11::cancel_vibrations()
+    {
+        delay(1.5);
+        stop_vibration();
+    }
+
+    void _venom_s11::handle_respawn(num p0)
+    {
+        blackscreen_on(1);
+        delay(1);
+        spiderman_camera_clear_fixedstatic();
+        (hero()).reset_ai();
+        if ((g_mission_type == 1)) {
+            unload_script();
+        }
+        if (g_enable_hot_pursuit) {
+            g_enable_hot_pursuit = 0;
+            unload_script();
+        }
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        if ((!p0)) {
+            _venom_s11::go_to_my_neighborhood((hero()).get_abs_position());
+            blackscreen_off(1);
+            delay(1);
+        }
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    venom_effects::venom_effects()
+    {
+        wait_frame();
+        entity fx_venomclaw = create_entity("effects\\entities\\fx_venomclaw");
+        wait_frame();
+        destroy_entity(fx_venomclaw);
+        _venom_s11::global_0 = create_entity_list();
+    }
+
+    void venom_effects::feeding_effect(entity p4)
+    {
+        if ((_venom_s11::global_4 == entity("NULL"))) {
+            _venom_s11::global_4 = create_entity("effects\\aeps\\fx_vnm_feed");
+            (_venom_s11::global_4).set_state(2, 1);
+            (_venom_s11::global_4).set_parent((p4).get_member("Bip01 Spine"));
+            (_venom_s11::global_4).set_po_facing((p4).get_facing());
+            (_venom_s11::global_4).set_rel_position(vector3d(0, 0, -0.4));
+            (_venom_s11::global_4).set_visible(0);
+        }
+        (_venom_s11::global_4).set_visible(1);
+    }
+
+    void venom_effects::expel_effect(entity p4)
+    {
+        (_venom_s11::global_4).set_visible(1);
+        (_venom_s11::global_4).pre_roll(0.1);
+    }
+
+    void venom_effects::make_damage_effects(num p4)
+    {
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_vnm_wallcrawldebris = create_entity("effects\\aeps\\fx_vnm_wallcrawldebris");
+            (fx_vnm_wallcrawldebris).set_state(2, 1);
+            (_venom_s11::global_0).add(fx_vnm_wallcrawldebris);
+            v0++;
+        }
+    }
+
+    void venom_effects::increment_puff()
+    {
+        if ((_venom_s11::global_8 < ((_venom_s11::global_0).size() - 1))) {
+            _venom_s11::global_8++;
+        } else {
+            _venom_s11::global_8 = 0;
+        }
+    }
+
+    void venom_effects::damageEffect(entity p4)
+    {
+        entity v0 = (p4).get_member("Bip01 R Hand");
+        entity v1 = (p4).get_member("Bip01 L Hand");
+        entity v2 = (p4).get_member("Bip01 R Foot");
+        entity v3 = (p4).get_member("Bip01 L Foot");
+        if (((_venom_s11::global_0).size() < 1)) {
+            (this).make_damage_effects(7);
+        }
+        ((_venom_s11::global_0).get_index(_venom_s11::global_8)).set_rel_position((v1).get_abs_position());
+        ((_venom_s11::global_0).get_index(_venom_s11::global_8)).set_visible(1);
+        (this).increment_puff();
+        ((_venom_s11::global_0).get_index(_venom_s11::global_8)).set_rel_position((v0).get_abs_position());
+        ((_venom_s11::global_0).get_index(_venom_s11::global_8)).set_visible(1);
+        (this).increment_puff();
+        vector3d v4 = ((v1).get_abs_position() - (v3).get_abs_position());
+        vector3d v5 = ((v0).get_abs_position() - (v2).get_abs_position());
+        create_decal("fx_venomclaw", (v1).get_abs_position(), 60, v4);
+        create_decal("fx_venomclaw", (v0).get_abs_position(), 60, v5);
+    }
+
+    void venom_effects::concrete_landing(vector3d p4)
+    {
+        create_decal("fx_decal_land", p4, 30, NULL_VECTOR);
+        if ((_venom_s11::global_12 == entity("NULL"))) {
+            _venom_s11::global_12 = create_entity("effects\\aeps\\fx_vnm_jumpimpact");
+            (_venom_s11::global_12).set_state(2, 1);
+        }
+        (_venom_s11::global_12).set_rel_position(p4);
+        (_venom_s11::global_12).set_visible(1);
+    }
+
+    _venom_s11::_venom_s11(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_0 = p4;
+        (field_0).ifl_play();
+        add_civilian_info_entity(field_0, 1, 20, 1);
+        add_civilian_info_entity(field_0, 5, 35, 0.5);
+        start_thread_on(this, (this).drain_management());
+        bind_signal_on(this, signal_id("VENOM_HAS_FED"), (this).started_feed());
+        bind_signal_on(this, signal_id("VENOM_STOPPED_FEEDING"), (this).stopped_feed());
+        bind_signal_on(this, signal_id("VENOM_RECENTLY_FED"), (this).feed_pulse());
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::started_feed()
+    {
+        field_4 = 1;
+        field_8 = 0;
+        start_thread_on(this, (this).watch_feed());
+    }
+
+    void ENX_MASTER_OBJECT::stopped_feed()
+    {
+        field_4 = 0;
+    }
+
+    void ENX_MASTER_OBJECT::feed_pulse()
+    {
+        field_8 = 1;
+    }
+
+    void ENX_MASTER_OBJECT::watch_feed()
+    {
+        delay(1);
+        if ((field_8 == 1)) {
+            field_8 = 0;
+            start_thread_on(this, (this).watch_feed());
+        } else {
+            field_4 = 0;
+        }
+    }
+
+    void ENX_MASTER_OBJECT::drain_management()
+    {
+        num v1 = 0;
+        num v0 = (field_0).get_ifc_num("MAX_HIT_POINTS");
+        while ((field_0).is_valid()) {
+            v1 = (field_0).get_ifc_num("HIT_POINTS");
+            if ((v1 > (0.25 * v0))) {
+                if ((!field_4)) {
+                    (field_0).set_ifc_num("HIT_POINTS", (v1 - 1));
+                }
+            }
+            if ((v1 > (0.75 * v0))) {
+                delay(2);
+            } else if ((v1 > (0.5 * v0))) {
+                delay(4);
+            } else {
+                delay(6);
+            }
+        }
+    }
+
+    void ENX_MASTER_OBJECT::terrain_fx_event(vector3d p4, string_hash p16)
+    {
+        if ((p16 == "CONCRETE")) {
+            (_venom_s11::my_venom).concrete_landing(p4);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::make_wall_damage(entity p4)
+    {
+        (_venom_s11::my_venom).damageEffect(p4);
+    }
+
+    feed_attack::feed_attack(entity p4)
+    {
+        field_0 = p4;
+    }
+
+    feed_attack::~feed_attack()
+    {
+    }
+
+    void feed_attack::activate()
+    {
+        raise_signal("VENOM_HAS_FED");
+        (_venom_s11::my_venom).feeding_effect(field_0);
+    }
+
+    void feed_attack::deactivate()
+    {
+    }
+
+    void feed_attack::frame_advance(num p4, num p8)
+    {
+    }
+
+    Feed_Loop::Feed_Loop(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_12 = 0;
+        field_0 = p4;
+        field_8 = (field_0).get_ifc_num("MAX_HIT_POINTS");
+    }
+
+    Feed_Loop::~Feed_Loop()
+    {
+    }
+
+    void Feed_Loop::activate()
+    {
+        raise_signal("VENOM_RECENTLY_FED");
+        field_4 = (field_0).get_ifc_num("HIT_POINTS");
+        field_12 = 10;
+    }
+
+    void Feed_Loop::deactivate()
+    {
+        raise_signal("VENOM_RECENTLY_FED");
+        if (((field_4 < field_8) && (field_12 > 0))) {
+            (field_0).set_ifc_num("HIT_POINTS", (field_4 + field_12));
+        }
+    }
+
+    void Feed_Loop::frame_advance(num p4, num p8)
+    {
+        field_4 = (field_0).get_ifc_num("HIT_POINTS");
+        if (((field_4 < field_8) && (field_12 > 0))) {
+            num v0 = ((0.4 * p4) * 30);
+            (field_0).set_ifc_num("HIT_POINTS", (field_4 + v0));
+            field_12 = (field_12 - v0);
+        }
+        if (p8) {
+            raise_signal("VENOM_RECENTLY_FED");
+            (_venom_s11::my_venom).feeding_effect(field_0);
+        }
+    }
+
+    feed_end::feed_end(entity p4)
+    {
+        field_0 = p4;
+    }
+
+    feed_end::~feed_end()
+    {
+    }
+
+    void feed_end::activate()
+    {
+    }
+
+    void feed_end::deactivate()
+    {
+        (_venom_s11::my_venom).expel_effect(field_0);
+        raise_signal("VENOM_STOPPED_FEEDING");
+    }
+
+    void feed_end::frame_advance(num p4, num p8)
+    {
+    }
+
+    str _venom_s11::global_36 = "";
+
+    str _venom_s11::global_40 = "";
+
+    str _venom_s11::global_172 = "";
+
+    str _venom_s11::global_176 = "";
+
+}

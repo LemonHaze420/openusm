@@ -1,0 +1,1025 @@
+namespace S13_ENDING_IGC {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern void _global_slc::blackscreen_on(num);
+    extern entity _global_slc::chase_cam();
+    extern num _global_slc::col_check(vector3d,vector3d,num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern polytube _global_slc::create_polytube();
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern vector3d _global_slc::cross(vector3d,vector3d);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern void _global_slc::disable_subtitles();
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern void _global_slc::enable_subtitles();
+    extern num _global_slc::entity_exists(str);
+    extern entity _global_slc::find_entity(str);
+    extern num _global_slc::float_random(num);
+    extern vector3d _global_slc::get_col_hit_norm();
+    extern vector3d _global_slc::get_col_hit_pos();
+    extern entity _global_slc::hero();
+    extern num _global_slc::is_mission_active();
+    extern vector3d _global_slc::normal(vector3d);
+    extern void _global_slc::play_prerender(str);
+    extern num _global_slc::random(num);
+    extern num _global_slc::sin(num);
+    extern void _global_slc::spiderman_camera_add_shake(num,num,num);
+    extern void _global_slc::subtitle(num,num,num,num,num,num);
+    extern void _global_slc::wait_frame();
+    extern void entity::compute_sector();
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern num entity::get_render_alpha();
+    extern void entity::ifl_lock(num);
+    extern num entity::is_valid();
+    extern num entity::is_visible();
+    extern num entity::operator!=(entity);
+    extern num entity::operator==(entity);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_scale(num);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::set_xz_facing(vector3d);
+    extern void entity::wait_rotate(vector3d,num,num);
+    extern num entity::was_occluded_last_frame();
+    extern void cut_scene::wait_play();
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern vector3d polytube::get_control_pt(num);
+    extern num polytube::get_num_control_pts();
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_additive(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tube_radius(num);
+    extern void sound_inst::play(num);
+    extern void sound_inst::stop(num);
+    extern num vector3d::length();
+    extern num vector3d::operator!=(vector3d);
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::y();
+    extern num vector3d::z();
+
+    class _s13_ending_igc
+    {
+    public:
+        static camera_effects fx_camera = camera_effects::create_named("fx_camera");
+        static fx_lightning go_lightning = fx_lightning::create_named("go_lightning");
+        static effects_common rain_common = effects_common::create_named("rain_common");
+        static num global_12 = 0;
+        static rain_system my_rain = rain_system::create_named("my_rain");
+        static fx_lightning bolt = fx_lightning::create_named("bolt");
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static str global_64;
+        static str global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84;
+        static num global_88;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static str global_176;
+        static str global_180;
+        static num global_184 = 0;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220 = 0;
+        static num global_224 = 0;
+        static num global_228 = 0;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        _s13_ending_igc(num p0);
+        ~_s13_ending_igc();
+        num get_random_polarity(num p0);
+        void wait_frame(num p0);
+        void s13_igc2_effects();
+        void clean_up_igc2_effects();
+        void camera01_rain();
+        void camera03_rain();
+        void camera05_rain();
+        void camera02_rain();
+        void kill_rain();
+        void lightning_strike(entity p0, entity p4);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void render_entities(entity_list p4, num p8, num p12);
+        void wait_fade_alpha(entity p4, num p8);
+        void wait_fade_alpha_in(entity p4, num p8);
+        void adv_wait_fade_alpha_in(entity p4, num p8, num p12);
+        void wait_visibility(entity p4, num p8, num p12);
+        void xz_face_cam_list(entity_list p4, entity p8);
+        void destroy_list(entity_list p4);
+    };
+
+    class camera_effects
+    {
+    public:
+        entity field_0;
+        camera_effects();
+        void flash_cam(num p4, num p8);
+        void shake_cam(num p4);
+    };
+
+    class fx_lightning
+    {
+    public:
+        vector3d field_0;
+        vector3d field_12;
+        num field_24;
+        num field_28;
+        effects_common field_32;
+        entity_list field_36;
+        fx_lightning();
+        void thunder_sound();
+        void lightning_storm_on();
+        void lightning_storm_off();
+        void go_lightning_storm();
+        void make_cloud_particles(num p4);
+        void multi_place_cloud_particles(vector3d p4, num p16, num p20);
+        void place_cloud_particles(vector3d p4, num p16);
+        void make_one_bolt(vector3d p4, vector3d p16, num p28);
+        void setup_bolt(polytube p4);
+        void shape_bolt(polytube p4, polytube p8);
+        void wait_flash_bolt(polytube p4, polytube p8, num p12, num p16, num p20);
+        void func_cross_product(vector3d p4);
+    };
+
+    class rain_system
+    {
+    public:
+        entity field_0;
+        entity field_4;
+        entity field_8;
+        vector3d field_12;
+        vector3d field_24;
+        num field_36;
+        num field_40;
+        num field_44;
+        num field_48;
+        entity_list field_52;
+        entity_list field_56;
+        sound_inst field_60;
+        rain_system();
+        void start_rain();
+        void stop_rain();
+        void make_splashes(num p4);
+        void face_splashes_to_cam();
+        void make_puddles(num p4);
+        void recycle_puddles();
+        void wait_place_puddle(vector3d p4);
+        num check_ground_flatness(vector3d p4, num p16);
+        void rain_follow();
+        void start_ground_splashing(num p4);
+        num avoid_spidey(vector3d p4, num p16);
+        void ground_splashing(num p4, num p8);
+        void set_rain_camera(str p4);
+    };
+
+    void _s13_ending_igc::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    num _s13_ending_igc::get_random_polarity(num p0)
+    {
+        num v1 = random(2);
+        if ((!v1)) {
+            v1 = -1;
+        }
+        num v0 = (p0 * v1);
+        return v0;
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::render_entities(entity_list p4, num p8, num p12)
+    {
+        num v0 = 0;
+        if ((p8 > (p4).size())) {
+            p8 = (p4).size();
+        }
+        while ((v0 < p8)) {
+            ((p4).get_index(v0)).set_visible(p12);
+            v0++;
+        }
+    }
+
+    void effects_common::wait_fade_alpha(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v1 = (p4).get_render_alpha();
+        num v2 = (v1 / p8);
+        while ((v0 < p8)) {
+            (p4).set_render_alpha((v1 - (v2 * v0)));
+            wait_frame();
+            v0++;
+        }
+        (p4).set_visible(0);
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::wait_fade_alpha_in(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v2 = (p4).get_render_alpha();
+        num v1 = ((1 - v2) / p8);
+        while ((v0 < p8)) {
+            wait_frame();
+            (p4).set_render_alpha((v1 * v0));
+            v0++;
+        }
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::adv_wait_fade_alpha_in(entity p4, num p8, num p12)
+    {
+        num v0 = 1;
+        num v2 = (p4).get_render_alpha();
+        num v1 = ((p12 - v2) / p8);
+        while ((v0 < p8)) {
+            wait_frame();
+            (p4).set_render_alpha((v1 * v0));
+            v0++;
+        }
+        (p4).set_render_alpha(p12);
+    }
+
+    void effects_common::wait_visibility(entity p4, num p8, num p12)
+    {
+        delay(p12);
+        (p4).set_visible(p8);
+    }
+
+    void effects_common::xz_face_cam_list(entity_list p4, entity p8)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_xz_facing((p8).get_facing());
+            v0++;
+        }
+    }
+
+    void effects_common::destroy_list(entity_list p4)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_visible(0);
+            destroy_entity((p4).get_index(v0));
+            v0++;
+        }
+        destroy_entity_list(p4);
+    }
+
+    camera_effects::camera_effects()
+    {
+        wait_frame();
+    }
+
+    void camera_effects::flash_cam(num p4, num p8)
+    {
+        num v0 = 0;
+        if ((field_0 == entity("NULL"))) {
+            field_0 = create_entity("fx\\entities\\fx_cam_flash", "camera_flash");
+            (field_0).set_parent(chase_cam());
+            (field_0).set_rel_position(vector3d(0, 0, 0.5));
+            (field_0).set_visible(0);
+        }
+        while ((v0 < p4)) {
+            (field_0).set_visible(1);
+            wait_frame();
+            (field_0).set_visible(0);
+            wait_frame();
+            v0++;
+        }
+        if ((p8 > 0)) {
+            (this).shake_cam(p8);
+        }
+    }
+
+    void camera_effects::shake_cam(num p4)
+    {
+        switch (p4) {
+        case 1:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        case 2:
+        {
+            spiderman_camera_add_shake(0.1, 16, 0.75);
+            spiderman_camera_add_shake(0.04, 20, 0.5);
+            spiderman_camera_add_shake(0.015, 24, 1.5);
+            break;
+        }
+        default:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        }
+    }
+
+    fx_lightning::fx_lightning()
+    {
+        field_24 = 0;
+        field_28 = 0;
+        wait_frame();
+        field_0 = vector3d(0, 0, 0);
+        field_12 = vector3d(0, 0, 0);
+        (this).make_cloud_particles(4);
+    }
+
+    void fx_lightning::thunder_sound()
+    {
+        sound_inst v2;
+        switch (random(3)) {
+        case 0:
+        {
+            v2 = create_sound_inst("sfx_lightning_1");
+            break;
+        }
+        case 1:
+        {
+            v2 = create_sound_inst("sfx_lightning_2");
+            break;
+        }
+        default:
+        {
+            v2 = create_sound_inst("sfx_lightning_3");
+            break;
+        }
+        }
+        num v1 = 0;
+        v1 = ((random(16) + 5) * 0.1);
+        delay(v1);
+        (v2).play(0);
+    }
+
+    void fx_lightning::lightning_storm_on()
+    {
+        if ((!field_24)) {
+            field_24 = 1;
+            start_thread_on(this, (this).go_lightning_storm());
+        } else {
+        }
+    }
+
+    void fx_lightning::lightning_storm_off()
+    {
+        field_24 = 0;
+    }
+
+    void fx_lightning::go_lightning_storm()
+    {
+        while (field_24) {
+            num v0 = random(15);
+            vector3d v7 = (chase_cam()).get_facing();
+            num v8 = (v7).length();
+            vector3d v6 = (v7 / v8);
+            vector3d v1 = vector3d((v6).x(), 0, (v6).z());
+            vector3d v3 = vector3d(((hero()).get_abs_position()).x(), 0, ((hero()).get_abs_position()).z());
+            v3 = (v3 + vector3d(_s13_ending_igc::get_random_polarity(random(70)), 0, _s13_ending_igc::get_random_polarity(random(70))));
+            vector3d v2 = (v3 + (v1 * 200));
+            num v4 = (((hero()).get_abs_position()).y() + 80);
+            vector3d v5 = (v2 + vector3d(_s13_ending_igc::get_random_polarity(random(30)), v4, _s13_ending_igc::get_random_polarity(random(30))));
+            (this).place_cloud_particles(v5, 0);
+            start_thread_on(this, (this).make_one_bolt(v5, v2, 3.2));
+            start_thread_on(this, (this).thunder_sound());
+            delay(0.2);
+            (_s13_ending_igc::fx_camera).flash_cam(3, 0);
+            if ((v0 > 1)) {
+                delay((v0 / 2));
+                (this).multi_place_cloud_particles(v5, 45, 5);
+                delay((v0 / 2));
+            } else {
+                delay(1);
+            }
+        }
+    }
+
+    void fx_lightning::make_cloud_particles(num p4)
+    {
+        field_36 = create_entity_list();
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_cloudglow = create_entity("effects\\aeps\\fx_cloudglow");
+            (fx_cloudglow).set_state(2, 1);
+            (fx_cloudglow).set_distance_clip(10000);
+            (fx_cloudglow).set_render_scale(vector3d(20, 20, 20));
+            (field_36).add(fx_cloudglow);
+            v0++;
+        }
+    }
+
+    void fx_lightning::multi_place_cloud_particles(vector3d p4, num p16, num p20)
+    {
+        num v0 = 0;
+        while ((v0 < p20)) {
+            (this).place_cloud_particles(p4, p16);
+            wait_frame();
+            v0++;
+        }
+    }
+
+    void fx_lightning::place_cloud_particles(vector3d p4, num p16)
+    {
+        num v0 = 0;
+        num v2 = 1;
+        while (((v0 < ((field_36).size() - 1)) && v2)) {
+            if ((!((field_36).get_index(v0)).is_visible())) {
+            }
+            {
+                entity v1 = (field_36).get_index(v0);
+                if ((p16 > 0)) {
+                    vector3d v3 = vector3d(_s13_ending_igc::get_random_polarity(random(p16)), (p4).y(), _s13_ending_igc::get_random_polarity(random(p16)));
+                    (v1).set_rel_position((p4 + v3));
+                } else {
+                    (v1).set_rel_position(p4);
+                }
+                (v1).set_visible(1);
+                start_thread_on(this, (field_32).wait_visibility(v1, 0, 0.5));
+                v2 = 0;
+            }
+            v0++;
+        }
+    }
+
+    void fx_lightning::make_one_bolt(vector3d p4, vector3d p16, num p28)
+    {
+        num v4 = 0;
+        num v2 = distance3d(p4, p16);
+        polytube v0 = create_polytube();
+        (v0).reserve_control_pts((32 / 2));
+        polytube v5 = create_polytube();
+        polytube v1 = create_polytube();
+        (v1).reserve_control_pts(32);
+        while ((v4 < (32 / 2))) {
+            (v0).add_control_pt(vector3d(0, -10, 0));
+            v4++;
+        }
+        v4 = 0;
+        while ((v4 < 32)) {
+            (v1).add_control_pt(vector3d(0, -10, 0));
+            v4++;
+        }
+        (v0).set_tube_radius(p28);
+        (v0).set_num_sides(2);
+        (v0).build(2, 3);
+        (v0).set_material("fx_bolt_core");
+        (v1).set_tube_radius((p28 / 8));
+        (v1).set_num_sides(3);
+        (v1).build(1, 1);
+        (v1).set_visible(0);
+        (this).setup_bolt(v0);
+        (this).setup_bolt(v1);
+        (v0).set_control_pt(0, p4);
+        (v0).set_control_pt(((v0).get_num_control_pts() - 1), p16);
+        vector3d v3 = vector3d(_s13_ending_igc::get_random_polarity(float_random((v2 / 3))), 0, _s13_ending_igc::get_random_polarity(float_random((v2 / 3))));
+        (v1).set_control_pt(((v1).get_num_control_pts() - 1), (p16 + v3));
+        start_thread_on(this, (this).shape_bolt(v0, v0));
+        wait_frame();
+        num v6 = random((32 / 4));
+        (v1).set_control_pt(0, (v0).get_control_pt(v6));
+        start_thread_on(this, (this).shape_bolt(v1, v1));
+    }
+
+    void fx_lightning::setup_bolt(polytube p4)
+    {
+        (p4).set_render_color(vector3d(1, 1, 1));
+        (p4).set_additive(1);
+        (p4).compute_sector();
+        (p4).set_distance_clip(10000);
+    }
+
+    void fx_lightning::shape_bolt(polytube p4, polytube p8)
+    {
+        vector3d v7 = vector3d(0, 0, 0);
+        vector3d v15;
+        num v11 = 0;
+        num v12 = 0;
+        num v0 = (p4).get_num_control_pts();
+        vector3d v1 = (p4).get_control_pt(0);
+        vector3d v14 = (p4).get_control_pt((v0 - 1));
+        vector3d v2 = (v14 - v1);
+        num v16 = (v2).length();
+        num v5 = 1;
+        num v6 = 29214968;
+        if ((v16 < 0)) {
+            v16 = 0.0001;
+        }
+        v7 = (v2 / v16);
+        num v3 = (v16 / v0);
+        num v8 = (v16 / 10);
+        num retained_value502 = 0.5;
+        num retained_value503 = 1;
+        num v4 = (2 * 3.1415925);
+        field_28 = float_random(3.1415925);
+        vector3d v9;
+        while ((v5 < ((p4).get_num_control_pts() - 1))) {
+            v9 = (v1 + (v7 * (v5 * v3)));
+            (this).func_cross_product(v2);
+            num v13 = (1 - (v5 / v0));
+            num v10 = (1 - (v5 / v0));
+            v11 = _s13_ending_igc::get_random_polarity(float_random(v3));
+            v11 = (v11 + (sin(((((retained_value503 * v4) * v13) + v6) + field_28)) * v8));
+            v12 = _s13_ending_igc::get_random_polarity(float_random(v3));
+            v12 = (v12 + (sin(((((retained_value502 * v4) * v10) + v6) + field_28)) * v8));
+            v15 = ((field_12 * v11) + (field_0 * v12));
+            v9 = (v9 + v15);
+            (p4).set_control_pt(v5, v9);
+            if ((p8 != p4)) {
+                (p8).set_control_pt(v5, v9);
+            } else {
+                (p4).set_visible(0);
+            }
+            if ((v8 > 0)) {
+                v8 = (v8 - 0.1);
+            }
+            v6++;
+            v5++;
+        }
+        (this).wait_flash_bolt(p4, p8, 3, 8, 1);
+    }
+
+    void fx_lightning::wait_flash_bolt(polytube p4, polytube p8, num p12, num p16, num p20)
+    {
+        if (((p4).is_visible() != 1)) {
+            (p4).set_visible(1);
+            (p8).set_visible(1);
+        }
+        if (((p4).get_render_alpha() > 0.3)) {
+            (field_32).wait_fade_alpha_in(p4, p12);
+        } else {
+            _s13_ending_igc::wait_frame((p12 / 2));
+        }
+        (p4).set_visible(0);
+        if ((p8 != p4)) {
+            (p8).set_visible(0);
+        }
+        delay(0.034);
+        (p4).set_visible(1);
+        if ((p8 != p4)) {
+            (p8).set_visible(1);
+        }
+        if ((p8 != p4)) {
+            start_thread_on(this, (field_32).wait_fade_alpha(p8, p16));
+        }
+        (field_32).wait_fade_alpha(p4, p16);
+        if (p20) {
+            destroy_entity(p4);
+            if ((p8 != entity("NULL"))) {
+                wait_frame();
+                destroy_entity(p8);
+            }
+        }
+    }
+
+    void fx_lightning::func_cross_product(vector3d p4)
+    {
+        vector3d v0 = vector3d(0, 1, 0);
+        vector3d v2 = vector3d(0, -1, 0);
+        vector3d v1 = vector3d(1, 0, 0);
+        if (((p4 != v0) && (p4 != v2))) {
+            field_0 = cross(p4, v0);
+        } else {
+            field_0 = cross(p4, v1);
+        }
+        field_0 = normal(field_0);
+        field_12 = cross(p4, field_0);
+        field_12 = normal(field_12);
+    }
+
+    rain_system::rain_system()
+    {
+        field_36 = 0;
+        field_40 = 0;
+        field_44 = 0;
+        field_48 = 0;
+        wait_frame();
+        field_36 = 1;
+        field_40 = 1;
+        field_44 = 20;
+        field_48 = -99;
+        (field_8).set_rel_position(field_24);
+        field_60 = create_sound_inst("sfx_rain_1");
+    }
+
+    void rain_system::start_rain()
+    {
+        field_40 = 1;
+        field_36 = 1;
+        (field_60).play(0);
+        (this).make_splashes(40);
+        start_thread_on(this, (this).make_puddles(30));
+        start_thread_on(this, (this).start_ground_splashing(8));
+        wait_frame();
+        start_thread_on(this, (this).rain_follow());
+        start_thread_on(this, (this).face_splashes_to_cam());
+        (_s13_ending_igc::go_lightning).lightning_storm_on();
+    }
+
+    void rain_system::stop_rain()
+    {
+        field_40 = 0;
+        field_36 = 0;
+        (field_60).stop(0);
+        destroy_entity(field_4);
+        wait_frame();
+        destroy_entity(field_8);
+        if (((field_52).size() > 0)) {
+            (_s13_ending_igc::rain_common).destroy_list(field_52);
+        }
+        (_s13_ending_igc::go_lightning).lightning_storm_off();
+    }
+
+    void rain_system::make_splashes(num p4)
+    {
+        num v0 = 0;
+        field_52 = create_entity_list();
+        while ((v0 < p4)) {
+            entity fx_rainsplash = create_entity("effects\\aeps\\fx_rainsplash");
+            (fx_rainsplash).set_state(2, 1);
+            (fx_rainsplash).set_distance_clip(10000);
+            (fx_rainsplash).set_visible(0);
+            (field_52).add(fx_rainsplash);
+            v0++;
+        }
+    }
+
+    void rain_system::face_splashes_to_cam()
+    {
+        while (field_36) {
+            (_s13_ending_igc::rain_common).xz_face_cam_list(field_52, field_0);
+            _s13_ending_igc::wait_frame(2);
+        }
+    }
+
+    void rain_system::make_puddles(num p4)
+    {
+        num v0 = 0;
+        num v2 = 1;
+        field_56 = create_entity_list();
+        while ((v0 < p4)) {
+            v2 = random(4);
+            entity fx_rainpuddle = create_entity("effects\\entities\\fx_rainpuddle");
+            (fx_rainpuddle).set_rel_position(vector3d(0, 0, 0));
+            (fx_rainpuddle).set_distance_clip(1000);
+            (fx_rainpuddle).set_visible(0);
+            (fx_rainpuddle).set_render_alpha(0.5);
+            (fx_rainpuddle).ifl_lock(v2);
+            (field_56).add(fx_rainpuddle);
+            v0++;
+        }
+    }
+
+    void rain_system::recycle_puddles()
+    {
+        num v0 = 0;
+        while ((v0 < (field_56).size())) {
+            if ((distance3d((hero()).get_abs_position(), ((field_56).get_index(v0)).get_abs_position()) > field_44)) {
+                ((field_56).get_index(v0)).set_visible(0);
+            }
+            v0++;
+        }
+    }
+
+    void rain_system::wait_place_puddle(vector3d p4)
+    {
+        num v0 = 0;
+        num v1 = 0;
+        if ((((p4).y() < 1) && (this).check_ground_flatness(p4, 1.8))) {
+            while (((v0 < (field_56).size()) && (!v1))) {
+                if ((!((field_56).get_index(v0)).is_visible())) {
+                    num v3 = float_random(2.25);
+                    entity v2 = (field_56).get_index(v0);
+                    (v2).set_rel_position(p4);
+                    (v2).wait_rotate(vector3d(0, 1, 0), float_random(6.2832), 0);
+                    (v2).set_visible(1);
+                    if ((v3 < 0.75)) {
+                        v3 = 0.75;
+                    }
+                    (v2).set_scale(v3);
+                    (v2).set_render_alpha(0);
+                    (_s13_ending_igc::rain_common).adv_wait_fade_alpha_in(v2, 30, 0.5);
+                    v1 = 1;
+                }
+                v0++;
+            }
+            if ((!v1)) {
+                (this).recycle_puddles();
+            }
+        }
+    }
+
+    num rain_system::check_ground_flatness(vector3d p4, num p16)
+    {
+        vector3d v0 = (p4 + vector3d(0, 2, 0));
+        vector3d v1 = (p4 + vector3d(0, -2, 0));
+        vector3d v5 = vector3d(p16, 0, p16);
+        vector3d v4 = vector3d((-p16), 0, (-p16));
+        vector3d v3 = vector3d(p16, 0, (-p16));
+        vector3d v2 = vector3d((-p16), 0, p16);
+        vector3d v6;
+        if (col_check((v0 + v5), (v1 + v5), 1)) {
+            v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+            if ((((v6).y() - (p4).y()) < 0.01)) {
+                wait_frame();
+                if (col_check((v0 + v4), (v1 + v4), 1)) {
+                    v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+                    if ((((v6).y() - (p4).y()) < 0.01)) {
+                        wait_frame();
+                        if (col_check((v0 + v3), (v1 + v3), 1)) {
+                            v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+                            if ((((v6).y() - (p4).y()) < 0.01)) {
+                                wait_frame();
+                                if (col_check((v0 + v2), (v1 + v2), 1)) {
+                                    v6 = (get_col_hit_pos() + (get_col_hit_norm() * 0.026));
+                                    if ((((v6).y() - (p4).y()) < 0.01)) {
+                                        wait_frame();
+                                        return 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        delay(1);
+        return 0;
+    }
+
+    void rain_system::rain_follow()
+    {
+        field_0 = chase_cam();
+        field_8 = create_entity("items\\entities\\nullo", "pbox");
+        (field_8).set_render_color(vector3d(0, 1, 0));
+        (field_8).set_visible(0);
+        field_24 = vector3d(0, (field_44 / 4), (field_44 / 3));
+        field_12 = vector3d(0, 20, 0);
+        (field_8).set_parent(field_0);
+        (field_8).set_rel_position(field_24);
+        field_4 = create_entity("effects\\aeps\\fx_rainfall", "rain_particles");
+        (field_4).set_state(2, 1);
+        (field_4).set_distance_clip(1000);
+        while (field_40) {
+            (field_4).set_rel_position((field_0).get_abs_position());
+            (field_4).set_xz_facing((field_0).get_facing());
+            _s13_ending_igc::wait_frame(2);
+        }
+    }
+
+    void rain_system::start_ground_splashing(num p4)
+    {
+        num v0 = 1;
+        num v1 = ((field_52).size() / p4);
+        while ((v0 < (p4 + 1))) {
+            num v2 = (v1 * (v0 - 1));
+            num v3 = (v1 * v0);
+            start_thread_on(this, (this).ground_splashing(v2, v3));
+            wait_frame();
+            v0++;
+        }
+    }
+
+    num rain_system::avoid_spidey(vector3d p4, num p16)
+    {
+        vector3d v0 = vector3d(((hero()).get_abs_position()).x(), 0, ((hero()).get_abs_position()).z());
+        vector3d v1 = vector3d((p4).x(), 0, (p4).z());
+        if ((distance3d(v0, v1) > p16)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    void rain_system::ground_splashing(num p4, num p8)
+    {
+        num unused_local0;
+        vector3d v2;
+        vector3d v6;
+        num v4 = 0;
+        num v5 = 0;
+        while (field_36) {
+            num v0 = p4;
+            vector3d v1 = vector3d(0, 0, 0);
+            while (((v0 < p8) && field_36)) {
+                v2 = ((field_8).get_abs_position() + field_12);
+                v4 = (float_random((field_44 * 2)) - field_44);
+                v5 = (float_random((field_44 * 2)) - field_44);
+                v2 = (v2 + vector3d(v4, 0, v5));
+                v6 = (v2 + vector3d(0, field_48, 0));
+                if (col_check(v2, v6, 3)) {
+                    v1 = (get_col_hit_pos() + (get_col_hit_norm() * 0.04));
+                }
+                entity v3 = (field_52).get_index(v0);
+                if ((this).avoid_spidey(v2, 1)) {
+                    if ((v3).is_valid()) {
+                        (v3).set_rel_position(v1);
+                        if ((!(v3).is_visible())) {
+                            (v3).set_visible(1);
+                        }
+                        wait_frame();
+                        if (((v3).is_valid() && ((v3).was_occluded_last_frame() < 1))) {
+                            (this).wait_place_puddle(v1);
+                            v0++;
+                        }
+                    }
+                    wait_frame();
+                }
+            }
+        }
+    }
+
+    void rain_system::set_rain_camera(str p4)
+    {
+        num v0 = 0;
+        while (((!entity_exists(p4)) && (v0 < 10))) {
+            v0++;
+            wait_frame();
+        }
+        if (entity_exists(p4)) {
+            (_s13_ending_igc::go_lightning).lightning_storm_off();
+            field_0 = find_entity(p4);
+            (field_8).set_parent(field_0);
+            (field_8).set_rel_position(field_24);
+            (_s13_ending_igc::rain_common).render_entities(field_52, (field_52).size(), 0);
+        } else {
+        }
+    }
+
+    _s13_ending_igc::_s13_ending_igc(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_mission_status = 7;
+            g_ambient_music_allowed = 0;
+            _s13_ending_igc::s13_igc2_effects();
+            cut_scene v1 = create_cut_scene("cutscenes\\s13_final_battle\\igc\\s13_final_battle_igc2\\s13_fnbt_igc2_mission");
+            enable_subtitles();
+            subtitle(326, 24.5, 30.67, 327, 37.5, 40.43);
+            play_prerender("S13_FnBT_IGC2");
+            (v1).wait_play();
+            disable_subtitles();
+            _s13_ending_igc::clean_up_igc2_effects();
+            blackscreen_on(0);
+            g_mission_status = 2;
+            g_ambient_music_allowed = 1;
+            raise_signal("MISSION_END");
+            while (is_mission_active()) {
+                _global_slc::wait_frame();
+            }
+            break;
+        }
+        }
+    }
+
+    _s13_ending_igc::~_s13_ending_igc()
+    {
+    }
+
+    void _s13_ending_igc::s13_igc2_effects()
+    {
+        _s13_ending_igc::global_12 = 0;
+        entity v2 = create_entity("effects\\entities\\entity_event", "Rain_Switch");
+        entity v0 = create_entity("effects\\entities\\entity_event", "Lightning_Source");
+        entity v1 = create_entity("effects\\entities\\entity_event", "Lightning_Target");
+        bind_signal(signal_id(v2, "entity::ATTACK_BEGIN"), _s13_ending_igc::camera01_rain());
+        bind_signal(signal_id(v2, "entity::ANIM_ACTION"), _s13_ending_igc::camera03_rain());
+        bind_signal(signal_id(v2, "entity::ATTACK"), _s13_ending_igc::camera05_rain());
+        bind_signal(signal_id(v2, "entity::ATTACK_END"), _s13_ending_igc::camera02_rain());
+        bind_signal(signal_id(v2, "entity::FOOTSTEP_R"), _s13_ending_igc::kill_rain());
+        bind_signal(signal_id(v0, "entity::ATTACK"), _s13_ending_igc::lightning_strike(v0, v1));
+    }
+
+    void _s13_ending_igc::clean_up_igc2_effects()
+    {
+        _s13_ending_igc::global_12 = 1;
+    }
+
+    void _s13_ending_igc::kill_rain()
+    {
+        (_s13_ending_igc::my_rain).stop_rain();
+    }
+
+    void _s13_ending_igc::camera01_rain()
+    {
+        if ((!_s13_ending_igc::global_12)) {
+            (_s13_ending_igc::my_rain).start_rain();
+            _global_slc::wait_frame();
+            start_thread((_s13_ending_igc::my_rain).set_rain_camera("Camera01"));
+        }
+    }
+
+    void _s13_ending_igc::camera02_rain()
+    {
+        if ((!_s13_ending_igc::global_12)) {
+            start_thread((_s13_ending_igc::my_rain).set_rain_camera("Camera02"));
+        }
+    }
+
+    void _s13_ending_igc::camera03_rain()
+    {
+        if ((!_s13_ending_igc::global_12)) {
+            start_thread((_s13_ending_igc::my_rain).set_rain_camera("Camera03"));
+        }
+    }
+
+    void _s13_ending_igc::camera05_rain()
+    {
+        if ((!_s13_ending_igc::global_12)) {
+            start_thread((_s13_ending_igc::my_rain).set_rain_camera("Camera05"));
+        }
+    }
+
+    void _s13_ending_igc::lightning_strike(entity p0, entity p4)
+    {
+        if ((!_s13_ending_igc::global_12)) {
+            (_s13_ending_igc::bolt).make_one_bolt((p0).get_abs_position(), (p4).get_abs_position(), 1);
+        }
+    }
+
+    str _s13_ending_igc::global_64 = "";
+
+    str _s13_ending_igc::global_68 = "";
+
+    str _s13_ending_igc::global_176 = "";
+
+    str _s13_ending_igc::global_180 = "";
+
+}

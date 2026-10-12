@@ -1,0 +1,3612 @@
+namespace VENOM_TRICK_RACE {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern num g_mission_music_active;
+    extern num g_switch_to_open_city_music;
+    extern num g_story_checkpoint;
+    extern entity_list g_entity_list;
+    extern num g_hood_gang;
+    extern num g_mission_type;
+    extern num g_tutorial_car_combat_attack_shown;
+    extern num g_tutorial_car_combat_dodge_shown;
+    extern num g_tutorial_car_combat_land_shown;
+    extern num g_queens_tour_running;
+    extern num g_enable_story;
+    extern num g_enable_pn;
+    extern num g_enable_igc;
+    extern num g_enable_venom_igc;
+    extern num g_enable_token_event;
+    extern num g_enable_sh;
+    extern num g_enable_can;
+    extern num g_enable_hot_pursuit;
+    extern num g_next_shenani_time;
+    extern num g_next_can_time;
+    extern num g_enable_trick_race;
+    extern num g_insane_venom_race;
+    extern num g_race_exited_via_pause;
+    extern num g_done_with_storm_anim;
+    extern num g_wet_trick_race;
+    extern num g_race_dry;
+    extern num g_done_showing_trick_times;
+    extern num g_ready_to_race;
+    extern num g_trick_race_box_called;
+    extern num g_last_trick_marker_type;
+    extern vector3d g_race_start_position;
+    extern num g_racing_hero_died;
+    extern num g_trick_race_restarted;
+    extern num g_enable_venom_trick_race;
+    extern num g_unlockables_entered;
+    extern num g_torch_race_running;
+    extern num g_first_trick_marker;
+    extern num g_trick_race_controls_locked;
+    extern num g_trick_race_running;
+    extern num g_died_during_trick_race;
+    extern num g_spidey_trick_difficulty[];
+    extern num g_venom_trick_difficulty[];
+    extern vector3d RESPAWN_PETERS_HOUSE;
+    extern vector3d RESPAWN_DAILY_BUGLE;
+    extern vector3d RESPAWN_ESU;
+    extern vector3d RESPAWN_CENTRAL_PARK;
+    extern num g_enable_storm_race;
+    extern num g_torch_message_flag;
+    extern num game_clock_timer;
+    extern vector3d gv_hero_restart_pos;
+    extern num gv_num_current_story;
+    extern num gv_num_current_token_event;
+    extern num gv_story_finished;
+    extern num gv_unlockable_landmark[];
+    extern num gv_unlockable_covers[];
+    extern num gv_easy_trick_races_completed;
+    extern num gv_medium_trick_races_completed;
+    extern num gv_hard_trick_races_completed;
+    extern num gv_insane_trick_races_completed;
+    extern num gv_easy_venom_trick_races_completed;
+    extern num gv_medium_venom_trick_races_completed;
+    extern num gv_hard_venom_trick_races_completed;
+    extern num gv_insane_venom_trick_races_completed;
+    extern num gv_tutorial_car_combat_counter;
+    extern num gv_shen_speed_normal;
+    extern num gv_shens_successfully_completed;
+    extern num gv_trick_marker_bronze_medal_status[];
+    extern num gv_trick_marker_silver_medal_status[];
+    extern num gv_trick_marker_gold_medal_status[];
+    extern num gv_trick_marker_ultimate_medal_status[];
+    extern num gv_venom_trick_marker_best_time[];
+    extern num gv_venom_trick_marker_complete_status[];
+    extern num gv_venom_trick_marker_bronze_medal_status[];
+    extern num gv_venom_trick_marker_silver_medal_status[];
+    extern num gv_venom_trick_marker_gold_medal_status[];
+    extern num gv_venom_trick_marker_ultimate_medal_status[];
+    extern num gv_current_max_hitpoints;
+    extern num gv_total_storm_races_completed;
+    extern num gv_torch_race_00_done;
+    extern num gv_torch_race_01_done;
+    extern num gv_torch_race_02_done;
+    extern num gv_torch_race_03_done;
+    extern num gv_token_tally[];
+    extern num gv_token_collected[];
+    extern num gv_city_tutorials[];
+    extern num gv_health_ulocked;
+    extern num gv_tour_diff_ulocked;
+    extern num gv_combat_tours_completed;
+    extern num gv_tour_difficulty[];
+    extern num gv_tour_req[];
+    extern num gv_race_req[];
+    extern num gv_token_req[];
+    extern num gv_shen_req[];
+    extern num gv_tour_prog[];
+    extern num gv_race_prog[];
+    extern num gv_token_prog[];
+    extern num gv_shen_prog[];
+    extern num gv_master_prog[];
+    extern num gv_shens_finished;
+    extern num gv_obj_list_needed;
+    extern num gv_torch_race_unlock_req_easy;
+    extern num gv_torch_race_unlock_req_med;
+    extern num gv_torch_race_unlock_req_hard;
+    extern num gv_torch_race_unlock_req_insane;
+    extern num gv_torch_race_unlocked_2;
+    extern num gv_torch_race_unlocked_3;
+    extern num gv_torch_race_unlocked_4;
+    extern num gv_torch_race_unlocked_5;
+    extern num gv_current_city_tod;
+    extern num gv_current_venom_city_tod;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_debug(str,num,str);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern void _global_slc::bring_up_medal_award_box(num);
+    extern void _global_slc::bring_up_race_announcer();
+    extern entity _global_slc::chase_cam();
+    extern void _global_slc::clear_controls();
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern entity_tracker _global_slc::create_entity_tracker(entity);
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern sound_inst _global_slc::create_stompable_music_sound_inst(str);
+    extern trigger _global_slc::create_trigger(entity,num);
+    extern trigger _global_slc::create_trigger(vector3d,num);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern void _global_slc::destroy_entity_tracker(entity_tracker);
+    extern void _global_slc::destroy_trigger(trigger);
+    extern num _global_slc::dot(vector3d,vector3d);
+    extern void _global_slc::enable_controls(num);
+    extern void _global_slc::enable_tokens_of_type(num,num);
+    extern entity_tracker _global_slc::entity_get_entity_tracker(entity);
+    extern num _global_slc::entity_has_entity_tracker(entity);
+    extern district _global_slc::find_district_for_point(vector3d);
+    extern str _global_slc::format_time_string(num);
+    extern vector3d _global_slc::get_mission_key_position();
+    extern num _global_slc::get_token_index_from_id(num,num);
+    extern num _global_slc::greater_than_or_equal_rounded(num,num);
+    extern entity _global_slc::hero();
+    extern void _global_slc::initialize_encounter_object();
+    extern void _global_slc::invoke_pause_menu_unlockables();
+    extern num _global_slc::is_hero_spidey();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern num _global_slc::is_mission_loading();
+    extern void _global_slc::malor(vector3d,num);
+    extern vector3d _global_slc::normal(vector3d);
+    extern void _global_slc::push_pack(str);
+    extern num _global_slc::random(num);
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::set_dialog_box_lockout_time(num);
+    extern void _global_slc::set_game_info_num(str,num);
+    extern void _global_slc::set_mission_text(num,...);
+    extern void _global_slc::set_mission_text_box_flavor(num);
+    extern void _global_slc::set_time_of_day(num);
+    extern void _global_slc::spiderman_camera_autocorrect(num);
+    extern void _global_slc::spiderman_camera_clear_fixedstatic();
+    extern void _global_slc::spiderman_camera_enable_lookaround(num);
+    extern num _global_slc::spiderman_is_on_ground();
+    extern num _global_slc::spiderman_is_on_wall();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::swap_hero_costume(str);
+    extern num _global_slc::timer_widget_get_time();
+    extern void _global_slc::timer_widget_set_count_up(num);
+    extern void _global_slc::timer_widget_set_time(num);
+    extern void _global_slc::timer_widget_start();
+    extern void _global_slc::timer_widget_stop();
+    extern void _global_slc::timer_widget_turn_off();
+    extern void _global_slc::timer_widget_turn_on();
+    extern void _global_slc::turn_off_mission_text();
+    extern void _global_slc::turn_on_hero_health(num,entity);
+    extern void _global_slc::unload_script();
+    extern void _global_slc::wait_for_streamer_to_reach_equilibrium();
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_continuous_rotation(vector3d,num,num);
+    extern num entity::change_ai_base_machine(str);
+    extern void entity::disable_collisions();
+    extern void entity::enable_collisions(num);
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_ifc_num(str);
+    extern vector3d entity::get_ifc_vec(str);
+    extern void entity::ifl_lock(num);
+    extern num entity::is_valid();
+    extern void entity::look_at(vector3d);
+    extern num entity::physical_ifc_is_biped_physics_running();
+    extern void entity::physical_ifc_stop_biped_physics();
+    extern num entity::pop_ai_base_machine();
+    extern void entity::set_abs_xz_facing(vector3d);
+    extern void entity::set_ai_param_float(str,num);
+    extern void entity::set_ai_param_int(str,num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_ignore_limbo(num);
+    extern void entity::set_inode_param_float(str,str,num);
+    extern void entity::set_invulnerable(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_path_graph(str);
+    extern void entity::set_path_graph_start_node(num);
+    extern void entity::set_physical(num);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_time_dilation(num);
+    extern void entity::set_visible(num);
+    extern void entity::setup_tether(vector3d,num);
+    extern void entity::suspend();
+    extern void entity::unsuspend();
+    extern void entity::wait_translate_WCS(vector3d,num);
+    extern void cut_scene::wait_play();
+    extern void entity_tracker::set_health_widget_active(num);
+    extern void entity_tracker::set_mini_map_active(num);
+    extern void entity_tracker::set_poi_active(num);
+    extern void entity_tracker::set_poi_icon(num);
+    extern void signaller::clear_callbacks();
+    extern void sound_inst::fade_out(num);
+    extern void sound_inst::play(num);
+    extern num vector3d::length();
+    extern num vector3d::length2();
+    extern num vector3d::operator!=(vector3d);
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num district::get_neighborhood();
+    extern void district::wait_for_load();
+
+    class _venom_trick_race
+    {
+    public:
+        static sound_inst global_0;
+        static num global_4 = 0;
+        static num global_8 = 0;
+        static num global_12 = 0;
+        static num global_16 = 0;
+        static num global_20 = 0;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static venom_trick_race_data VENOM_TRICK_RACE = venom_trick_race_data::from_game_data("VENOM_TRICK_RACE");
+        static local_timer local_timer = local_timer::create_named("local_timer");
+        static num global_40 = 0;
+        static num global_44;
+        static num global_48;
+        static num global_52;
+        static num global_56;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static str global_84;
+        static str global_88;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104;
+        static num global_108;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static num global_184 = 0;
+        static num global_188 = 0;
+        static num global_192 = 0;
+        static str global_196;
+        static str global_200;
+        static num global_204 = 0;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240 = 0;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static ai_auditor ai_auditor = ai_auditor::create_named("ai_auditor");
+        static goal_tracker goal_tracker = goal_tracker::create_named("goal_tracker");
+        static city_point_manager city_point_manager = city_point_manager::create_named("city_point_manager");
+        static common_gmu_manager common_gmu_manager = common_gmu_manager::create_named("common_gmu_manager");
+        static common_thug_manager common_thug_manager = common_thug_manager::create_named("common_thug_manager");
+        static common_vehicle_manager common_vehicle_manager = common_vehicle_manager::create_named("common_vehicle_manager");
+        static common_simple_civ_manager common_simple_civ_manager = common_simple_civ_manager::create_named("common_simple_civ_manager");
+        static num global_284 = 0;
+        static num global_288;
+        static num global_292;
+        static num global_296;
+        static num global_300 = 0;
+        static num global_304 = 0;
+        static num global_308;
+        static num global_312;
+        static num global_316;
+        static num global_320 = 0;
+        static num global_324 = 0;
+        static num global_328 = 0;
+        static num global_332;
+        static num global_336;
+        static num global_340;
+        static num global_344;
+        static num global_348;
+        static num global_352;
+        static num global_356;
+        static num global_360;
+        static num global_364;
+        static num global_368;
+        _venom_trick_race(num p0);
+        ~_venom_trick_race();
+        void show_car_combat_help_text(num p0);
+        num get_hood_gang(vector3d p0);
+        void set_hero(str p0);
+        void set_spiderman_health();
+        void run_hot_pursuit();
+        void clear_all_scripts();
+        void prepare_open_city_vars();
+        num cycle_tod(num p0);
+        void switch_to_spiderman();
+        void switch_to_venom();
+        void hot_pursuit_checker();
+        void update_open_city_times();
+        num adjust_mission_num(num p0);
+        void set_TOD_and_shoreline(num p0);
+        void enable_mission_tokens_by_hero();
+        void go_to_my_neighborhood(vector3d p0);
+        void city_tutorial_manager(num p0, num p4, num p8);
+        void handle_objective_list(num p0);
+        void launch_trick_race(num p0);
+        void launch_venom_trick_race(num p0);
+        void launch_torch_race(num p0);
+        void set_up_tokens(num p0, num p4);
+        void kill_shenanigans();
+        void disable_mission_tokens();
+        void launch_combat_tour(num p0);
+        void set_hood_gang();
+        void show_mission_text(num p0);
+        void update_open_city_shen_times();
+        num convert_to_progression_step(num p0);
+        void disable_all_tokens();
+        void enable_pickup_tokens();
+        void set_torch_token(num p0);
+        void set_tour_tokens();
+        void city_goals_hint();
+        void process_master_objective();
+        void set_progression_display_vars();
+        void wait_frame(num p0);
+        void turn_off_thug_poi(entity p0);
+        void trick_music_start();
+        void trick_music_success();
+        void trick_music_failed();
+        void start_mission_music();
+        void end_mission_success();
+        void end_mission_failed();
+        void end_mission_music_check(sound_inst p0);
+        void initialize_location_mission();
+        void turn_off_hero(num p0);
+        void restart_race();
+        void temp_function();
+        void sinker();
+        void water_prep();
+        void venom_trick_race_music_thread();
+        void run_race();
+        void fix_it();
+        void clean_it();
+        void end_mission_music();
+        void breakdown_location_mission();
+        void set_venom();
+        void death_checker();
+        void start_timer();
+        void times();
+        void race_time_limit_checker();
+        void stop_timer();
+        void show_results();
+        void try_again();
+        void check_total_races_completed();
+        void on_combat_tour_enter(entity p0, num p4, str p8);
+        void on_storm_race_enter(entity p0, num p4, str p8);
+        void on_venom_race_enter(entity p0, num p4, str p8);
+        void on_trick_race_enter(entity p0, num p4, str p8);
+        void on_token_pickup(entity p0, num p4, num p8, num p12, str p16);
+        void progression_mission_aborted();
+        void progression_mission_failed();
+        void clear_missions_for_unlockables();
+        void toggle_hero();
+        void set_hero_costume(str p0);
+        void left_token_trigger();
+        void display_car_combat_warning_panel(num p0);
+    };
+
+    class local_timer
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        num field_12;
+        num field_16;
+        num field_20;
+        num field_24;
+        num field_28;
+        num field_32;
+        num field_36;
+        num field_40;
+        num field_44;
+        local_timer();
+        ~local_timer();
+        void set_allow_auto_color_change(num p4);
+        void spawn_time_tracker(num p4);
+        void set_count_up();
+        void destroy_and_reset();
+        void set_time(num p4);
+        void freeze();
+        void run();
+        void hide_timer();
+        void show_timer();
+        void time_tracker(num p4);
+        void init_widget();
+        void init_turn_green();
+        void turn_green();
+        void turn_yellow();
+        void turn_red();
+        void turn_flashing();
+        num done();
+        num get_time();
+        num get_time_inc();
+        void stop_time_tracker();
+    };
+
+    class ai_auditor
+    {
+    public:
+        num field_0;
+        ai_auditor();
+    };
+
+    class common_thug_manager
+    {
+    public:
+        num field_0[18];
+        num field_72;
+        num field_76;
+        num field_80;
+        num field_84;
+        num field_88;
+        num field_92;
+        num field_96;
+        num field_100;
+        common_thug_manager();
+        ~common_thug_manager();
+    };
+
+    class common_simple_civ_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        common_simple_civ_manager();
+        ~common_simple_civ_manager();
+    };
+
+    class common_gmu_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        num field_80;
+        common_gmu_manager();
+        ~common_gmu_manager();
+    };
+
+    class common_vehicle_manager
+    {
+    public:
+        num unused_0[22];
+        num field_88;
+        num field_92;
+        common_vehicle_manager();
+        ~common_vehicle_manager();
+    };
+
+    class goal_tracker
+    {
+    public:
+        num field_0;
+        goal_tracker();
+        ~goal_tracker();
+        void shutdown();
+    };
+
+    class city_point_manager
+    {
+    public:
+        city_point_manager();
+        ~city_point_manager();
+        void shutdown();
+    };
+
+    class venom_trick_marker
+    {
+    public:
+        venom_trick_marker field_0;
+        vector3d field_4;
+        vector3d field_16;
+        num field_28;
+        num field_32;
+        num field_36;
+        num field_40;
+        vector3d field_44;
+        num field_56;
+        num field_60;
+        str field_64;
+        num field_68;
+        entity_tracker field_72;
+        entity field_76;
+        entity field_80;
+        entity field_84;
+        num field_88;
+        num field_92;
+        num unused_96[1];
+        entity field_100;
+        num unused_104[1];
+        trigger field_108;
+        num unused_112[2];
+        num field_120;
+        num field_124;
+        num field_128;
+        num unused_132[1];
+        num field_136;
+        num unused_140[1];
+        void failure();
+        void on_enter_trigger();
+        void on_exit_trigger();
+        num run_marker();
+        void spawner();
+        void pulser();
+        void icon_rotation();
+        void up_it();
+        void helper();
+        void help_checker();
+        void set_objects();
+        void rotator1();
+        void look_at_cam_halo();
+        void blow_up();
+        void emploder();
+        void dead_yet();
+        void helicopter_destroyed();
+        void translator();
+        void mawase();
+    };
+
+    class venom_trick_race_data
+    {
+    public:
+        num field_0;
+        num unused_4[3];
+        num field_16;
+        num field_20;
+        num field_24;
+        num field_28;
+        num field_32;
+        num field_36;
+        num field_40;
+        venom_trick_marker field_44[16];
+        venom_trick_race_data();
+        ~venom_trick_race_data();
+        void startup();
+        void shutdown();
+    };
+
+    void _venom_trick_race::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    void _venom_trick_race::clear_all_scripts()
+    {
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        unload_script();
+        while (is_mission_active()) {
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _venom_trick_race::go_to_my_neighborhood(vector3d p0)
+    {
+        district v2;
+        district v1;
+        num v3 = 0;
+        if ((hero()).physical_ifc_is_biped_physics_running()) {
+            (hero()).physical_ifc_stop_biped_physics();
+        }
+        if (is_hero_venom()) {
+            malor(RESPAWN_CENTRAL_PARK, 1);
+        } else {
+            v2 = find_district_for_point(p0);
+            v3 = (v2).get_neighborhood();
+            switch (v3) {
+            case 0:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            case 1:
+            {
+                malor(RESPAWN_ESU, 1);
+                break;
+            }
+            case 2:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            case 3:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            default:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            }
+        }
+        v1 = find_district_for_point((hero()).get_abs_position());
+        (v1).wait_for_load();
+        wait_for_streamer_to_reach_equilibrium();
+    }
+
+    local_timer::local_timer()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        field_12 = 0;
+        field_16 = 0;
+        field_20 = 0;
+        field_24 = 0;
+        field_28 = 0;
+        field_32 = 0.75;
+        field_36 = 0.5;
+        field_40 = 0.25;
+        field_44 = 1;
+        field_8 = 1;
+        field_12 = 0;
+        field_16 = 0;
+        (this).init_widget();
+        bind_signal_once_on(this, signal_id(hero(), "entity::DESTROYED"), (this).destroy_and_reset());
+    }
+
+    local_timer::~local_timer()
+    {
+        (this).destroy_and_reset();
+    }
+
+    void local_timer::set_allow_auto_color_change(num p4)
+    {
+        field_44 = p4;
+    }
+
+    void local_timer::spawn_time_tracker(num p4)
+    {
+        start_thread_on(this, (this).time_tracker(p4));
+    }
+
+    void local_timer::set_count_up()
+    {
+        timer_widget_set_count_up(1);
+        field_20 = 0;
+    }
+
+    void local_timer::destroy_and_reset()
+    {
+        kill_threads_on(this, local_timer::time_tracker);
+        (this).freeze();
+        (this).hide_timer();
+        (this).turn_green();
+        field_12 = 0;
+    }
+
+    void local_timer::set_time(num p4)
+    {
+        field_28 = p4;
+        timer_widget_set_time(p4);
+    }
+
+    void local_timer::freeze()
+    {
+        field_8 = 1;
+        timer_widget_stop();
+        if ((timer_widget_get_time() == 0)) {
+            timer_widget_set_time(0.1);
+        }
+    }
+
+    void local_timer::run()
+    {
+        wait_frame();
+        field_12 = 0;
+        timer_widget_start();
+    }
+
+    void local_timer::hide_timer()
+    {
+        timer_widget_turn_off();
+    }
+
+    void local_timer::show_timer()
+    {
+        wait_frame();
+        timer_widget_turn_on();
+        delay(0.5);
+    }
+
+    void local_timer::time_tracker(num p4)
+    {
+        field_8 = 0;
+        num v2 = 0;
+        num v1 = 0;
+        num v0 = (this).get_time_inc();
+        while ((!(this).done())) {
+            v2 = (this).get_time();
+            if ((v0 == 1)) {
+                v1 = (v2 / field_28);
+            } else if ((v0 == 0)) {
+                v1 = ((p4 - v2) / p4);
+            }
+            if ((((v2 >= p4) && (v0 == 0)) || ((v2 <= p4) && (v0 == 1)))) {
+                delay(0.5);
+                (this).stop_time_tracker();
+                field_12 = 1;
+                if ((v0 == 1)) {
+                    raise_signal("LOCAL_TIMER_TIMED_OUT");
+                }
+            } else if ((((field_44 && (v1 < field_32)) && (v1 >= field_36)) && (field_24 != 1))) {
+                (this).turn_yellow();
+            } else if ((((field_44 && (v1 < field_36)) && (v1 >= field_40)) && (field_24 != 2))) {
+                (this).turn_red();
+            } else if (((field_44 && (v1 < field_40)) && (field_24 != 3))) {
+                (this).turn_flashing();
+            }
+            wait_frame();
+        }
+    }
+
+    void local_timer::init_widget()
+    {
+        timer_widget_set_time(15);
+        (this).init_turn_green();
+    }
+
+    void local_timer::init_turn_green()
+    {
+        field_24 = 0;
+    }
+
+    void local_timer::turn_green()
+    {
+        field_24 = 0;
+    }
+
+    void local_timer::turn_yellow()
+    {
+        field_24 = 1;
+        raise_signal("LOCAL_TIMER_TURNED_YELLOW");
+    }
+
+    void local_timer::turn_red()
+    {
+        field_24 = 2;
+        raise_signal("LOCAL_TIMER_TURNED_RED");
+    }
+
+    void local_timer::turn_flashing()
+    {
+        field_24 = 3;
+        raise_signal("LOCAL_TIMER_TURNED_FLASHING");
+    }
+
+    num local_timer::done()
+    {
+        return field_16;
+    }
+
+    num local_timer::get_time()
+    {
+        num v0 = timer_widget_get_time();
+        return v0;
+    }
+
+    num local_timer::get_time_inc()
+    {
+        return field_20;
+    }
+
+    void local_timer::stop_time_tracker()
+    {
+        field_16 = 1;
+    }
+
+    void _venom_trick_race::end_mission_music_check(sound_inst p0)
+    {
+        if (g_mission_music_active) {
+            (p0).fade_out(1);
+        }
+        g_ambient_music_allowed = 1;
+    }
+
+    void _venom_trick_race::start_mission_music()
+    {
+        g_ambient_music_allowed = 0;
+        g_mission_music_active = 1;
+        raise_signal("AMBIENT_MUSIC_FADE_OUT");
+    }
+
+    void _venom_trick_race::end_mission_success()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _venom_trick_race::end_mission_failed()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _venom_trick_race::city_tutorial_manager(num p0, num p4, num p8)
+    {
+        if ((p0 == 0)) {
+            if ((!gv_city_tutorials[0])) {
+                gv_city_tutorials[0] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(131, 1, 130);
+            }
+        } else if ((p0 == 1)) {
+            if ((!gv_city_tutorials[5])) {
+                blackscreen_off(0);
+                gv_city_tutorials[5] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(76, 1, 75);
+            }
+        } else if ((p0 == 2)) {
+            switch (p8) {
+            case 0:
+            {
+                if ((!gv_city_tutorials[6])) {
+                    gv_city_tutorials[6] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(239, 1, 238);
+                }
+                break;
+            }
+            case 1:
+            {
+                if ((!gv_city_tutorials[7])) {
+                    gv_city_tutorials[7] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(241, 1, 240);
+                }
+                break;
+            }
+            case 2:
+            {
+                if ((!gv_city_tutorials[8])) {
+                    gv_city_tutorials[8] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(237, 1, 236);
+                }
+                break;
+            }
+            }
+        }
+    }
+
+    void _venom_trick_race::display_car_combat_warning_panel(num p0)
+    {
+        _venom_trick_race::show_car_combat_help_text(3);
+        if (p0) {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_left");
+            (v0).wait_play();
+        } else {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_right");
+            (v0).wait_play();
+        }
+    }
+
+    num _venom_trick_race::get_hood_gang(vector3d p0)
+    {
+        num v3 = -1;
+        district v1;
+        num v2 = 0;
+        v1 = find_district_for_point(p0);
+        v2 = (v1).get_neighborhood();
+        switch (v2) {
+        case 0:
+        {
+            v3 = 3;
+            break;
+        }
+        case 1:
+        {
+            v3 = 2;
+            break;
+        }
+        case 2:
+        {
+            v3 = 0;
+            break;
+        }
+        case 3:
+        {
+            v3 = 1;
+            break;
+        }
+        }
+        return v3;
+    }
+
+    void _venom_trick_race::set_hood_gang()
+    {
+        vector3d v0;
+        v0 = get_mission_key_position();
+        g_hood_gang = _venom_trick_race::get_hood_gang(v0);
+    }
+
+    void _venom_trick_race::left_token_trigger()
+    {
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        if ((!g_trick_race_running)) {
+        }
+        turn_off_mission_text();
+        if ((hero()).is_valid()) {
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+        }
+    }
+
+    void _venom_trick_race::switch_to_spiderman()
+    {
+        _venom_trick_race::set_hero("ultimate_spiderman");
+    }
+
+    void _venom_trick_race::switch_to_venom()
+    {
+        if (gv_story_finished) {
+            _venom_trick_race::set_hero("venom_spider");
+        } else {
+            _venom_trick_race::set_hero("venom");
+        }
+    }
+
+    void _venom_trick_race::set_hero(str p0)
+    {
+        stop_vibration();
+        vector3d v0 = (hero()).get_abs_position();
+        swap_hero_costume(p0);
+        malor(v0, 1);
+        spiderman_camera_autocorrect(0);
+        if (is_hero_spidey()) {
+            _venom_trick_race::set_spiderman_health();
+        } else {
+            turn_on_hero_health(4, hero());
+        }
+    }
+
+    void _venom_trick_race::set_hero_costume(str p0)
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_venom_trick_race::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _venom_trick_race::clear_all_scripts();
+        _venom_trick_race::set_hero(p0);
+        _venom_trick_race::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    void _venom_trick_race::toggle_hero()
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_venom_trick_race::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _venom_trick_race::clear_all_scripts();
+        if (is_hero_venom()) {
+            gv_current_city_tod = _venom_trick_race::cycle_tod(gv_current_city_tod);
+            _venom_trick_race::switch_to_spiderman();
+        } else {
+            gv_current_venom_city_tod = _venom_trick_race::cycle_tod(gv_current_venom_city_tod);
+            _venom_trick_race::switch_to_venom();
+            start_thread(_venom_trick_race::hot_pursuit_checker());
+        }
+        _venom_trick_race::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    num _venom_trick_race::cycle_tod(num p0)
+    {
+        num v0 = 0;
+        if ((p0 == 3)) {
+            v0 = 0;
+        } else {
+            v0 = (p0 + 1);
+        }
+        return v0;
+    }
+
+    void _venom_trick_race::set_TOD_and_shoreline(num p0)
+    {
+        set_time_of_day(p0);
+        raise_signal("UPDATE_SHORELINE");
+    }
+
+    void _venom_trick_race::hot_pursuit_checker()
+    {
+        bind_signal_once(signal_id("A_CAR_HAS_EXPLODED"), _venom_trick_race::run_hot_pursuit());
+    }
+
+    void _venom_trick_race::run_hot_pursuit()
+    {
+        if ((((!g_enable_hot_pursuit) && (!g_enable_venom_trick_race)) && (!g_trick_race_running))) {
+            g_enable_sh = 0;
+            g_enable_story = 0;
+            g_enable_hot_pursuit = 1;
+        }
+        while (((g_enable_hot_pursuit || g_enable_venom_trick_race) || g_trick_race_running)) {
+            _global_slc::wait_frame();
+        }
+        start_thread(_venom_trick_race::hot_pursuit_checker());
+    }
+
+    num _venom_trick_race::adjust_mission_num(num p0)
+    {
+        num v1 = p0;
+        switch (p0) {
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 3:
+        {
+            v1 = 36;
+            break;
+        }
+        case 7:
+        {
+            v1 = 30;
+            break;
+        }
+        case 15:
+        {
+            v1 = 31;
+            break;
+        }
+        case 34:
+        {
+            v1 = 25;
+            break;
+        }
+        case 8:
+        {
+            v1 = 25;
+            break;
+        }
+        case 17:
+        {
+            v1 = 32;
+            break;
+        }
+        case 33:
+        {
+            v1 = 32;
+            break;
+        }
+        case 10:
+        {
+            v1 = 27;
+            break;
+        }
+        case 28:
+        {
+            v1 = 27;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _venom_trick_race::prepare_open_city_vars()
+    {
+        if ((!gv_story_finished)) {
+            _venom_trick_race::update_open_city_times();
+            if ((!is_hero_spidey())) {
+                _venom_trick_race::switch_to_spiderman();
+            }
+        }
+        g_story_checkpoint = 0;
+        g_enable_story = 0;
+        gv_num_current_story = _venom_trick_race::adjust_mission_num(gv_num_current_story);
+        if (is_hero_spidey()) {
+            _venom_trick_race::set_TOD_and_shoreline(gv_current_city_tod);
+        } else {
+            _venom_trick_race::set_TOD_and_shoreline(gv_current_venom_city_tod);
+        }
+        g_enable_igc = 0;
+        g_enable_venom_igc = 0;
+        g_mission_status = 0;
+        g_mission_type = 0;
+        g_enable_sh = 1;
+        g_enable_can = 1;
+        g_switch_to_open_city_music = 1;
+        g_enable_token_event = 0;
+        g_enable_trick_race = 0;
+        g_enable_venom_trick_race = 0;
+        gv_num_current_token_event = 0;
+        _venom_trick_race::enable_mission_tokens_by_hero();
+    }
+
+    void _venom_trick_race::clear_missions_for_unlockables()
+    {
+        g_unlockables_entered = 1;
+        blackscreen_on(0);
+        num v1 = g_mission_type;
+        num v0 = g_queens_tour_running;
+        _venom_trick_race::prepare_open_city_vars();
+        g_trick_race_restarted = 0;
+        g_enable_trick_race = 0;
+        g_enable_storm_race = 0;
+        g_enable_venom_trick_race = 0;
+        g_torch_race_running = 0;
+        g_trick_race_running = 0;
+        _venom_trick_race::clear_all_scripts();
+        if (((v1 == 4) || (v0 == 1))) {
+            _venom_trick_race::go_to_my_neighborhood(gv_hero_restart_pos);
+        }
+        blackscreen_off(0);
+        invoke_pause_menu_unlockables();
+        raise_signal("MISSION_START_UPDATE");
+        g_unlockables_entered = 0;
+    }
+
+    void _venom_trick_race::progression_mission_failed()
+    {
+        blackscreen_on(0);
+        spiderman_camera_clear_fixedstatic();
+        _venom_trick_race::prepare_open_city_vars();
+        _venom_trick_race::clear_all_scripts();
+        _venom_trick_race::go_to_my_neighborhood(gv_hero_restart_pos);
+        raise_signal("MISSION_START_UPDATE");
+        blackscreen_off(1);
+    }
+
+    void _venom_trick_race::progression_mission_aborted()
+    {
+        if ((g_mission_type == 4)) {
+            stop_vibration();
+            clear_controls();
+        }
+        if (((hero()).get_ifc_num("HIT_POINTS") > 0)) {
+            g_story_checkpoint = 0;
+            if ((g_mission_type == 3)) {
+                if ((!g_trick_race_controls_locked)) {
+                    enable_controls(0);
+                    clear_controls();
+                    spiderman_camera_enable_lookaround(0);
+                    g_trick_race_controls_locked = 1;
+                }
+                g_race_exited_via_pause = 1;
+                g_done_with_storm_anim = 1;
+            } else {
+                blackscreen_on(0);
+                spiderman_camera_clear_fixedstatic();
+                if ((gv_num_current_story == 42)) {
+                    g_mission_status = 2;
+                    raise_signal("MISSION_END");
+                } else {
+                    _venom_trick_race::prepare_open_city_vars();
+                    _venom_trick_race::clear_all_scripts();
+                    if ((g_mission_type != 1)) {
+                        _venom_trick_race::go_to_my_neighborhood(gv_hero_restart_pos);
+                    }
+                    raise_signal("MISSION_START_UPDATE");
+                }
+            }
+            blackscreen_off(1);
+        }
+    }
+
+    void _venom_trick_race::on_token_pickup(entity p0, num p4, num p8, num p12, str p16)
+    {
+        _venom_trick_race::city_tutorial_manager(2, 0, p4);
+        _venom_trick_race::handle_objective_list(2);
+        if ((p4 != 4)) {
+            destroy_entity(p0);
+        }
+        switch (p4) {
+        case 1:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(12);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(11, p8, p12);
+            }
+            num v0 = 1;
+            while ((v0 <= 79)) {
+                if ((v0 == 1)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[0] = 1;
+                        gv_unlockable_covers[1] = 1;
+                        gv_unlockable_covers[2] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 2)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[3] = 1;
+                        gv_unlockable_covers[4] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 10)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        gv_unlockable_covers[(v0 + 3)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                    gv_unlockable_covers[(v0 + 3)] = 1;
+                    v0 = 79;
+                }
+                v0++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(13);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(17, p8, p12);
+            }
+            if ((p16 == "MV_TOKEN_01")) {
+                gv_unlockable_landmark[5] = 1;
+            } else if ((p16 == "MV_TOKEN_02")) {
+                gv_unlockable_landmark[13] = 1;
+            } else if ((p16 == "MV_TOKEN_03")) {
+                gv_unlockable_landmark[4] = 1;
+            } else if ((p16 == "MV_TOKEN_04")) {
+                gv_unlockable_landmark[0] = 1;
+            } else if ((p16 == "MV_TOKEN_05")) {
+                gv_unlockable_landmark[6] = 1;
+            } else if ((p16 == "MV_TOKEN_06")) {
+                gv_unlockable_landmark[1] = 1;
+            } else if ((p16 == "MV_TOKEN_07")) {
+                gv_unlockable_landmark[2] = 1;
+            } else if ((p16 == "MV_TOKEN_08")) {
+                gv_unlockable_landmark[7] = 1;
+            } else if ((p16 == "MV_TOKEN_09")) {
+                gv_unlockable_landmark[9] = 1;
+            } else if ((p16 == "MV_TOKEN_10")) {
+                gv_unlockable_landmark[10] = 1;
+            } else if ((p16 == "MV_TOKEN_11")) {
+                gv_unlockable_landmark[11] = 1;
+            } else if ((p16 == "MV_TOKEN_12")) {
+                gv_unlockable_landmark[8] = 1;
+            } else if ((p16 == "MV_TOKEN_13")) {
+                gv_unlockable_landmark[14] = 1;
+            } else if ((p16 == "MV_TOKEN_14")) {
+                gv_unlockable_landmark[3] = 1;
+            } else if ((p16 == "MV_TOKEN_15")) {
+                gv_unlockable_landmark[12] = 1;
+            }
+            break;
+        }
+        case 2:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(15);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(18, p8, p12);
+            }
+            break;
+        }
+        case 4:
+        {
+            break;
+        }
+        }
+        sound_inst v2 = create_sound_inst("token_sfx");
+        (v2).play(0);
+        delay(1.5);
+        turn_off_mission_text();
+    }
+
+    void _venom_trick_race::on_trick_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            v2 = g_spidey_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _venom_trick_race::launch_trick_race(p4));
+            }
+        }
+    }
+
+    void _venom_trick_race::on_venom_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_venom()) && (p4 != -1))) {
+            v2 = g_venom_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_venom_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_venom_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_venom_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_venom_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _venom_trick_race::launch_venom_trick_race(p4));
+            }
+        }
+    }
+
+    void _venom_trick_race::on_storm_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            num v0 = get_token_index_from_id(4, p4);
+            set_mission_text_box_flavor(0);
+            if ((!g_torch_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(78);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _venom_trick_race::launch_torch_race(p4));
+            }
+        }
+    }
+
+    void _venom_trick_race::disable_all_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(0, 0);
+        enable_tokens_of_type(1, 0);
+        enable_tokens_of_type(2, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _venom_trick_race::disable_mission_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _venom_trick_race::enable_mission_tokens_by_hero()
+    {
+        if (is_hero_venom()) {
+            enable_tokens_of_type(5, 1);
+            enable_tokens_of_type(4, 0);
+            enable_tokens_of_type(6, 0);
+            enable_tokens_of_type(8, 0);
+        } else {
+            _venom_trick_race::set_up_tokens(gv_num_current_story, 0);
+        }
+    }
+
+    void _venom_trick_race::enable_pickup_tokens()
+    {
+        enable_tokens_of_type(0, 1);
+        enable_tokens_of_type(1, 1);
+        enable_tokens_of_type(2, 1);
+    }
+
+    void _venom_trick_race::kill_shenanigans()
+    {
+        g_enable_sh = 0;
+        g_enable_can = 0;
+        _global_slc::wait_frame();
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        if ((is_mission_active() && (g_mission_type == 1))) {
+            unload_script();
+            while (is_mission_active()) {
+                _global_slc::wait_frame();
+            }
+        }
+    }
+
+    void _venom_trick_race::launch_combat_tour(num p0)
+    {
+        turn_off_mission_text();
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        g_enable_token_event = 1;
+        blackscreen_on(1);
+        delay(1);
+        _venom_trick_race::kill_shenanigans();
+        gv_hero_restart_pos = (hero()).get_abs_position();
+        gv_num_current_token_event = p0;
+        _venom_trick_race::disable_mission_tokens();
+    }
+
+    void _venom_trick_race::on_combat_tour_enter(entity p0, num p4, str p8)
+    {
+        set_mission_text_box_flavor(0);
+        set_mission_text(277);
+        bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _venom_trick_race::launch_combat_tour(p4));
+    }
+
+    void _venom_trick_race::launch_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_trick_race = 1;
+            _venom_trick_race::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _venom_trick_race::launch_venom_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            if (g_enable_hot_pursuit) {
+                g_enable_hot_pursuit = 0;
+                unload_script();
+            }
+            g_enable_venom_trick_race = 1;
+            _venom_trick_race::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _venom_trick_race::launch_torch_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_storm_race = 1;
+            _venom_trick_race::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+                g_trick_race_controls_locked = 1;
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _venom_trick_race::initialize_location_mission()
+    {
+        g_enable_sh = 0;
+        g_enable_can = 0;
+        g_enable_token_event = 0;
+        g_enable_pn = 0;
+        g_entity_list = create_entity_list();
+        g_mission_status = 1;
+        _venom_trick_race::set_hood_gang();
+    }
+
+    void _venom_trick_race::breakdown_location_mission()
+    {
+        destroy_entity_list(g_entity_list);
+        if ((!g_enable_story)) {
+            _venom_trick_race::prepare_open_city_vars();
+            raise_signal("MISSION_START_UPDATE");
+        }
+        g_mission_status = 0;
+    }
+
+    void _venom_trick_race::turn_off_thug_poi(entity p0)
+    {
+        (p0).set_ifc_num("SD_NUM_3", 2);
+        if (entity_has_entity_tracker(p0)) {
+            (entity_get_entity_tracker(p0)).set_mini_map_active(0);
+            (entity_get_entity_tracker(p0)).set_health_widget_active(0);
+        }
+    }
+
+    void _venom_trick_race::show_car_combat_help_text(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_land_shown))) {
+                start_thread(_venom_trick_race::show_mission_text(136));
+                g_tutorial_car_combat_land_shown = 1;
+            }
+            break;
+        }
+        case 1:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(135, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_venom_trick_race::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 2:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(290, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_venom_trick_race::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 3:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_dodge_shown))) {
+                start_thread(_venom_trick_race::show_mission_text(138));
+                g_tutorial_car_combat_dodge_shown = 1;
+            }
+            gv_tutorial_car_combat_counter++;
+            break;
+        }
+        }
+    }
+
+    void _venom_trick_race::show_mission_text(num p0)
+    {
+        set_mission_text_box_flavor(1);
+        set_mission_text(p0);
+        delay(1.5);
+        turn_off_mission_text();
+    }
+
+    void _venom_trick_race::update_open_city_times()
+    {
+        _venom_trick_race::update_open_city_shen_times();
+        g_next_can_time = (game_clock_timer + 15);
+    }
+
+    void _venom_trick_race::update_open_city_shen_times()
+    {
+        if (gv_shen_speed_normal) {
+            g_next_shenani_time = (game_clock_timer + 35);
+        } else {
+            g_next_shenani_time = (game_clock_timer + 3);
+        }
+    }
+
+    num _venom_trick_race::convert_to_progression_step(num p0)
+    {
+        num v1 = 31;
+        switch (p0) {
+        case 1:
+        {
+            v1 = 0;
+            break;
+        }
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 35:
+        {
+            v1 = 2;
+            break;
+        }
+        case 36:
+        {
+            v1 = 3;
+            break;
+        }
+        case 3:
+        {
+            v1 = 4;
+            break;
+        }
+        case 4:
+        {
+            v1 = 5;
+            break;
+        }
+        case 40:
+        {
+            v1 = 6;
+            break;
+        }
+        case 5:
+        {
+            v1 = 7;
+            break;
+        }
+        case 6:
+        {
+            v1 = 8;
+            break;
+        }
+        case 30:
+        {
+            v1 = 9;
+            break;
+        }
+        case 7:
+        {
+            v1 = 10;
+            break;
+        }
+        case 11:
+        {
+            v1 = 11;
+            break;
+        }
+        case 38:
+        {
+            v1 = 12;
+            break;
+        }
+        case 31:
+        {
+            v1 = 13;
+            break;
+        }
+        case 15:
+        {
+            v1 = 14;
+            break;
+        }
+        case 16:
+        {
+            v1 = 15;
+            break;
+        }
+        case 25:
+        {
+            v1 = 16;
+            break;
+        }
+        case 34:
+        {
+            v1 = 17;
+            break;
+        }
+        case 8:
+        {
+            v1 = 18;
+            break;
+        }
+        case 9:
+        {
+            v1 = 19;
+            break;
+        }
+        case 32:
+        {
+            v1 = 20;
+            break;
+        }
+        case 17:
+        {
+            v1 = 21;
+            break;
+        }
+        case 33:
+        {
+            v1 = 22;
+            break;
+        }
+        case 27:
+        {
+            v1 = 23;
+            break;
+        }
+        case 10:
+        {
+            v1 = 24;
+            break;
+        }
+        case 28:
+        {
+            v1 = 25;
+            break;
+        }
+        case 18:
+        {
+            v1 = 26;
+            break;
+        }
+        case 19:
+        {
+            v1 = 27;
+            break;
+        }
+        case 20:
+        {
+            v1 = 28;
+            break;
+        }
+        case 23:
+        {
+            v1 = 29;
+            break;
+        }
+        case 22:
+        {
+            v1 = 30;
+            break;
+        }
+        case 41:
+        {
+            v1 = 31;
+            break;
+        }
+        case 24:
+        {
+            v1 = 32;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _venom_trick_race::set_tour_tokens()
+    {
+        num v0 = 0;
+        num v1 = 0;
+        while ((v0 < 16)) {
+            if ((gv_tour_diff_ulocked >= gv_tour_difficulty[v0])) {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 0;
+            } else {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 1;
+            }
+            v0++;
+        }
+    }
+
+    void _venom_trick_race::set_up_tokens(num p0, num p4)
+    {
+        if ((_venom_trick_race::convert_to_progression_step(p0) <= _venom_trick_race::convert_to_progression_step(35))) {
+            _venom_trick_race::disable_all_tokens();
+        } else {
+            _venom_trick_race::enable_pickup_tokens();
+            if (((g_mission_type == 0) || (g_mission_type == 1))) {
+                _venom_trick_race::set_torch_token(p4);
+                if (is_hero_spidey()) {
+                    _venom_trick_race::set_tour_tokens();
+                    enable_tokens_of_type(4, 1);
+                    enable_tokens_of_type(5, 0);
+                } else {
+                    enable_tokens_of_type(4, 0);
+                    if (gv_story_finished) {
+                        enable_tokens_of_type(5, 1);
+                    }
+                }
+                if (((_venom_trick_race::convert_to_progression_step(p0) > _venom_trick_race::convert_to_progression_step(40)) && is_hero_spidey())) {
+                    enable_tokens_of_type(6, 1);
+                } else {
+                    enable_tokens_of_type(6, 0);
+                }
+            }
+        }
+    }
+
+    void _venom_trick_race::set_spiderman_health()
+    {
+        switch (gv_health_ulocked) {
+        case 3:
+        {
+            turn_on_hero_health(3, hero());
+            break;
+        }
+        case 2:
+        {
+            turn_on_hero_health(2, hero());
+            break;
+        }
+        case 1:
+        {
+            turn_on_hero_health(1, hero());
+            break;
+        }
+        default:
+        {
+            turn_on_hero_health(0, hero());
+            break;
+        }
+        }
+        (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+    }
+
+    void _venom_trick_race::city_goals_hint()
+    {
+        while ((!gv_master_prog[gv_obj_list_needed])) {
+            delay(180);
+            while ((g_mission_status != 0)) {
+                delay(1);
+            }
+            if ((!gv_master_prog[gv_obj_list_needed])) {
+                set_mission_text_box_flavor(1);
+                set_mission_text(275);
+                delay(5);
+                turn_off_mission_text();
+            }
+        }
+    }
+
+    void _venom_trick_race::process_master_objective()
+    {
+        num v0 = 0;
+        while (((v0 < 13) && (((gv_tour_prog[v0] && gv_token_prog[v0]) && gv_shen_prog[v0]) && gv_race_prog[v0]))) {
+            if ((!gv_master_prog[v0])) {
+                gv_master_prog[v0] = 1;
+                gv_shen_speed_normal = 1;
+                _venom_trick_race::update_open_city_shen_times();
+                if (((v0 == gv_obj_list_needed) && (v0 > 0))) {
+                    kill_threads(_venom_trick_race::city_goals_hint);
+                    if ((_venom_trick_race::convert_to_progression_step(gv_num_current_story) <= _venom_trick_race::convert_to_progression_step(3))) {
+                        set_dialog_box_flavor(1);
+                        bring_up_dialog_box_title(133, 1, 132);
+                    } else {
+                        set_dialog_box_flavor(2);
+                        bring_up_dialog_box_title(274, 1, 175);
+                    }
+                }
+            }
+            v0 = (v0 + 1);
+        }
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _venom_trick_race::set_progression_display_vars()
+    {
+        num v1 = 0;
+        num v0 = 0;
+        num v3 = 0;
+        num v5 = 0;
+        num v4 = 0;
+        num v2 = 0;
+        num v6 = 0;
+        num v7 = 0;
+        num v8 = 0;
+        num v9 = 0;
+        if ((gv_obj_list_needed > 0)) {
+            v6 = gv_shen_req[(gv_obj_list_needed - 1)];
+            v7 = gv_tour_req[(gv_obj_list_needed - 1)];
+            v8 = gv_token_req[(gv_obj_list_needed - 1)];
+            v9 = gv_race_req[(gv_obj_list_needed - 1)];
+        }
+        v1 = gv_shens_successfully_completed;
+        v0 = gv_combat_tours_completed;
+        v2 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+        v3 = v2;
+        v4 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+        v5 = v4;
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_COUNT", gv_shens_successfully_completed);
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_MAX", 100);
+        set_game_info_num("CITY_EVENTS_COMPLETED_COUNT", v1);
+        set_game_info_num("CITY_EVENTS_COMPLETED_MAX", gv_shen_req[gv_obj_list_needed]);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_COUNT", gv_combat_tours_completed);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_MAX", 36);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_COUNT", v0);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_MAX", gv_tour_req[gv_obj_list_needed]);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_COUNT", v2);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_MAX", 60);
+        set_game_info_num("RACE_POINTS_EARNED_COUNT", v3);
+        set_game_info_num("RACE_POINTS_EARNED_MAX", gv_race_req[gv_obj_list_needed]);
+        set_game_info_num("TOKENS_COLLECTED_TOT_COUNT", v4);
+        set_game_info_num("TOKENS_COLLECTED_TOT_MAX", 190);
+        set_game_info_num("TOKENS_COLLECTED_COUNT", v5);
+        set_game_info_num("TOKENS_COLLECTED_MAX", gv_token_req[gv_obj_list_needed]);
+    }
+
+    void _venom_trick_race::set_torch_token(num p0)
+    {
+        num v0 = 0;
+        if ((((!gv_torch_race_00_done) && (!gv_torch_race_unlocked_2)) && (gv_easy_trick_races_completed >= gv_torch_race_unlock_req_easy))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_2 = 1;
+        } else if ((((!gv_torch_race_01_done) && (!gv_torch_race_unlocked_3)) && (gv_medium_trick_races_completed >= gv_torch_race_unlock_req_med))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_3 = 1;
+        } else if ((((!gv_torch_race_02_done) && (!gv_torch_race_unlocked_4)) && (gv_hard_trick_races_completed >= gv_torch_race_unlock_req_hard))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_4 = 1;
+        } else if ((((!gv_torch_race_03_done) && (!gv_torch_race_unlocked_5)) && (gv_insane_trick_races_completed >= gv_torch_race_unlock_req_insane))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_5 = 1;
+        }
+        v0 = (((gv_torch_race_unlocked_2 || gv_torch_race_unlocked_3) || gv_torch_race_unlocked_4) || gv_torch_race_unlocked_5);
+        if (v0) {
+            enable_tokens_of_type(8, 1);
+        }
+        if (g_torch_message_flag) {
+            g_torch_message_flag = 0;
+            set_dialog_box_flavor(2);
+            bring_up_dialog_box_title(232, 1, 77);
+        }
+    }
+
+    void _venom_trick_race::handle_objective_list(num p0)
+    {
+        num v1 = 0;
+        num v2 = 0;
+        switch (p0) {
+        case 3:
+        {
+            v1 = 0;
+            num v3 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+            num v4 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_race_req[v1];
+                if (((v3 >= v4) && (!gv_race_prog[v1]))) {
+                    gv_race_prog[v1] = 1;
+                    _venom_trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 2:
+        {
+            v1 = 0;
+            num v3 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+            num v4 = 0;
+            num unused_value724 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_token_req[v1];
+                if (((v3 >= v4) && (!gv_token_prog[v1]))) {
+                    gv_token_prog[v1] = 1;
+                    _venom_trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if (((gv_shens_successfully_completed >= 100) && (!gv_shens_finished))) {
+                gv_shens_finished = 1;
+                set_dialog_box_flavor(2);
+                bring_up_dialog_box_title(308, 1, 175);
+            }
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_shen_req[v1];
+                if (((gv_shens_successfully_completed >= v3) && (!gv_shen_prog[v1]))) {
+                    gv_shen_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _venom_trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 5:
+        {
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_tour_req[v1];
+                if (((gv_combat_tours_completed >= v3) && (!gv_tour_prog[v1]))) {
+                    gv_tour_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _venom_trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        }
+        _venom_trick_race::set_progression_display_vars();
+        if (((((!gv_shen_prog[gv_obj_list_needed]) && gv_tour_prog[gv_obj_list_needed]) && gv_token_prog[gv_obj_list_needed]) && gv_race_prog[gv_obj_list_needed])) {
+            gv_shen_speed_normal = 0;
+            _venom_trick_race::update_open_city_shen_times();
+        }
+    }
+
+    ai_auditor::ai_auditor()
+    {
+        field_0 = 0;
+    }
+
+    common_thug_manager::common_thug_manager()
+    {
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = 0;
+        field_92 = 0;
+        field_96 = 0;
+        field_100 = 0;
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = -1;
+        field_96 = 0;
+        field_100 = 0;
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_0[v0] = 31;
+            v0++;
+        }
+        field_92 = g_hood_gang;
+    }
+
+    common_thug_manager::~common_thug_manager()
+    {
+    }
+
+    common_simple_civ_manager::common_simple_civ_manager()
+    {
+        field_76 = 0;
+    }
+
+    common_simple_civ_manager::~common_simple_civ_manager()
+    {
+    }
+
+    common_gmu_manager::common_gmu_manager()
+    {
+        field_76 = 0;
+        field_80 = 0;
+        field_76 = 0;
+    }
+
+    common_gmu_manager::~common_gmu_manager()
+    {
+    }
+
+    common_vehicle_manager::common_vehicle_manager()
+    {
+        field_88 = 0;
+        field_92 = 0;
+        field_88 = 0;
+    }
+
+    common_vehicle_manager::~common_vehicle_manager()
+    {
+    }
+
+    goal_tracker::goal_tracker()
+    {
+        field_0 = 0;
+        field_0 = 0;
+    }
+
+    goal_tracker::~goal_tracker()
+    {
+        (this).shutdown();
+    }
+
+    void goal_tracker::shutdown()
+    {
+    }
+
+    city_point_manager::city_point_manager()
+    {
+    }
+
+    city_point_manager::~city_point_manager()
+    {
+        (this).shutdown();
+    }
+
+    void city_point_manager::shutdown()
+    {
+    }
+
+    void venom_trick_marker::failure()
+    {
+        if ((field_76).is_valid()) {
+            (field_76).clear_callbacks();
+        }
+        field_128 = 1;
+        destroy_entity_tracker(field_72);
+    }
+
+    void venom_trick_marker::on_enter_trigger()
+    {
+        if (((bit_cast<num>(field_0) != 8) && (bit_cast<num>(field_0) != 9))) {
+            field_68 = 1;
+        }
+        bind_signal_once_on(this, signal_id(field_108, "trigger::ENTER"), (this).on_enter_trigger());
+    }
+
+    void venom_trick_marker::on_exit_trigger()
+    {
+        field_68 = 0;
+        bind_signal_once_on(this, signal_id(field_108, "trigger::LEAVE"), (this).on_exit_trigger());
+    }
+
+    num venom_trick_marker::run_marker()
+    {
+        delete_threads_on(this, venom_trick_marker::helper);
+        delete_threads_on(this, venom_trick_marker::help_checker);
+        turn_off_mission_text();
+        g_trick_race_box_called = 0;
+        field_136 = 0;
+        if ((bit_cast<num>(field_0) == 0)) {
+            return 0;
+        } else {
+            sound_inst v0 = create_sound_inst("fx_racewaypoint");
+            (this).set_objects();
+            _venom_trick_race::wait_frame(3);
+            if (((((!field_120) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                field_76 = create_entity("effects\\entities\\fx_tmsphere");
+                field_80 = create_entity("effects\\entities\\fx_tmglow");
+                field_84 = create_entity("effects\\entities\\fx_tmvenom");
+                field_108 = create_trigger(field_4, field_32);
+                (field_76).set_rel_position(field_4);
+                (field_80).set_rel_position(field_4);
+                (field_84).set_rel_position(field_4);
+                (field_76).set_render_alpha(0.6);
+                field_92 = (field_32 - 0.7);
+                (field_76).set_render_color(vector3d(0.3, 0, 0.3));
+                start_thread_on(this, (this).icon_rotation());
+                if ((bit_cast<num>(field_0) == 3)) {
+                    (field_80).set_render_color(vector3d(0, 1.5, 0));
+                } else if ((bit_cast<num>(field_0) == 1)) {
+                    (field_80).set_render_color(vector3d(0, 0, 1.5));
+                } else if ((bit_cast<num>(field_0) == 5)) {
+                    (field_80).set_render_color(vector3d(1.5, 0, 0));
+                }
+                (field_76).set_distance_clip(300);
+                (field_80).set_distance_clip(300);
+                (field_84).set_distance_clip(300);
+                start_thread_on(this, (this).spawner());
+                start_thread_on(this, (this).look_at_cam_halo());
+            }
+            if (g_first_trick_marker) {
+                malor(g_race_start_position, 1);
+                (hero()).set_abs_xz_facing((field_76).get_abs_position());
+                _venom_trick_race::wait_frame(3);
+                spiderman_camera_autocorrect(0);
+                delay(1.5);
+                district v10 = find_district_for_point(g_race_start_position);
+                _venom_trick_race::wait_frame(3);
+                (v10).wait_for_load();
+                blackscreen_off(0.5);
+                delay(0.5);
+                g_first_trick_marker = 0;
+                while ((!g_done_showing_trick_times)) {
+                    wait_frame();
+                }
+                bring_up_race_announcer();
+                g_ready_to_race = 1;
+            }
+            if ((bit_cast<num>(field_0) != 7)) {
+                bind_signal_once_on(this, signal_id(field_108, "trigger::ENTER"), (this).on_enter_trigger());
+                bind_signal_once_on(this, signal_id(field_108, "trigger::LEAVE"), (this).on_exit_trigger());
+            }
+            if ((((!g_racing_hero_died) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                field_72 = create_entity_tracker(field_76);
+                (field_72).set_poi_icon(4);
+                (field_72).set_poi_active(1);
+                (field_72).set_health_widget_active(0);
+            }
+            while ((((((!field_136) && (!field_128)) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                if ((!g_trick_race_box_called)) {
+                    g_trick_race_box_called = 1;
+                    start_thread_on(this, (this).help_checker());
+                }
+                vector3d v1 = (hero()).get_abs_position();
+                if (((hero()).get_ifc_num("HIT_POINTS") <= 0)) {
+                    destroy_entity_tracker(field_72);
+                }
+                while ((((((!field_68) && (!field_128)) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                    if ((bit_cast<num>(field_0) == 7)) {
+                        vector3d v2 = ((hero()).get_abs_position() - v1);
+                        if (((v2).length2() > 0)) {
+                            vector3d v4 = (field_16 - field_4);
+                            v4 = normal(v4);
+                            num v5 = (-dot(field_4, v4));
+                            num v3 = dot(v2, v4);
+                            if (((v3 > 0.001) || (v3 < -0.001))) {
+                                num v8 = ((-(dot(v4, v1) + v5)) / v3);
+                                if (((v8 >= 0) && (v8 <= 1))) {
+                                    vector3d v9 = (v1 + (v2 * v8));
+                                    if ((((v9 - field_4)).length2() < (field_32 * field_32))) {
+                                        field_68 = 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    v1 = (hero()).get_abs_position();
+                    wait_frame();
+                }
+                if ((!field_128)) {
+                    switch (bit_cast<num>(field_0)) {
+                    case 1:
+                    {
+                        field_136 = 1;
+                        break;
+                    }
+                    case 3:
+                    {
+                        field_136 = spiderman_is_on_ground();
+                        break;
+                    }
+                    case 5:
+                    {
+                        field_136 = spiderman_is_on_wall();
+                        break;
+                    }
+                    case 6:
+                    {
+                        field_136 = spiderman_is_on_ground();
+                        if (field_136) {
+                            raise_signal(field_76, "entity::DISABLE_TRICK_WAYPOINT");
+                        }
+                        break;
+                    }
+                    case 7:
+                    {
+                        field_136 = 1;
+                        if (field_136) {
+                            start_thread_on(this, (this).up_it());
+                            _venom_trick_race::wait_frame(3);
+                            raise_signal(field_76, "entity::DISABLE_TRICK_WAYPOINT");
+                            (field_76).disable_collisions();
+                        }
+                        break;
+                    }
+                    case 8:
+                    {
+                        field_136 = 1;
+                        break;
+                    }
+                    case 9:
+                    {
+                        field_136 = 1;
+                        break;
+                    }
+                    }
+                    wait_frame();
+                }
+            }
+            turn_off_mission_text();
+            destroy_entity_tracker(field_72);
+            switch (bit_cast<num>(field_0)) {
+            case 1:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            case 3:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            case 5:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            case 6:
+            {
+                break;
+            }
+            case 7:
+            {
+                break;
+            }
+            case 8:
+            {
+                break;
+            }
+            case 9:
+            {
+                break;
+            }
+            }
+            destroy_trigger(field_108);
+            (v0).play(0);
+            g_last_trick_marker_type = bit_cast<num>(field_0);
+            return field_28;
+        }
+    }
+
+    void venom_trick_marker::spawner()
+    {
+        num v0 = 0;
+        while ((v0 < (field_32 - 0.8))) {
+            v0 = (v0 + 1);
+            (field_84).set_render_scale(vector3d(v0, v0, v0));
+            (field_76).set_render_scale(vector3d(v0, v0, v0));
+            (field_80).set_render_scale(vector3d(v0, v0, v0));
+            delay(0.0001);
+        }
+        (field_76).set_render_scale(vector3d((field_32 - 0.7), (field_32 - 0.7), (field_32 - 0.7)));
+        (field_80).set_render_scale(vector3d((field_32 - 0.7), (field_32 - 0.7), (field_32 - 0.7)));
+        (field_84).set_render_scale(vector3d((field_32 - 0.8), (field_32 - 0.8), (field_32 - 0.8)));
+        start_thread_on(this, (this).pulser());
+    }
+
+    void venom_trick_marker::pulser()
+    {
+        num v0 = (field_32 - 0.8);
+        num v1 = 0;
+        num v2 = 1;
+        num v3 = 0;
+        while (((!field_124) && (field_76).is_valid())) {
+            if (v3) {
+                v1 = (v1 - 0.02);
+                if ((v1 <= 0)) {
+                    v3 = 0;
+                    v2 = 1;
+                }
+            } else if (v2) {
+                v1 = (v1 + 0.1);
+                if ((v1 >= 0.4)) {
+                    v3 = 1;
+                    v2 = 0;
+                }
+            }
+            (field_76).set_render_scale(vector3d((v0 + v1), (v0 + v1), (v0 + v1)));
+            (field_80).set_render_scale(vector3d((v0 + v1), (v0 + v1), (v0 + v1)));
+            (field_84).set_render_scale(vector3d((v0 + v1), (v0 + v1), (v0 + v1)));
+            wait_frame();
+        }
+    }
+
+    void venom_trick_marker::icon_rotation()
+    {
+        (field_84).apply_continuous_rotation(vector3d(0, -1, 0), 1.2, 1);
+    }
+
+    void venom_trick_marker::up_it()
+    {
+        num v0 = 1;
+        while ((v0 > 0)) {
+            v0 = (v0 - 0.1);
+            (field_76).set_render_alpha(v0);
+            delay(0.1);
+        }
+        destroy_entity(field_76);
+    }
+
+    void venom_trick_marker::helper()
+    {
+        turn_off_mission_text();
+        set_mission_text_box_flavor(1);
+        switch (bit_cast<num>(field_0)) {
+        case 3:
+        {
+            set_mission_text(200);
+            break;
+        }
+        case 2:
+        {
+            set_mission_text(201);
+            break;
+        }
+        case 5:
+        {
+            set_mission_text(203);
+            break;
+        }
+        case 9:
+        {
+            set_mission_text(207);
+            break;
+        }
+        case 8:
+        {
+            set_mission_text(206);
+            break;
+        }
+        }
+    }
+
+    void venom_trick_marker::help_checker()
+    {
+        if ((g_last_trick_marker_type != bit_cast<num>(field_0))) {
+            start_thread_on(this, (this).helper());
+            delay(3);
+        }
+        num v0 = 0;
+        turn_off_mission_text();
+        while ((!field_136)) {
+            if ((v0 >= 10)) {
+                start_thread_on(this, (this).helper());
+                delay(3);
+                turn_off_mission_text();
+                v0 = 0;
+            }
+            v0 = (v0 + 0.1);
+            delay(0.1);
+        }
+    }
+
+    void venom_trick_marker::set_objects()
+    {
+        switch (bit_cast<num>(field_0)) {
+        case 6:
+        {
+            field_76 = create_entity("effects\\entities\\fx_tmvenompad");
+            (field_76).set_rel_position(field_4);
+            field_108 = create_trigger(field_76, field_32);
+            field_120 = 1;
+            _venom_trick_race::wait_frame(3);
+            raise_signal(field_76, "entity::ENABLE_TRICK_WAYPOINT");
+            if ((field_36 == 0)) {
+                (field_76).set_abs_xz_facing(field_44);
+            }
+            if ((field_40 != 0)) {
+                start_thread_on(this, (this).translator());
+            }
+            break;
+        }
+        case 7:
+        {
+            field_76 = create_entity("effects\\entities\\fx_tmvenomhoop");
+            (field_76).set_rel_position(field_4);
+            (field_76).look_at(field_16);
+            field_120 = 1;
+            _venom_trick_race::wait_frame(3);
+            raise_signal(field_76, "entity::ENABLE_TRICK_WAYPOINT");
+            break;
+        }
+        case 8:
+        {
+            field_76 = create_entity("vehicles\\entities\\vcl_sablecopter", "");
+            (field_76).set_rel_position(field_4);
+            (field_76).enable_collisions(0);
+            (field_76).ifl_lock(2);
+            if (field_56) {
+                field_100 = create_entity("characters\\johnny_storm\\johnny_storm", "trick_race_dummy");
+                (field_100).set_rel_position(field_4);
+                (field_100).set_inode_param_float("flight_layer", "default_goto_speed", field_60);
+                (field_100).set_path_graph_start_node(0);
+                (field_100).set_path_graph(field_64);
+                (field_100).disable_collisions();
+                (field_76).set_parent(field_100);
+                (field_76).set_ai_param_float("chopper_speed", 0);
+                (field_100).set_ignore_limbo(1);
+                (field_100).set_visible(0);
+                (field_100).change_ai_base_machine("electro_fly");
+                (field_76).set_ignore_limbo(1);
+            } else {
+                (field_76).change_ai_base_machine("chopper_idle");
+                if ((field_16 != vector3d(0, 0, 0))) {
+                    (field_76).set_abs_xz_facing(field_16);
+                }
+            }
+            (field_76).set_invulnerable(0);
+            (field_76).set_ifc_num("HIT_POINTS", 5);
+            bind_signal_on(this, signal_id(field_76, "entity::DAMAGED"), (this).helicopter_destroyed());
+            field_120 = 1;
+            break;
+        }
+        case 9:
+        {
+            field_76 = create_entity("characters\\gmu_cop_thin\\gmu_cop_thin_vm");
+            (field_76).set_rel_position(field_4);
+            (field_76).setup_tether(field_4, field_32);
+            _venom_trick_race::wait_frame(3);
+            (field_76).set_ifc_num("HIT_POINTS", 5);
+            (field_76).set_ifc_num("SD_NUM_3", 2);
+            field_88 = (field_76).get_ifc_num("HIT_POINTS");
+            start_thread_on(this, (this).dead_yet());
+            _venom_trick_race::turn_off_thug_poi(field_76);
+            field_120 = 1;
+            break;
+        }
+        }
+        (field_76).set_distance_clip(300);
+    }
+
+    str _venom_trick_race::global_84 = "";
+
+    str _venom_trick_race::global_88 = "";
+
+    str _venom_trick_race::global_196 = "";
+
+    str _venom_trick_race::global_200 = "";
+
+    void venom_trick_marker::rotator1()
+    {
+        num v1 = random(12);
+        vector3d v4 = (hero()).get_ifc_vec("VELOCITY");
+        num v2 = (v4).length();
+        num v0 = 0;
+        if ((v2 <= 5)) {
+            v0 = 0.1;
+        } else if (((v2 > 5) && (v2 <= 10))) {
+            v0 = 0.4;
+        } else if (((v2 > 10) && (v2 <= 15))) {
+            v0 = 0.8;
+        } else if (((v2 > 15) && (v2 <= 20))) {
+            v0 = 1.2;
+        } else if (((v2 > 20) && (v2 <= 25))) {
+            v0 = 1.6;
+        } else if (((v2 > 30) && (v2 <= 35))) {
+            v0 = 2;
+        } else if (((v2 > 35) && (v2 <= 40))) {
+            v0 = 2.4;
+        } else if ((v2 > 40)) {
+            v0 = 3.5;
+        }
+        switch (v1) {
+        case 0:
+        {
+            (field_80).apply_continuous_rotation(vector3d(-1, -1, 0), v0, 0);
+            break;
+        }
+        case 1:
+        {
+            (field_80).apply_continuous_rotation(vector3d(-1, 0, 0), v0, 0);
+            break;
+        }
+        case 2:
+        {
+            (field_80).apply_continuous_rotation(vector3d(-1, 1, 0), v0, 0);
+            break;
+        }
+        case 3:
+        {
+            (field_80).apply_continuous_rotation(vector3d(1, 0, 0), v0, 0);
+            break;
+        }
+        case 4:
+        {
+            (field_80).apply_continuous_rotation(vector3d(1, 1, 0), v0, 0);
+            break;
+        }
+        case 5:
+        {
+            (field_80).apply_continuous_rotation(vector3d(1, -1, 0), v0, 0);
+            break;
+        }
+        case 6:
+        {
+            (field_80).apply_continuous_rotation(vector3d(0, 1, 0), v0, 0);
+            break;
+        }
+        case 7:
+        {
+            (field_80).apply_continuous_rotation(vector3d(0, -1, 0), v0, 0);
+            break;
+        }
+        case 8:
+        {
+            (field_80).apply_continuous_rotation(vector3d(0, 0, 1), v0, 0);
+            break;
+        }
+        case 9:
+        {
+            (field_80).apply_continuous_rotation(vector3d(0, 0, -1), v0, 0);
+            break;
+        }
+        case 10:
+        {
+            (field_80).apply_continuous_rotation(vector3d(0, 1, 1), v0, 0);
+            break;
+        }
+        case 11:
+        {
+            (field_80).apply_continuous_rotation(vector3d(0, 1, -1), v0, 0);
+            break;
+        }
+        }
+    }
+
+    void venom_trick_marker::look_at_cam_halo()
+    {
+        while (((field_80).is_valid() && (!field_124))) {
+            (field_80).look_at((chase_cam()).get_abs_position());
+            wait_frame();
+        }
+    }
+
+    void venom_trick_marker::blow_up()
+    {
+        kill_threads_on(this, venom_trick_marker::spawner);
+        kill_threads_on(this, venom_trick_marker::pulser);
+        kill_threads_on(this, venom_trick_marker::look_at_cam_halo);
+        field_124 = 1;
+        num v1 = 1;
+        num v0 = 0.6;
+        start_thread_on(this, (this).emploder());
+        (field_84).set_render_alpha(0);
+        while ((v0 > 0)) {
+            v0 = (v0 - 0.1);
+            v1 = (v1 - 0.1);
+            (field_76).set_render_alpha(v0);
+            (field_80).set_render_alpha(v1);
+            delay(0.1);
+        }
+    }
+
+    void venom_trick_marker::emploder()
+    {
+        num v0 = 0;
+        if ((field_32 < 3)) {
+            v0 = 1;
+        } else if (((field_32 >= 3) && (field_32 < 6))) {
+            v0 = 2;
+        } else if (((field_32 >= 6) && (field_32 < 9))) {
+            v0 = 3;
+        } else if (((field_32 >= 9) && (field_32 < 12))) {
+            v0 = 4;
+        } else if (((field_32 >= 12) && (field_32 < 15))) {
+            v0 = 5;
+        } else if ((field_32 > 15)) {
+            v0 = 6;
+        }
+        v0 = 1;
+        (field_84).apply_continuous_rotation(vector3d(1, 0, 0), 10, 1);
+        (field_76).set_render_scale(vector3d(1, 1, 1));
+        (field_84).set_render_scale(vector3d(1, 1, 1));
+        (field_80).set_render_scale(vector3d(1, 1, 1));
+        v0 = 1;
+        start_thread_on(this, (this).rotator1());
+        while ((v0 < 20)) {
+            v0 = (v0 + 2);
+            (field_76).set_render_scale(vector3d(v0, v0, v0));
+            (field_80).set_render_scale(vector3d(v0, v0, v0));
+            (field_84).set_render_scale(vector3d(v0, v0, v0));
+            delay(0.0001);
+        }
+        destroy_entity(field_76);
+        destroy_entity(field_80);
+        destroy_entity(field_84);
+    }
+
+    void venom_trick_marker::dead_yet()
+    {
+        while ((field_88 == (field_76).get_ifc_num("HIT_POINTS"))) {
+            wait_frame();
+        }
+        field_68 = 1;
+    }
+
+    void venom_trick_marker::helicopter_destroyed()
+    {
+        raise_signal(field_76, "venom_trick_marker::ENTITY_FORCE_EXPLODE");
+        field_68 = 1;
+        delay(2);
+        (field_100).set_inode_param_float("flight_layer", "default_goto_speed", 0);
+        destroy_entity(field_100);
+        destroy_entity(field_76);
+    }
+
+    void venom_trick_marker::translator()
+    {
+        while ((!g_ready_to_race)) {
+            wait_frame();
+        }
+        if (g_insane_venom_race) {
+            start_thread_on(this, (this).mawase());
+        }
+        while ((field_76).is_valid()) {
+            vector3d v0 = (field_44 - (field_76).get_abs_position());
+            (field_76).wait_translate_WCS(v0, field_40);
+            vector3d v1 = (field_4 - (field_76).get_abs_position());
+            (field_76).wait_translate_WCS(v1, field_40);
+        }
+    }
+
+    void venom_trick_marker::mawase()
+    {
+        num v1 = random(2);
+        switch (v1) {
+        case 0:
+        {
+            (field_76).apply_continuous_rotation(vector3d(0, -1, 0), 1, 0);
+            break;
+        }
+        case 1:
+        {
+            (field_76).apply_continuous_rotation(vector3d(0, 1, 0), 1, 0);
+            break;
+        }
+        }
+    }
+
+    venom_trick_race_data::venom_trick_race_data()
+    {
+        field_0 = 0;
+        field_16 = 0;
+        field_20 = 0;
+        field_24 = 0;
+        field_28 = 0;
+        field_32 = 0;
+        field_36 = 0;
+        field_40 = 0;
+    }
+
+    venom_trick_race_data::~venom_trick_race_data()
+    {
+    }
+
+    void venom_trick_race_data::startup()
+    {
+        initialize_encounter_object();
+    }
+
+    void venom_trick_race_data::shutdown()
+    {
+    }
+
+    void _venom_trick_race::venom_trick_race_music_thread()
+    {
+        bind_signal_once(signal_id("TRICK_MUSIC_START"), _venom_trick_race::trick_music_start());
+        bind_signal_once(signal_id("TRICK_MUSIC_SUCCESS"), _venom_trick_race::trick_music_success());
+        bind_signal_once(signal_id("TRICK_MUSIC_FAILED"), _venom_trick_race::trick_music_failed());
+    }
+
+    void _venom_trick_race::trick_music_start()
+    {
+        _venom_trick_race::start_mission_music();
+        num v1 = random(4);
+        switch (v1) {
+        case 0:
+        {
+            _venom_trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc02_mus");
+            break;
+        }
+        case 1:
+        {
+            _venom_trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc03_mus");
+            break;
+        }
+        case 2:
+        {
+            _venom_trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc04_mus");
+            break;
+        }
+        case 3:
+        {
+            _venom_trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc05_mus");
+            break;
+        }
+        default:
+        {
+            _venom_trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc02_mus");
+            break;
+        }
+        }
+        (_venom_trick_race::global_0).play(0);
+    }
+
+    void _venom_trick_race::trick_music_success()
+    {
+        (_venom_trick_race::global_0).fade_out(1);
+        _venom_trick_race::end_mission_success();
+    }
+
+    void _venom_trick_race::trick_music_failed()
+    {
+        (_venom_trick_race::global_0).fade_out(1);
+        _venom_trick_race::end_mission_failed();
+    }
+
+    void _venom_trick_race::end_mission_music()
+    {
+        _venom_trick_race::end_mission_music_check(_venom_trick_race::global_0);
+    }
+
+    _venom_trick_race::_venom_trick_race(num p0)
+    {
+        g_enable_venom_trick_race = 0;
+        _global_slc::wait_frame();
+        _venom_trick_race::initialize_location_mission();
+        if ((!g_trick_race_controls_locked)) {
+            _venom_trick_race::turn_off_hero(1);
+        }
+        g_mission_type = 3;
+        raise_signal("MISSION_START_UPDATE");
+        _venom_trick_race::start_mission_music();
+        bind_signal_once(signal_id("DEATH_RETRY_YES"), _venom_trick_race::restart_race());
+        bind_signal_once(signal_id("DEATH_RETRY_NO"), _venom_trick_race::temp_function());
+        bind_signal_once(signal_id(hero(), "_cop_pistol::ENTITY_EXITED_WATER_ON_WALL"), _venom_trick_race::sinker());
+        bind_signal_once(signal_id(hero(), "_cop_pistol::ENTITY_JUST_GOT_IN_WATER"), _venom_trick_race::water_prep());
+        _venom_trick_race::disable_mission_tokens();
+        g_trick_race_running = 1;
+        g_enable_venom_trick_race = 0;
+        _venom_trick_race::global_4 = 0;
+        _venom_trick_race::global_8 = 0;
+        _venom_trick_race::global_12 = 0;
+        _venom_trick_race::global_16 = 0;
+        g_died_during_trick_race = 0;
+        _venom_trick_race::global_20 = 0;
+        g_racing_hero_died = 0;
+        g_ready_to_race = 0;
+        _venom_trick_race::global_24 = 1;
+        g_wet_trick_race = 0;
+        g_last_trick_marker_type = -1;
+        _venom_trick_race::global_28 = 0;
+        g_race_exited_via_pause = 0;
+        g_done_showing_trick_times = 0;
+        push_pack("venom_trick_race_res");
+        _venom_trick_race::venom_trick_race_music_thread();
+        (_venom_trick_race::VENOM_TRICK_RACE).startup();
+        _venom_trick_race::wait_frame(3);
+        g_race_start_position = get_mission_key_position();
+        (hero()).set_ai_param_int("loco_allow_punch", 1);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+        (hero()).set_ai_param_int("loco_allow_swing", 1);
+        (hero()).set_physical(1);
+        (hero()).set_time_dilation(1);
+        _global_slc::wait_frame();
+        if ((!g_trick_race_restarted)) {
+            blackscreen_on(0.5);
+            delay(0.5);
+        }
+        if ((((_venom_trick_race::VENOM_TRICK_RACE).field_16 == 3) && ((_venom_trick_race::VENOM_TRICK_RACE).field_0 == 15))) {
+            g_insane_venom_race = 1;
+        } else {
+            g_insane_venom_race = 0;
+        }
+        _global_slc::wait_frame();
+        _venom_trick_race::run_race();
+        while (g_racing_hero_died) {
+            _global_slc::wait_frame();
+        }
+        if (_venom_trick_race::global_8) {
+            _venom_trick_race::fix_it();
+        } else if ((!g_racing_hero_died)) {
+            if (g_trick_race_controls_locked) {
+                _venom_trick_race::turn_off_hero(0);
+            }
+        }
+        _venom_trick_race::clean_it();
+        unload_script();
+    }
+
+    _venom_trick_race::~_venom_trick_race()
+    {
+        g_mission_type = 0;
+        _venom_trick_race::end_mission_music();
+        turn_off_mission_text();
+        (_venom_trick_race::VENOM_TRICK_RACE).shutdown();
+        g_trick_race_running = 0;
+        if ((!_venom_trick_race::global_8)) {
+            g_trick_race_restarted = 0;
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+            (hero()).set_time_dilation(1);
+            if (g_trick_race_controls_locked) {
+                _venom_trick_race::turn_off_hero(0);
+            }
+            g_mission_status = 0;
+            _venom_trick_race::breakdown_location_mission();
+        } else {
+            g_enable_venom_trick_race = 1;
+            g_trick_race_restarted = 1;
+        }
+        if (g_unlockables_entered) {
+            g_trick_race_restarted = 0;
+            g_enable_trick_race = 0;
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+            if (g_trick_race_controls_locked) {
+                _venom_trick_race::turn_off_hero(0);
+            }
+        }
+        (hero()).set_time_dilation(1);
+        (hero()).set_ifc_num("GRAVITY", 1);
+    }
+
+    void _venom_trick_race::water_prep()
+    {
+        g_wet_trick_race = 1;
+        g_race_dry = 0;
+    }
+
+    void _venom_trick_race::sinker()
+    {
+        g_race_dry = 1;
+    }
+
+    void _venom_trick_race::turn_off_hero(num p0)
+    {
+        if (p0) {
+            g_trick_race_controls_locked = 1;
+            enable_controls(0);
+            clear_controls();
+            spiderman_camera_enable_lookaround(0);
+        } else {
+            g_trick_race_controls_locked = 0;
+            enable_controls(1);
+            clear_controls();
+            spiderman_camera_enable_lookaround(1);
+        }
+    }
+
+    void _venom_trick_race::clean_it()
+    {
+        if ((!_venom_trick_race::global_8)) {
+            _venom_trick_race::breakdown_location_mission();
+        }
+    }
+
+    void _venom_trick_race::restart_race()
+    {
+        g_died_during_trick_race = 1;
+        g_racing_hero_died = 0;
+        _venom_trick_race::global_8 = 1;
+    }
+
+    void _venom_trick_race::temp_function()
+    {
+        unload_script();
+    }
+
+    void _venom_trick_race::fix_it()
+    {
+        if (((_venom_trick_race::global_24 || g_wet_trick_race) || g_race_exited_via_pause)) {
+            blackscreen_on(1);
+            delay(1);
+        }
+        (hero()).suspend();
+        _venom_trick_race::wait_frame(3);
+        (hero()).unsuspend();
+        (hero()).pop_ai_base_machine();
+        _venom_trick_race::set_venom();
+        (_venom_trick_race::VENOM_TRICK_RACE).shutdown();
+        _global_slc::wait_frame();
+    }
+
+    void _venom_trick_race::set_venom()
+    {
+        malor(g_race_start_position, 1);
+        district v0 = find_district_for_point(g_race_start_position);
+        _venom_trick_race::wait_frame(3);
+        (v0).wait_for_load();
+    }
+
+    void _venom_trick_race::race_time_limit_checker()
+    {
+        num v0 = 0;
+        while ((!_venom_trick_race::global_20)) {
+            _global_slc::wait_frame();
+        }
+        while ((_venom_trick_race::global_12 && (!v0))) {
+            if (((_venom_trick_race::local_timer).get_time() >= 300)) {
+                raise_signal("TRICK_MUSIC_FAILED");
+                _venom_trick_race::global_16 = 1;
+                v0 = 1;
+                ((_venom_trick_race::VENOM_TRICK_RACE).field_44[_venom_trick_race::global_40]).failure();
+            }
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _venom_trick_race::run_race()
+    {
+        if (g_trick_race_restarted) {
+            (hero()).pop_ai_base_machine();
+        }
+        g_first_trick_marker = 1;
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        start_thread(_venom_trick_race::death_checker());
+        start_thread(_venom_trick_race::start_timer());
+        if ((!g_trick_race_restarted)) {
+            start_thread(_venom_trick_race::times());
+        } else {
+            g_done_showing_trick_times = 1;
+        }
+        start_thread(_venom_trick_race::race_time_limit_checker());
+        g_trick_race_restarted = 0;
+        while ((((((_venom_trick_race::global_40 < 16) && (!_venom_trick_race::global_16)) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+            num v0 = ((_venom_trick_race::VENOM_TRICK_RACE).field_44[_venom_trick_race::global_40]).run_marker();
+            _venom_trick_race::global_40++;
+        }
+        if ((!g_trick_race_controls_locked)) {
+            _venom_trick_race::turn_off_hero(1);
+        }
+        if ((!g_racing_hero_died)) {
+            (hero()).set_time_dilation(1e-05);
+        }
+        turn_off_mission_text();
+        _venom_trick_race::stop_timer();
+        if ((((!g_racing_hero_died) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+            _venom_trick_race::global_24 = 1;
+        }
+        if (((((!_venom_trick_race::global_16) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+            _venom_trick_race::show_results();
+        }
+        _venom_trick_race::wait_frame(2);
+        if (g_wet_trick_race) {
+            if ((!g_trick_race_controls_locked)) {
+                _venom_trick_race::turn_off_hero(1);
+            }
+            while ((!g_race_dry)) {
+                _global_slc::wait_frame();
+            }
+        }
+        if (((g_race_exited_via_pause || g_wet_trick_race) || _venom_trick_race::global_16)) {
+            _venom_trick_race::try_again();
+        }
+    }
+
+    void _venom_trick_race::start_timer()
+    {
+        while ((!g_ready_to_race)) {
+            _global_slc::wait_frame();
+        }
+        if (g_trick_race_controls_locked) {
+            _venom_trick_race::turn_off_hero(0);
+        }
+        (hero()).set_ai_param_int("loco_allow_punch", 1);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+        (hero()).set_ai_param_int("loco_allow_swing", 1);
+        (hero()).set_physical(1);
+        raise_signal("TRICK_MUSIC_START");
+        _venom_trick_race::wait_frame(3);
+        _venom_trick_race::global_12 = 1;
+        _venom_trick_race::global_20 = 1;
+        (_venom_trick_race::local_timer).set_count_up();
+        (_venom_trick_race::local_timer).spawn_time_tracker(0);
+        (_venom_trick_race::local_timer).set_allow_auto_color_change(1);
+        (_venom_trick_race::local_timer).set_time(0.01);
+        (_venom_trick_race::local_timer).show_timer();
+        (_venom_trick_race::local_timer).run();
+    }
+
+    void _venom_trick_race::times()
+    {
+        str v0 = "";
+        str v1 = "";
+        str v2 = "";
+        str v3 = "";
+        str v4 = "";
+        while (g_first_trick_marker) {
+            _global_slc::wait_frame();
+        }
+        if ((gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0] != 0)) {
+            set_dialog_box_flavor(0);
+            v0 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+            v1 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+            v2 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+            v3 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_32);
+            v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_36);
+            bring_up_dialog_box_title(224, 1, 223, bit_cast<num>(v0), bit_cast<num>(v1), bit_cast<num>(v2), bit_cast<num>(v3), bit_cast<num>(v4));
+        } else {
+            set_dialog_box_flavor(0);
+            v0 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+            v1 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+            v2 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_32);
+            v3 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_36);
+            bring_up_dialog_box_title(225, 1, 223, 226, bit_cast<num>(v0), bit_cast<num>(v1), bit_cast<num>(v2), bit_cast<num>(v3));
+        }
+        g_done_showing_trick_times = 1;
+    }
+
+    void _venom_trick_race::stop_timer()
+    {
+        _venom_trick_race::global_28 = (_venom_trick_race::local_timer).get_time();
+        (_venom_trick_race::local_timer).freeze();
+        (_venom_trick_race::local_timer).hide_timer();
+    }
+
+    void _venom_trick_race::death_checker()
+    {
+        while (((hero()).get_ifc_num("HIT_POINTS") > 0)) {
+            _global_slc::wait_frame();
+        }
+        g_racing_hero_died = 1;
+    }
+
+    void _venom_trick_race::show_results()
+    {
+        str v5 = "";
+        str v6 = "";
+        str v4 = "";
+        num v1 = 0;
+        num v0 = 0;
+        if ((gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0] == 0)) {
+            gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = _venom_trick_race::global_28;
+            v0 = 1;
+        } else if ((gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0] > _venom_trick_race::global_28)) {
+            v0 = 1;
+            gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = _venom_trick_race::global_28;
+        } else {
+            v0 = 0;
+        }
+        if (greater_than_or_equal_rounded((_venom_trick_race::VENOM_TRICK_RACE).field_24, _venom_trick_race::global_28)) {
+            v1 = 4;
+        } else if (greater_than_or_equal_rounded((_venom_trick_race::VENOM_TRICK_RACE).field_28, _venom_trick_race::global_28)) {
+            v1 = 3;
+        } else if (greater_than_or_equal_rounded((_venom_trick_race::VENOM_TRICK_RACE).field_32, _venom_trick_race::global_28)) {
+            v1 = 2;
+        } else if (greater_than_or_equal_rounded((_venom_trick_race::VENOM_TRICK_RACE).field_36, _venom_trick_race::global_28)) {
+            v1 = 1;
+        } else {
+            v1 = 0;
+        }
+        num v3 = 0;
+        if (((_venom_trick_race::VENOM_TRICK_RACE).field_16 == 3)) {
+            v3 = 3;
+        } else if (((_venom_trick_race::VENOM_TRICK_RACE).field_16 == 2)) {
+            v3 = 2;
+        } else if (((_venom_trick_race::VENOM_TRICK_RACE).field_16 == 1)) {
+            v3 = 1;
+        } else if (((_venom_trick_race::VENOM_TRICK_RACE).field_16 == 0)) {
+            v3 = 0;
+        }
+        switch (v1) {
+        case 0:
+        {
+            if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_36);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(218, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_32);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_36);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(218, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                }
+            }
+            break;
+        }
+        case 1:
+        {
+            if ((!gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0])) {
+                bring_up_medal_award_box(0);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_32);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_32);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_32);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                }
+            }
+            gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            break;
+        }
+        case 2:
+        {
+            if ((!gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0])) {
+                bring_up_medal_award_box(1);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                }
+            }
+            gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            break;
+        }
+        case 3:
+        {
+            if ((!gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0])) {
+                bring_up_medal_award_box(2);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_24);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                } else if (gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_venom_trick_race::global_28);
+                    v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                    v4 = format_time_string((_venom_trick_race::VENOM_TRICK_RACE).field_28);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _venom_trick_race::global_8 = 1;
+                    }
+                }
+            }
+            gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            break;
+        }
+        case 4:
+        {
+            if ((!gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0])) {
+                bring_up_medal_award_box(3);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else if (gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0]) {
+                set_dialog_box_flavor(0);
+                v5 = format_time_string(_venom_trick_race::global_28);
+                v6 = format_time_string(gv_venom_trick_marker_best_time[(_venom_trick_race::VENOM_TRICK_RACE).field_0]);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            }
+            gv_venom_trick_marker_bronze_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            gv_venom_trick_marker_silver_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            gv_venom_trick_marker_gold_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            gv_venom_trick_marker_ultimate_medal_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+            break;
+        }
+        }
+        if ((_venom_trick_race::global_28 < (_venom_trick_race::VENOM_TRICK_RACE).field_36)) {
+            if ((gv_venom_trick_marker_complete_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] != 1)) {
+                gv_venom_trick_marker_complete_status[(_venom_trick_race::VENOM_TRICK_RACE).field_0] = 1;
+                _venom_trick_race::check_total_races_completed();
+            }
+        }
+        _venom_trick_race::global_4 = 1;
+    }
+
+    void _venom_trick_race::check_total_races_completed()
+    {
+        num v0 = 0;
+        set_dialog_box_flavor(2);
+        if ((gv_insane_venom_trick_races_completed == 4)) {
+            bring_up_dialog_box_debug("YOU'VE COMPLETED ALL THE VENOM TRICK RACES. ", 1, "CONGRATULATIONS");
+            v0 = 1;
+            gv_insane_venom_trick_races_completed = 50;
+        }
+        if (((gv_hard_venom_trick_races_completed == 6) && (!v0))) {
+            bring_up_dialog_box_debug("ALL HARD VENOM TRICK RACES COMPLETE! ", 1, "CONGRATULATIONS");
+            v0 = 1;
+            gv_hard_venom_trick_races_completed = 50;
+        }
+        if (((gv_medium_venom_trick_races_completed == 4) && (!v0))) {
+            bring_up_dialog_box_debug("ALL MEDIUM VENOM TRICK RACES COMPLETE! ", 1, "CONGRATULATIONS");
+            v0 = 1;
+            gv_medium_venom_trick_races_completed = 50;
+        }
+        if (((gv_easy_venom_trick_races_completed == 5) && (!v0))) {
+            bring_up_dialog_box_debug("ALL EASY VENOM TRICK RACES COMPLETE! ", 1, "CONGRATULATIONS");
+            gv_easy_venom_trick_races_completed = 50;
+        }
+    }
+
+    void _venom_trick_race::try_again()
+    {
+        if ((!_venom_trick_race::global_4)) {
+            if (_venom_trick_race::global_16) {
+                set_dialog_box_flavor(3);
+                set_dialog_box_lockout_time(0.5);
+                if ((bring_up_dialog_box_title(25, 0, 195) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(3);
+                set_dialog_box_lockout_time(0.5);
+                if ((bring_up_dialog_box_title(25, 0, 196) == 0)) {
+                    _venom_trick_race::global_8 = 1;
+                }
+            }
+        }
+        _venom_trick_race::global_12 = 0;
+    }
+
+}

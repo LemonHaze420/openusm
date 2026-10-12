@@ -1,0 +1,95 @@
+namespace JH_V1 {
+    extern num _global_slc::add_civilian_info(vector3d,num,num,num);
+    extern num _global_slc::remove_civilian_info(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _jh_v1
+    {
+    public:
+        static num global_0 = -1;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static str global_44;
+        static str global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64;
+        static num global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static str global_156;
+        static str global_160;
+        static num global_164 = 0;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _jh_v1(num p0);
+        ~_jh_v1();
+    };
+
+    _jh_v1::_jh_v1(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            _jh_v1::global_0 = add_civilian_info(vector3d(-222.176, 0, -42.431), 3, 25, 0);
+            break;
+        }
+        }
+    }
+
+    _jh_v1::~_jh_v1()
+    {
+        if ((_jh_v1::global_0 != -1)) {
+            remove_civilian_info(_jh_v1::global_0);
+        }
+        _jh_v1::global_0 = -1;
+    }
+
+    str _jh_v1::global_44 = "";
+
+    str _jh_v1::global_48 = "";
+
+    str _jh_v1::global_156 = "";
+
+    str _jh_v1::global_160 = "";
+
+}

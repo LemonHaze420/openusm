@@ -1,0 +1,352 @@
+namespace venom_s08 {
+    extern vector3d NULL_VECTOR;
+    extern num _global_slc::add_civilian_info_entity(entity,num,num,num);
+    extern void _global_slc::create_decal(str,vector3d,num,vector3d);
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_facing();
+    extern num entity::get_ifc_num(str);
+    extern entity entity::get_member(str);
+    extern void entity::ifl_play();
+    extern num entity::operator==(entity);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num string_hash::operator==(str);
+
+    class _venom_s08
+    {
+    public:
+        static entity_list global_0;
+        static entity global_4;
+        static entity global_8;
+        static venom_effects my_venom = venom_effects::create_named("my_venom");
+        static num global_16 = 0;
+        static num global_20 = 0;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static str global_32;
+        static str global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48;
+        static num global_52;
+        static num global_56;
+        static num global_60;
+        static num global_64 = 0;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76;
+        static num global_80;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static str global_168;
+        static str global_172;
+        static num global_176 = 0;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212 = 0;
+        static effects_common venom_common = effects_common::create_named("venom_common");
+        static num global_220 = 0;
+        static num global_224;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        _venom_s08(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class venom_effects
+    {
+    public:
+        num unused_0[1];
+        venom_effects();
+        void feeding_effect(entity p4);
+        void concrete_landing(vector3d p4);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void terrain_fx_event(vector3d p4, string_hash p16);
+    };
+
+    class feed_attack
+    {
+    public:
+        entity field_0;
+        num field_4;
+        feed_attack(entity p4);
+        ~feed_attack();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class ATTACK_BEGIN
+    {
+    public:
+        entity field_0;
+        ATTACK_BEGIN(entity p4);
+        ~ATTACK_BEGIN();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class ATTACK_END
+    {
+    public:
+        entity field_0;
+        ATTACK_END(entity p4);
+        ~ATTACK_END();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class Feed_Loop
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        num field_12;
+        num field_16;
+        Feed_Loop(entity p4);
+        ~Feed_Loop();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    venom_effects::venom_effects()
+    {
+        wait_frame();
+        entity fx_venomclaw = create_entity("effects\\entities\\fx_venomclaw");
+        wait_frame();
+        destroy_entity(fx_venomclaw);
+        _venom_s08::global_0 = create_entity_list();
+    }
+
+    void venom_effects::feeding_effect(entity p4)
+    {
+        if ((_venom_s08::global_4 == entity("NULL"))) {
+            _venom_s08::global_4 = create_entity("effects\\aeps\\fx_vnm_feed");
+            (_venom_s08::global_4).set_state(2, 1);
+            (_venom_s08::global_4).set_parent((p4).get_member("Bip01 Spine"));
+            (_venom_s08::global_4).set_po_facing((p4).get_facing());
+            (_venom_s08::global_4).set_rel_position(vector3d(0, 0, -0.4));
+            (_venom_s08::global_4).set_visible(0);
+        }
+        (_venom_s08::global_4).set_visible(1);
+    }
+
+    void venom_effects::concrete_landing(vector3d p4)
+    {
+        create_decal("fx_decal_land", p4, 30, NULL_VECTOR);
+        if ((_venom_s08::global_8 == entity("NULL"))) {
+            _venom_s08::global_8 = create_entity("effects\\aeps\\fx_vnm_jumpimpact");
+            (_venom_s08::global_8).set_state(2, 1);
+        }
+        (_venom_s08::global_8).set_rel_position(p4);
+        (_venom_s08::global_8).set_visible(1);
+    }
+
+    _venom_s08::_venom_s08(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_0 = p4;
+        (field_0).ifl_play();
+        add_civilian_info_entity(field_0, 1, 25, 1);
+        add_civilian_info_entity(field_0, 5, 25, 0.5);
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::terrain_fx_event(vector3d p4, string_hash p16)
+    {
+        if ((p16 == "CONCRETE")) {
+            (_venom_s08::my_venom).concrete_landing(p4);
+        }
+    }
+
+    feed_attack::feed_attack(entity p4)
+    {
+        field_4 = 0;
+        field_0 = p4;
+        field_4 = 0;
+    }
+
+    feed_attack::~feed_attack()
+    {
+    }
+
+    void feed_attack::activate()
+    {
+        (_venom_s08::my_venom).feeding_effect(field_0);
+    }
+
+    void feed_attack::deactivate()
+    {
+    }
+
+    void feed_attack::frame_advance(num p4, num p8)
+    {
+        if (((!field_4) && (p8 > 0))) {
+            raise_signal("VENOM_HAS_FED");
+            field_4 = 1;
+        }
+    }
+
+    ATTACK_BEGIN::ATTACK_BEGIN(entity p4)
+    {
+        field_0 = p4;
+    }
+
+    ATTACK_BEGIN::~ATTACK_BEGIN()
+    {
+    }
+
+    void ATTACK_BEGIN::activate()
+    {
+        raise_signal(field_0, "_venom_s08::VENOM_ATTACK_STARTING");
+    }
+
+    void ATTACK_BEGIN::deactivate()
+    {
+    }
+
+    void ATTACK_BEGIN::frame_advance(num p4, num p8)
+    {
+    }
+
+    ATTACK_END::ATTACK_END(entity p4)
+    {
+        field_0 = p4;
+    }
+
+    ATTACK_END::~ATTACK_END()
+    {
+    }
+
+    void ATTACK_END::activate()
+    {
+        raise_signal(field_0, "_venom_s08::VENOM_ATTACK_FINISHED");
+    }
+
+    void ATTACK_END::deactivate()
+    {
+    }
+
+    void ATTACK_END::frame_advance(num p4, num p8)
+    {
+    }
+
+    Feed_Loop::Feed_Loop(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_12 = 0;
+        field_16 = 0;
+        field_0 = p4;
+        field_8 = (field_0).get_ifc_num("MAX_HIT_POINTS");
+    }
+
+    Feed_Loop::~Feed_Loop()
+    {
+    }
+
+    void Feed_Loop::activate()
+    {
+        field_12 = 4;
+    }
+
+    void Feed_Loop::deactivate()
+    {
+        if (((field_4 < field_8) && (field_12 > 0))) {
+            (field_0).set_ifc_num("HIT_POINTS", (field_4 + field_12));
+        }
+    }
+
+    void Feed_Loop::frame_advance(num p4, num p8)
+    {
+        field_4 = (field_0).get_ifc_num("HIT_POINTS");
+        raise_signal("VENOM_FEEDING");
+        if (((field_16 && (field_4 < field_8)) && (field_12 > 0))) {
+            num v0 = ((0.4 * p4) * 30);
+            (field_0).set_ifc_num("HIT_POINTS", (field_4 + v0));
+            field_12 = (field_12 - v0);
+        }
+    }
+
+    str _venom_s08::global_32 = "";
+
+    str _venom_s08::global_36 = "";
+
+    str _venom_s08::global_168 = "";
+
+    str _venom_s08::global_172 = "";
+
+}

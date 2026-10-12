@@ -1,0 +1,260 @@
+namespace cop_pistol {
+    extern vector3d NULL_VECTOR;
+    extern void _global_slc::create_decal(str,vector3d,num,vector3d);
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::destroy_entity(entity);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern num _global_slc::entity_exists(str);
+    extern entity _global_slc::find_entity(str);
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern entity entity::get_member(str);
+    extern num entity::is_valid();
+    extern void entity::look_at(vector3d);
+    extern num entity::operator==(entity);
+    extern void entity::set_parent(entity);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _cop_pistol
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _cop_pistol(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        entity field_4;
+        entity field_8;
+        entity field_12;
+        entity_list field_16;
+        num field_20;
+        vector3d field_24;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void muzzle_effect(item p4, entity p8, vector3d p12, vector3d p24);
+        void ricochet_effect(item p4, entity p8, vector3d p12, vector3d p24);
+        void body_effect(item p4, entity p8, vector3d p12, vector3d p24);
+        void setup_rhino_hits(entity p4);
+        void hit_rhino(item p4, vector3d p8);
+        num shot_rhino(entity p4);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    _cop_pistol::_cop_pistol(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_20 = 0;
+        field_0 = p4;
+        field_24 = vector3d(0, 0.1, 0.6);
+        if ((!(field_4).is_valid())) {
+            field_4 = create_entity("effects\\aeps\\fx_muzrevolver");
+            field_8 = create_entity("effects\\aeps\\fx_bullethit");
+            field_12 = create_entity("effects\\aeps\\fx_bullethit_character");
+            (field_4).set_state(2, 1);
+            (field_8).set_state(2, 1);
+            (field_12).set_state(2, 1);
+            entity fx_muzrevolver = create_entity("effects\\entities\\fx_bullet_hole");
+            destroy_entity(fx_muzrevolver);
+        }
+        (field_4).set_visible(0);
+        (field_8).set_visible(0);
+        (field_12).set_visible(0);
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        destroy_entity(field_4);
+        destroy_entity(field_8);
+        destroy_entity(field_12);
+    }
+
+    void ENX_MASTER_OBJECT::muzzle_effect(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (field_4).set_parent(p8);
+        (field_4).set_rel_position(field_24);
+        (field_4).set_po_facing(p24);
+        (field_4).set_visible(1);
+    }
+
+    void ENX_MASTER_OBJECT::ricochet_effect(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (field_8).set_rel_position((p12 - vector3d(0, 0, 0.2)));
+        (field_8).set_po_facing((p24 - (p24 * 2)));
+        (field_8).set_visible(1);
+        create_decal("fx_bullet_hole", p12, 20, NULL_VECTOR);
+    }
+
+    void ENX_MASTER_OBJECT::body_effect(item p4, entity p8, vector3d p12, vector3d p24)
+    {
+        (field_12).set_rel_position(p12);
+        (field_12).set_po_facing(p24);
+        (field_12).set_visible(1);
+        if ((this).shot_rhino(p8)) {
+            (this).hit_rhino(p4, p12);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::setup_rhino_hits(entity p4)
+    {
+        field_16 = create_entity_list();
+        num v0 = 0;
+        while ((v0 < 10)) {
+            entity nullo = create_entity("items\\entities\\nullo");
+            (nullo).set_render_scale(vector3d(0.2, 0.2, 0.2));
+            (nullo).set_visible(0);
+            (field_16).add(nullo);
+            v0++;
+        }
+        ((field_16).get_index(0)).set_parent((p4).get_member("BIP01 HEAD"));
+        ((field_16).get_index(1)).set_parent((p4).get_member("BIP01 HEAD"));
+        ((field_16).get_index(2)).set_parent((p4).get_member("R_shoulder"));
+        ((field_16).get_index(3)).set_parent((p4).get_member("L_shoulder"));
+        ((field_16).get_index(4)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((field_16).get_index(5)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((field_16).get_index(6)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((field_16).get_index(7)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((field_16).get_index(8)).set_parent((p4).get_member("Bip01 R Hand"));
+        ((field_16).get_index(9)).set_parent((p4).get_member("Bip01 L Hand"));
+        ((field_16).get_index(0)).set_rel_position(vector3d(0.05, 0.2, 0.05));
+        ((field_16).get_index(1)).set_rel_position(vector3d(0.05, -0.2, 0.05));
+        ((field_16).get_index(2)).set_rel_position(vector3d(0, 0.2, 0.6));
+        ((field_16).get_index(3)).set_rel_position(vector3d(0, 0.2, 0.6));
+        ((field_16).get_index(4)).set_rel_position(vector3d(-0.25, 0.5, 0.85));
+        ((field_16).get_index(5)).set_rel_position(vector3d(-0.25, -0.5, 0.85));
+        ((field_16).get_index(6)).set_rel_position(vector3d(-0.5, 0.5, -0.8));
+        ((field_16).get_index(7)).set_rel_position(vector3d(-0.5, -0.5, -0.8));
+        ((field_16).get_index(8)).set_rel_position(vector3d(-0.5, 0, 0.35));
+        ((field_16).get_index(9)).set_rel_position(vector3d(-0.5, 0, 0.35));
+        field_20 = 1;
+    }
+
+    void ENX_MASTER_OBJECT::hit_rhino(item p4, vector3d p8)
+    {
+        entity fx_bullethit = create_entity("effects\\aeps\\fx_bullethit");
+        num v2 = 0;
+        num v3 = distance3d(p8, ((field_16).get_index(0)).get_abs_position());
+        num v4 = 0;
+        vector3d v1 = (p4).get_abs_position();
+        while ((v2 < 10)) {
+            num v5 = distance3d(p8, ((field_16).get_index(v2)).get_abs_position());
+            if ((v5 < v3)) {
+                v4 = v2;
+            }
+            v2++;
+        }
+        (fx_bullethit).set_rel_position(((field_16).get_index(v4)).get_abs_position());
+        (fx_bullethit).look_at((v1 - (v1 * 2)));
+        (fx_bullethit).set_visible(1);
+    }
+
+    num ENX_MASTER_OBJECT::shot_rhino(entity p4)
+    {
+        if (entity_exists("Rhino")) {
+            entity v0 = find_entity("Rhino");
+            if ((p4 == v0)) {
+                if ((!field_20)) {
+                    (this).setup_rhino_hits(p4);
+                }
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    str _cop_pistol::global_40 = "";
+
+    str _cop_pistol::global_44 = "";
+
+    str _cop_pistol::global_152 = "";
+
+    str _cop_pistol::global_156 = "";
+
+}

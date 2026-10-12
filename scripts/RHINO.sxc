@@ -1,0 +1,874 @@
+namespace RHINO {
+    extern vector3d NULL_VECTOR;
+    extern entity _global_slc::chase_cam();
+    extern void _global_slc::create_decal(str,vector3d,num,vector3d);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern num _global_slc::find_entities_in_radius(entity_list,vector3d,num,num);
+    extern entity _global_slc::find_entity(str);
+    extern entity _global_slc::hero();
+    extern void _global_slc::spiderman_camera_add_shake(num,num,num);
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern num entity::get_ifc_num(str);
+    extern entity entity::get_member(str);
+    extern num entity::get_render_alpha();
+    extern num entity::operator==(entity);
+    extern void entity::physical_ifc_start_prop_physics(vector3d,num);
+    extern void entity::pre_roll(num);
+    extern void entity::set_ai_param_int(str,num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::set_visible_and_disable_fading(num);
+    extern void entity::wait_change_render_scale(vector3d,num);
+    extern void entity::wait_rotate(vector3d,num,num);
+    extern void entity_list::add(entity);
+    extern entity_list_iterator entity_list::begin();
+    extern entity entity_list::get_index(num);
+    extern void entity_list::remove(entity);
+    extern num entity_list::size();
+    extern entity entity_list_iterator::get_entity();
+    extern entity_list_iterator entity_list_iterator::operator++();
+    extern num vector3d::length();
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::z();
+
+    class _rhino
+    {
+    public:
+        static camera_effects rhino_camera = camera_effects::create_named("rhino_camera");
+        static effects_common rhino_common = effects_common::create_named("rhino_common");
+        static entity global_8;
+        static rhino_effects g_rhino_effects = rhino_effects::create_named("g_rhino_effects");
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40 = 0;
+        static num global_44 = 0;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static str global_56;
+        static str global_60;
+        static num global_64 = 0;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76;
+        static num global_80;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static str global_168;
+        static str global_172;
+        static num global_176 = 0;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        _rhino(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void adv_wait_fade_alpha(entity p4, num p8, num p12);
+        void wait_visibility(entity p4, num p8, num p12);
+    };
+
+    class camera_effects
+    {
+    public:
+        entity field_0;
+        camera_effects();
+        void flash_cam(num p4, num p8);
+        void shake_cam(num p4);
+    };
+
+    class rhino_effects
+    {
+    public:
+        num field_0;
+        num unused_4[1];
+        entity field_8;
+        entity field_12;
+        entity field_16;
+        entity field_20;
+        entity field_24;
+        entity field_28;
+        entity field_32;
+        entity field_36;
+        entity_list field_40;
+        entity_list field_44;
+        num unused_48[1];
+        entity_list field_52;
+        entity_list field_56;
+        num field_60;
+        num field_64;
+        num field_68;
+        num field_72;
+        rhino_effects();
+        void ground_wave(entity p4);
+        void wait_ground_wave(entity p4);
+        void shock_wave(vector3d p4, vector3d p16);
+        void ground_pound(vector3d p4);
+        void make_pound_rings(num p4);
+        void place_pound_rings(vector3d p4);
+        void scale_then_fade(entity p4);
+        void interaction_on(entity p4);
+        void interaction_off();
+        void foot_step_listener(entity p4);
+        void left_dust(entity p4);
+        void right_dust(entity p4);
+        void go_charge(entity p4);
+        void left_charge(entity p4);
+        void right_charge(entity p4);
+        void is_getting_stuck(entity p4);
+        void is_stuck(entity p4);
+        void is_unstuck();
+        void reset_stuck_effect();
+        void punch_pound(entity p4);
+        void wait_punch_pound(entity p4, num p8);
+        void dash_punch(entity p4);
+        void make_foot_dust(num p4);
+        void place_foot_dust(entity p4, vector3d p8);
+        void make_foot_charge(num p4);
+        void place_foot_charge(entity p4, vector3d p8);
+        void wait_dash_punch(entity p4, num p8);
+        void back_slam_effect(vector3d p4);
+        void reset_back_slam();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void terrain_fx_event(vector3d p4, string_hash p16);
+    };
+
+    class rhino_stomp_grind
+    {
+    public:
+        num field_0;
+        rhino_stomp_grind(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class rhino_stomp_shock
+    {
+    public:
+        num field_0;
+        rhino_stomp_shock(entity p4);
+        void activate();
+        void deactivate();
+        void prepare_attack();
+        void frame_advance(num p4, num p8);
+    };
+
+    class rhino_pre_pound_cement
+    {
+    public:
+        rhino_pre_pound_cement(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class rhino_pound_cement
+    {
+    public:
+        rhino_pound_cement(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class rhino_unpound_cement
+    {
+    public:
+        rhino_unpound_cement(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class rhino_punch_pound
+    {
+    public:
+        entity_list field_0;
+        vector3d field_4;
+        num field_16;
+        num field_20;
+        num field_24;
+        rhino_punch_pound(entity p4);
+        void activate();
+        void deactivate();
+        void prepare_attack();
+        void frame_advance(num p4, num p8);
+    };
+
+    class rhino_dash_punch
+    {
+    public:
+        rhino_dash_punch(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::adv_wait_fade_alpha(entity p4, num p8, num p12)
+    {
+        num v1 = 1;
+        num v0 = (p4).get_render_alpha();
+        num v2 = ((v0 - p12) / p8);
+        while ((v1 < p8)) {
+            (p4).set_render_alpha((v0 - (v2 * v1)));
+            wait_frame();
+            v1++;
+        }
+        if ((p12 == 0)) {
+            (p4).set_visible(0);
+        }
+    }
+
+    void effects_common::wait_visibility(entity p4, num p8, num p12)
+    {
+        delay(p12);
+        (p4).set_visible(p8);
+    }
+
+    camera_effects::camera_effects()
+    {
+        wait_frame();
+    }
+
+    void camera_effects::flash_cam(num p4, num p8)
+    {
+        num v0 = 0;
+        if ((field_0 == entity("NULL"))) {
+            field_0 = create_entity("fx\\entities\\fx_cam_flash", "camera_flash");
+            (field_0).set_parent(chase_cam());
+            (field_0).set_rel_position(vector3d(0, 0, 0.5));
+            (field_0).set_visible(0);
+        }
+        while ((v0 < p4)) {
+            (field_0).set_visible(1);
+            wait_frame();
+            (field_0).set_visible(0);
+            wait_frame();
+            v0++;
+        }
+        if ((p8 > 0)) {
+            (this).shake_cam(p8);
+        }
+    }
+
+    void camera_effects::shake_cam(num p4)
+    {
+        switch (p4) {
+        case 1:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        case 2:
+        {
+            spiderman_camera_add_shake(0.1, 16, 0.75);
+            spiderman_camera_add_shake(0.04, 20, 0.5);
+            spiderman_camera_add_shake(0.015, 24, 1.5);
+            break;
+        }
+        default:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        }
+    }
+
+    rhino_effects::rhino_effects()
+    {
+        field_0 = 1;
+        field_60 = 0;
+        field_64 = 0;
+        field_68 = 0;
+        field_72 = 0;
+        wait_frame();
+        entity fx_decal_land = create_entity("effects\\entities\\fx_decal_land");
+        wait_frame();
+        destroy_entity(fx_decal_land);
+        wait_frame();
+        entity fx_decal_rhinofall = create_entity("effects\\entities\\fx_decal_rhinofall");
+        wait_frame();
+        destroy_entity(fx_decal_rhinofall);
+        wait_frame();
+        field_40 = create_entity_list();
+        field_44 = create_entity_list();
+        field_52 = create_entity_list();
+        field_56 = create_entity_list();
+        (this).make_foot_dust(4);
+        (this).make_foot_charge(8);
+        (this).make_pound_rings(6);
+        field_16 = create_entity("effects\\aeps\\fx_rhino_gpound");
+        wait_frame();
+        field_20 = create_entity("effects\\aeps\\fx_concretehit_med");
+        wait_frame();
+        field_24 = create_entity("effects\\aeps\\fx_concretehit_lg");
+        wait_frame();
+        field_32 = create_entity("effects\\aeps\\fx_rhino_chrgpunch");
+        wait_frame();
+        field_36 = create_entity("effects\\aeps\\fx_rhino_telepunch");
+        wait_frame();
+        field_28 = create_entity("effects\\aeps\\fx_rhino_fallback");
+        wait_frame();
+        (field_16).set_state(2, 1);
+        (field_20).set_state(2, 1);
+        (field_24).set_state(2, 1);
+        (field_32).set_state(2, 1);
+        (field_36).set_state(2, 1);
+        (field_28).set_state(2, 1);
+        (field_16).set_state(3, 1);
+        (field_20).set_state(3, 1);
+        (field_24).set_state(3, 1);
+        (field_32).set_state(3, 1);
+        (field_36).set_state(3, 1);
+        (field_28).set_state(3, 1);
+        (field_32).set_render_scale(vector3d(1.5, 1.5, 1.5));
+        (field_16).set_visible(0);
+        (field_20).set_visible(0);
+        (field_24).set_visible(0);
+        (field_32).set_visible(0);
+        (field_36).set_visible(0);
+        (field_28).set_visible(0);
+    }
+
+    void rhino_effects::ground_wave(entity p4)
+    {
+        start_thread_on(this, (this).wait_ground_wave(p4));
+    }
+
+    void rhino_effects::wait_ground_wave(entity p4)
+    {
+        vector3d v0 = (p4).get_abs_position();
+        (this).ground_pound((v0 - vector3d(0, 0.6, 0)));
+    }
+
+    void rhino_effects::shock_wave(vector3d p4, vector3d p16)
+    {
+        (field_16).set_rel_position(p4);
+        (field_20).set_rel_position(p4);
+        (field_20).set_po_facing(p16);
+        (field_16).set_visible(1);
+        (field_20).set_visible(1);
+        create_decal("fx_decal_land", p4, 30, NULL_VECTOR);
+        start_thread_on(this, (_rhino::rhino_camera).flash_cam(3, 2));
+    }
+
+    void rhino_effects::ground_pound(vector3d p4)
+    {
+        vector3d v0 = (p4 - vector3d(0, -0.15, 0));
+        start_thread_on(this, (this).place_pound_rings(p4));
+        (field_16).set_rel_position(v0);
+        (field_20).set_rel_position(v0);
+        (field_20).set_po_facing(vector3d(0, 1, 0));
+        (field_16).set_visible(1);
+        (field_20).set_visible(1);
+        create_decal("fx_decal_land", p4, 30, NULL_VECTOR);
+        start_thread_on(this, (_rhino::rhino_camera).flash_cam(3, 2));
+    }
+
+    void rhino_effects::make_pound_rings(num p4)
+    {
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_pound_wave = create_entity("effects\\entities\\fx_pound_wave");
+            (fx_pound_wave).set_distance_clip(1000);
+            (fx_pound_wave).wait_rotate(vector3d(0, 1, 0), (0.1746 * v0), 0.033);
+            (fx_pound_wave).set_visible(0);
+            (field_52).add(fx_pound_wave);
+            v0++;
+        }
+    }
+
+    void rhino_effects::place_pound_rings(vector3d p4)
+    {
+        num v0 = 0;
+        while ((v0 < (field_52).size())) {
+            ((field_52).get_index(v0)).set_rel_position(p4);
+            ((field_52).get_index(v0)).set_render_scale(vector3d(0.1, 0.1, 0.1));
+            ((field_52).get_index(v0)).set_render_alpha(1);
+            ((field_52).get_index(v0)).set_visible_and_disable_fading(1);
+            start_thread_on(this, (this).scale_then_fade((field_52).get_index(v0)));
+            delay(0.066);
+            v0++;
+        }
+    }
+
+    void rhino_effects::scale_then_fade(entity p4)
+    {
+        start_thread_on(this, (_rhino::rhino_common).adv_wait_fade_alpha(p4, 8, 0));
+        (p4).wait_change_render_scale(vector3d(40, 18, 40), 0.25);
+        (p4).set_visible(0);
+    }
+
+    void rhino_effects::interaction_on(entity p4)
+    {
+    }
+
+    void rhino_effects::interaction_off()
+    {
+    }
+
+    void rhino_effects::foot_step_listener(entity p4)
+    {
+        bind_signal_on(this, signal_id(p4, "entity::FOOTSTEP_L"), (this).left_dust(p4));
+        bind_signal_on(this, signal_id(p4, "entity::FOOTSTEP_R"), (this).right_dust(p4));
+        bind_signal_once_on(this, signal_id(p4, "entity::ANIM_ACTION"), (this).go_charge(p4));
+        wait_frame();
+    }
+
+    void rhino_effects::left_dust(entity p4)
+    {
+        vector3d v0 = (((p4).get_member("Bip01 L Foot")).get_abs_position() - vector3d(0, 0.8, 0));
+        (this).place_foot_dust(p4, v0);
+    }
+
+    void rhino_effects::right_dust(entity p4)
+    {
+        vector3d v0 = (((p4).get_member("Bip01 R Foot")).get_abs_position() - vector3d(0, 0.8, 0));
+        (this).place_foot_dust(p4, v0);
+    }
+
+    void rhino_effects::go_charge(entity p4)
+    {
+        wait_frame();
+        if ((!field_72)) {
+            if (field_68) {
+                (this).right_charge(p4);
+                field_68 = 0;
+            } else {
+                (this).left_charge(p4);
+                field_68 = 1;
+            }
+            bind_signal_once_on(this, signal_id(p4, "entity::ANIM_ACTION"), (this).go_charge(p4));
+        }
+    }
+
+    void rhino_effects::left_charge(entity p4)
+    {
+        vector3d v0 = (((p4).get_member("Bip01 L Foot")).get_abs_position() - vector3d(0, 1.15, 0));
+        (this).place_foot_charge(p4, v0);
+    }
+
+    void rhino_effects::right_charge(entity p4)
+    {
+        vector3d v0 = (((p4).get_member("Bip01 R Foot")).get_abs_position() - vector3d(0, 1.15, 0));
+        (this).place_foot_charge(p4, v0);
+    }
+
+    void rhino_effects::is_getting_stuck(entity p4)
+    {
+        start_thread_on(this, (this).is_stuck(p4));
+    }
+
+    void rhino_effects::is_stuck(entity p4)
+    {
+        delay(0.18);
+        vector3d v1 = ((p4).get_member("Bip01 R Hand")).get_abs_position();
+        vector3d v0 = vector3d((v1).x(), 0.449, (v1).z());
+        if ((field_8 == entity("NULL"))) {
+            field_8 = create_entity("effects\\aeps\\fx_concretesplat");
+            wait_frame();
+            field_12 = create_entity("effects\\aeps\\fx_concreteripple");
+            (field_8).set_state(2, 1);
+            (field_8).set_state(3, 1);
+            (field_12).set_state(2, 1);
+            (field_12).set_state(3, 1);
+        } else {
+            (field_8).set_visible(1);
+            (field_12).set_visible(1);
+        }
+        (field_8).set_rel_position(v0);
+        (field_12).set_rel_position(v0);
+    }
+
+    void rhino_effects::is_unstuck()
+    {
+        (field_12).set_visible(0);
+        (field_8).set_visible(0);
+        start_thread_on(this, (this).reset_stuck_effect());
+    }
+
+    void rhino_effects::reset_stuck_effect()
+    {
+        (field_8).set_visible(1);
+        delay(2);
+        (field_8).set_visible(0);
+    }
+
+    void rhino_effects::punch_pound(entity p4)
+    {
+        start_thread_on(this, (this).wait_punch_pound(p4, 0.36));
+    }
+
+    void rhino_effects::wait_punch_pound(entity p4, num p8)
+    {
+        if ((p8 > 0)) {
+            delay(p8);
+        }
+        vector3d v0 = (((p4).get_member("Bip01 R Hand")).get_abs_position() - vector3d(0, 0.4, 0));
+        (field_32).set_rel_position(v0);
+        (field_32).set_visible(1);
+    }
+
+    void rhino_effects::dash_punch(entity p4)
+    {
+        (field_36).set_parent((p4).get_member("Bip01 R Hand"));
+        start_thread_on(this, (this).wait_dash_punch(p4, 1.1));
+    }
+
+    void rhino_effects::make_foot_dust(num p4)
+    {
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_rhino_ftstep = create_entity("effects\\aeps\\fx_rhino_ftstep");
+            (fx_rhino_ftstep).set_state(2, 1);
+            (fx_rhino_ftstep).set_state(3, 1);
+            (fx_rhino_ftstep).set_visible(0);
+            (field_40).add(fx_rhino_ftstep);
+            v0++;
+        }
+    }
+
+    void rhino_effects::place_foot_dust(entity p4, vector3d p8)
+    {
+        vector3d v0 = (p4).get_facing();
+        ((field_40).get_index(field_60)).set_rel_position((p8 + v0));
+        ((field_40).get_index(field_60)).set_visible(1);
+        ((field_40).get_index(field_60)).pre_roll(0.25);
+        if ((field_60 < ((field_40).size() - 1))) {
+            field_60++;
+        } else {
+            field_60 = 0;
+        }
+        wait_frame();
+    }
+
+    void rhino_effects::make_foot_charge(num p4)
+    {
+        num v0 = 0;
+        while ((v0 < p4)) {
+            entity fx_rhino_chrgshockwv = create_entity("effects\\aeps\\fx_rhino_chrgshockwv");
+            (fx_rhino_chrgshockwv).set_state(2, 1);
+            (fx_rhino_chrgshockwv).set_state(3, 1);
+            (fx_rhino_chrgshockwv).set_visible(0);
+            (field_44).add(fx_rhino_chrgshockwv);
+            v0++;
+        }
+    }
+
+    void rhino_effects::place_foot_charge(entity p4, vector3d p8)
+    {
+        vector3d v0 = (p4).get_facing();
+        ((field_44).get_index(field_64)).set_rel_position((p8 + v0));
+        ((field_44).get_index(field_64)).set_visible(1);
+        if ((field_64 < ((field_44).size() - 1))) {
+            field_64++;
+        } else {
+            field_64 = 0;
+        }
+        wait_frame();
+    }
+
+    void rhino_effects::wait_dash_punch(entity p4, num p8)
+    {
+        delay(p8);
+        vector3d v0 = (((p4).get_member("Bip01 R Hand")).get_abs_position() - vector3d(0, 0.6, 0));
+        (field_36).set_rel_position(v0);
+        (field_36).set_visible(1);
+        start_thread_on(this, (_rhino::rhino_common).wait_visibility(field_32, 0, 4));
+    }
+
+    void rhino_effects::back_slam_effect(vector3d p4)
+    {
+        field_72 = 1;
+        vector3d v0 = (p4 - vector3d(0, 0.5, 0));
+        (field_28).set_rel_position(p4);
+        (field_28).set_visible(1);
+        create_decal("fx_decal_rhinofall", p4, 30, NULL_VECTOR);
+        start_thread_on(this, (this).reset_back_slam());
+    }
+
+    void rhino_effects::reset_back_slam()
+    {
+        delay(3);
+        field_72 = 0;
+    }
+
+    _rhino::_rhino(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_0 = p4;
+        _rhino::global_8 = p4;
+        (_rhino::g_rhino_effects).interaction_on(find_entity("RHINO"));
+        start_thread_on(this, (_rhino::g_rhino_effects).foot_step_listener(field_0));
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        (_rhino::g_rhino_effects).interaction_off();
+    }
+
+    void ENX_MASTER_OBJECT::terrain_fx_event(vector3d p4, string_hash p16)
+    {
+        (_rhino::g_rhino_effects).back_slam_effect(p4);
+    }
+
+    rhino_stomp_grind::rhino_stomp_grind(entity p4)
+    {
+        field_0 = 0;
+    }
+
+    void rhino_stomp_grind::activate()
+    {
+        (_rhino::global_8).set_ai_param_int("shrink_capsule", 1);
+    }
+
+    void rhino_stomp_grind::deactivate()
+    {
+        (_rhino::global_8).set_ai_param_int("shrink_capsule", 0);
+    }
+
+    void rhino_stomp_grind::frame_advance(num p4, num p8)
+    {
+    }
+
+    rhino_stomp_shock::rhino_stomp_shock(entity p4)
+    {
+        field_0 = 0;
+    }
+
+    void rhino_stomp_shock::activate()
+    {
+        field_0 = 0;
+        bind_signal_once_on(this, signal_id(_rhino::global_8, "entity::ATTACK"), (this).prepare_attack());
+    }
+
+    void rhino_stomp_shock::deactivate()
+    {
+    }
+
+    void rhino_stomp_shock::prepare_attack()
+    {
+        field_0 = 1;
+        (_rhino::g_rhino_effects).ground_wave((_rhino::global_8).get_member("Bip01 R Foot"));
+    }
+
+    void rhino_stomp_shock::frame_advance(num p4, num p8)
+    {
+    }
+
+    rhino_pre_pound_cement::rhino_pre_pound_cement(entity p4)
+    {
+    }
+
+    void rhino_pre_pound_cement::activate()
+    {
+        (_rhino::g_rhino_effects).is_getting_stuck(_rhino::global_8);
+    }
+
+    void rhino_pre_pound_cement::deactivate()
+    {
+    }
+
+    void rhino_pre_pound_cement::frame_advance(num p4, num p8)
+    {
+    }
+
+    rhino_pound_cement::rhino_pound_cement(entity p4)
+    {
+    }
+
+    void rhino_pound_cement::activate()
+    {
+        raise_signal("RHINO_GETTING_STUCK");
+    }
+
+    void rhino_pound_cement::deactivate()
+    {
+    }
+
+    void rhino_pound_cement::frame_advance(num p4, num p8)
+    {
+    }
+
+    rhino_unpound_cement::rhino_unpound_cement(entity p4)
+    {
+    }
+
+    void rhino_unpound_cement::activate()
+    {
+        raise_signal("RHINO_GETTING_UNSTUCK");
+        (_rhino::g_rhino_effects).is_unstuck();
+    }
+
+    void rhino_unpound_cement::deactivate()
+    {
+    }
+
+    void rhino_unpound_cement::frame_advance(num p4, num p8)
+    {
+    }
+
+    rhino_punch_pound::rhino_punch_pound(entity p4)
+    {
+        field_16 = 0;
+        field_20 = 0;
+        field_24 = 0;
+    }
+
+    void rhino_punch_pound::activate()
+    {
+        (_rhino::g_rhino_effects).punch_pound(_rhino::global_8);
+        field_24 = 0;
+        bind_signal_once_on(this, signal_id(_rhino::global_8, "entity::ATTACK"), (this).prepare_attack());
+    }
+
+    void rhino_punch_pound::deactivate()
+    {
+    }
+
+    void rhino_punch_pound::prepare_attack()
+    {
+        field_24 = 1;
+        field_4 = ((_rhino::global_8).get_member("Bip01 R Hand")).get_abs_position();
+        field_16 = 4;
+        field_20 = 25;
+        field_0 = create_entity_list();
+        find_entities_in_radius(field_0, field_4, (field_16 + 15), 2);
+        (field_0).remove(_rhino::global_8);
+        (field_0).remove(hero());
+    }
+
+    void rhino_punch_pound::frame_advance(num p4, num p8)
+    {
+        if (field_24) {
+            if ((field_16 < 6)) {
+                field_16 = (field_16 + (p4 * 2));
+            }
+            entity_list_iterator v1 = (field_0).begin();
+            num v0 = 0;
+            vector3d v4;
+            while ((v0 < (field_0).size())) {
+                entity v2 = (v1).get_entity();
+                vector3d v3 = (v2).get_abs_position();
+                if ((distance3d(v3, field_4) < field_16)) {
+                    if (((v2).get_ifc_num("SD_NUM_5") == 42)) {
+                        v4 = (v3 - field_4);
+                        v4 = (v4 * (field_20 / (v4).length()));
+                        (v2).physical_ifc_start_prop_physics(v4, 4);
+                    }
+                    (field_0).remove(v2);
+                } else {
+                    v0++;
+                    v1++;
+                }
+            }
+        }
+    }
+
+    rhino_dash_punch::rhino_dash_punch(entity p4)
+    {
+    }
+
+    void rhino_dash_punch::activate()
+    {
+        (_rhino::g_rhino_effects).dash_punch(_rhino::global_8);
+    }
+
+    void rhino_dash_punch::deactivate()
+    {
+    }
+
+    void rhino_dash_punch::frame_advance(num p4, num p8)
+    {
+    }
+
+    str _rhino::global_56 = "";
+
+    str _rhino::global_60 = "";
+
+    str _rhino::global_168 = "";
+
+    str _rhino::global_172 = "";
+
+}

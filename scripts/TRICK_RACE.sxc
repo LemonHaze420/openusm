@@ -1,0 +1,3888 @@
+namespace TRICK_RACE {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern num g_mission_music_active;
+    extern num g_switch_to_open_city_music;
+    extern num g_story_checkpoint;
+    extern entity_list g_entity_list;
+    extern num g_hood_gang;
+    extern num g_mission_type;
+    extern num g_tutorial_car_combat_attack_shown;
+    extern num g_tutorial_car_combat_dodge_shown;
+    extern num g_tutorial_car_combat_land_shown;
+    extern num g_queens_tour_running;
+    extern num g_enable_story;
+    extern num g_enable_pn;
+    extern num g_enable_igc;
+    extern num g_enable_venom_igc;
+    extern num g_enable_token_event;
+    extern num g_enable_sh;
+    extern num g_enable_can;
+    extern num g_enable_hot_pursuit;
+    extern num g_next_shenani_time;
+    extern num g_next_can_time;
+    extern num g_enable_trick_race;
+    extern num g_race_exited_via_pause;
+    extern num g_done_with_storm_anim;
+    extern num g_wet_trick_race;
+    extern num g_race_dry;
+    extern num g_done_showing_trick_times;
+    extern num g_ready_to_race;
+    extern num g_trick_race_box_called;
+    extern num g_last_trick_marker_type;
+    extern vector3d g_race_start_position;
+    extern num g_racing_hero_died;
+    extern num g_trick_race_restarted;
+    extern num g_enable_venom_trick_race;
+    extern num g_unlockables_entered;
+    extern num g_torch_race_running;
+    extern num g_first_trick_marker;
+    extern num g_trick_race_controls_locked;
+    extern num g_trick_race_running;
+    extern num g_died_during_trick_race;
+    extern num g_spidey_trick_difficulty[];
+    extern num g_venom_trick_difficulty[];
+    extern vector3d RESPAWN_PETERS_HOUSE;
+    extern vector3d RESPAWN_DAILY_BUGLE;
+    extern vector3d RESPAWN_ESU;
+    extern vector3d RESPAWN_CENTRAL_PARK;
+    extern num g_enable_storm_race;
+    extern num g_torch_message_flag;
+    extern num game_clock_timer;
+    extern vector3d gv_hero_restart_pos;
+    extern num gv_num_current_story;
+    extern num gv_num_current_token_event;
+    extern num gv_story_finished;
+    extern num gv_combat_level;
+    extern num gv_unlockable_chars[];
+    extern num gv_unlockable_concept[];
+    extern num gv_unlockable_landmark[];
+    extern num gv_unlockable_covers[];
+    extern num gv_unlockable_costumes[];
+    extern num gv_easy_trick_races_completed;
+    extern num gv_medium_trick_races_completed;
+    extern num gv_hard_trick_races_completed;
+    extern num gv_insane_trick_races_completed;
+    extern num gv_tutorial_car_combat_counter;
+    extern num gv_shen_speed_normal;
+    extern num gv_shens_successfully_completed;
+    extern num gv_shen_difficulty;
+    extern num gv_trick_marker_best_time[];
+    extern num gv_trick_marker_complete_status[];
+    extern num gv_trick_marker_bronze_medal_status[];
+    extern num gv_trick_marker_silver_medal_status[];
+    extern num gv_trick_marker_gold_medal_status[];
+    extern num gv_trick_marker_ultimate_medal_status[];
+    extern num gv_venom_trick_marker_bronze_medal_status[];
+    extern num gv_venom_trick_marker_silver_medal_status[];
+    extern num gv_venom_trick_marker_gold_medal_status[];
+    extern num gv_venom_trick_marker_ultimate_medal_status[];
+    extern num gv_current_max_hitpoints;
+    extern num gv_total_storm_races_completed;
+    extern num gv_torch_race_000_done;
+    extern num gv_torch_race_00_done;
+    extern num gv_torch_race_01_done;
+    extern num gv_torch_race_02_done;
+    extern num gv_torch_race_03_done;
+    extern num gv_token_tally[];
+    extern num gv_token_collected[];
+    extern num gv_city_tutorials[];
+    extern num gv_health_ulocked;
+    extern num gv_tour_diff_ulocked;
+    extern num gv_combat_tours_completed;
+    extern num gv_tour_difficulty[];
+    extern num gv_tour_req[];
+    extern num gv_race_req[];
+    extern num gv_token_req[];
+    extern num gv_shen_req[];
+    extern num gv_tour_prog[];
+    extern num gv_race_prog[];
+    extern num gv_token_prog[];
+    extern num gv_shen_prog[];
+    extern num gv_master_prog[];
+    extern num gv_shens_finished;
+    extern num gv_obj_list_needed;
+    extern num gv_torch_race_unlock_req_easy;
+    extern num gv_torch_race_unlock_req_med;
+    extern num gv_torch_race_unlock_req_hard;
+    extern num gv_torch_race_unlock_req_insane;
+    extern num gv_torch_race_unlocked_2;
+    extern num gv_torch_race_unlocked_3;
+    extern num gv_torch_race_unlocked_4;
+    extern num gv_torch_race_unlocked_5;
+    extern num gv_current_city_tod;
+    extern num gv_current_venom_city_tod;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern void _global_slc::bring_up_medal_award_box(num);
+    extern void _global_slc::bring_up_race_announcer();
+    extern entity _global_slc::chase_cam();
+    extern void _global_slc::clear_controls();
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern entity_tracker _global_slc::create_entity_tracker(entity);
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern sound_inst _global_slc::create_stompable_music_sound_inst(str);
+    extern trigger _global_slc::create_trigger(entity,num);
+    extern trigger _global_slc::create_trigger(vector3d,num);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern void _global_slc::destroy_entity_tracker(entity_tracker);
+    extern void _global_slc::destroy_trigger(trigger);
+    extern num _global_slc::dot(vector3d,vector3d);
+    extern void _global_slc::enable_controls(num);
+    extern void _global_slc::enable_tokens_of_type(num,num);
+    extern district _global_slc::find_district_for_point(vector3d);
+    extern trigger _global_slc::find_trigger(entity);
+    extern str _global_slc::format_time_string(num);
+    extern num _global_slc::get_game_info_num(str);
+    extern vector3d _global_slc::get_mission_key_position();
+    extern num _global_slc::get_token_index_from_id(num,num);
+    extern num _global_slc::greater_than_or_equal_rounded(num,num);
+    extern entity _global_slc::hero();
+    extern void _global_slc::initialize_encounter_object();
+    extern void _global_slc::invoke_pause_menu_unlockables();
+    extern num _global_slc::is_hero_spidey();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern num _global_slc::is_mission_loading();
+    extern num _global_slc::is_pack_pushed(str);
+    extern void _global_slc::malor(vector3d,num);
+    extern vector3d _global_slc::normal(vector3d);
+    extern void _global_slc::push_pack(str);
+    extern num _global_slc::random(num);
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::set_dialog_box_lockout_time(num);
+    extern void _global_slc::set_game_info_num(str,num);
+    extern void _global_slc::set_mission_text(num,...);
+    extern void _global_slc::set_mission_text_box_flavor(num);
+    extern void _global_slc::set_time_of_day(num);
+    extern void _global_slc::spiderman_camera_autocorrect(num);
+    extern void _global_slc::spiderman_camera_clear_fixedstatic();
+    extern void _global_slc::spiderman_camera_enable_lookaround(num);
+    extern num _global_slc::spiderman_is_on_ground();
+    extern num _global_slc::spiderman_is_on_wall();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::swap_hero_costume(str);
+    extern num _global_slc::timer_widget_get_time();
+    extern void _global_slc::timer_widget_set_count_up(num);
+    extern void _global_slc::timer_widget_set_time(num);
+    extern void _global_slc::timer_widget_start();
+    extern void _global_slc::timer_widget_stop();
+    extern void _global_slc::timer_widget_turn_off();
+    extern void _global_slc::timer_widget_turn_on();
+    extern void _global_slc::turn_off_mission_text();
+    extern void _global_slc::turn_on_hero_health(num,entity);
+    extern void _global_slc::unload_script();
+    extern void _global_slc::wait_for_streamer_to_reach_equilibrium();
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_continuous_rotation(vector3d,num,num);
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_ifc_num(str);
+    extern vector3d entity::get_ifc_vec(str);
+    extern entity entity::get_member(str);
+    extern num entity::is_valid();
+    extern void entity::look_at(vector3d);
+    extern num entity::physical_ifc_is_biped_physics_running();
+    extern void entity::physical_ifc_stop_biped_physics();
+    extern num entity::pop_ai_base_machine();
+    extern void entity::set_abs_xz_facing(vector3d);
+    extern void entity::set_ai_param_int(str,num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_physical(num);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_time_dilation(num);
+    extern void entity::suspend();
+    extern void entity::unsuspend();
+    extern void cut_scene::wait_play();
+    extern void entity_tracker::set_health_widget_active(num);
+    extern void entity_tracker::set_poi_active(num);
+    extern void entity_tracker::set_poi_icon(num);
+    extern void signaller::clear_callback(str);
+    extern void signaller::clear_callbacks();
+    extern void sound_inst::fade_out(num);
+    extern void sound_inst::play(num);
+    extern num vector3d::length();
+    extern num vector3d::length2();
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num district::get_neighborhood();
+    extern void district::wait_for_load();
+
+    class _trick_race
+    {
+    public:
+        static sound_inst global_0;
+        static num global_4 = 0;
+        static num global_8 = 0;
+        static num global_12 = 0;
+        static num global_16 = 0;
+        static num global_20 = 0;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static trick_race_data TRICK_RACE = trick_race_data::from_game_data("TRICK_RACE");
+        static local_timer local_timer = local_timer::create_named("local_timer");
+        static num global_48 = 0;
+        static num global_52;
+        static num global_56;
+        static num global_60;
+        static num global_64;
+        static num global_68;
+        static num global_72;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static str global_92;
+        static str global_96;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112;
+        static num global_116;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static num global_184 = 0;
+        static num global_188 = 0;
+        static num global_192 = 0;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static str global_204;
+        static str global_208;
+        static num global_212 = 0;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248 = 0;
+        static num global_252 = 0;
+        static num global_256;
+        static num global_260;
+        static num global_264;
+        static num global_268;
+        static num global_272;
+        static num global_276;
+        static ai_auditor ai_auditor = ai_auditor::create_named("ai_auditor");
+        static goal_tracker goal_tracker = goal_tracker::create_named("goal_tracker");
+        static city_point_manager city_point_manager = city_point_manager::create_named("city_point_manager");
+        static common_gmu_manager common_gmu_manager = common_gmu_manager::create_named("common_gmu_manager");
+        static common_thug_manager common_thug_manager = common_thug_manager::create_named("common_thug_manager");
+        static common_vehicle_manager common_vehicle_manager = common_vehicle_manager::create_named("common_vehicle_manager");
+        static common_simple_civ_manager common_simple_civ_manager = common_simple_civ_manager::create_named("common_simple_civ_manager");
+        static num global_308 = 0;
+        static num global_312;
+        static num global_316;
+        static num global_320;
+        static num global_324;
+        static num global_328;
+        static num global_332;
+        static num global_336;
+        static num global_340;
+        static num global_344;
+        static num global_348;
+        static num global_352;
+        static num global_356;
+        _trick_race(num p0);
+        ~_trick_race();
+        void wait_frame(num p0);
+        void trick_music_start();
+        void trick_music_success();
+        void trick_music_failed();
+        void start_mission_music();
+        void end_mission_success();
+        void end_mission_failed();
+        void end_mission_music_check(sound_inst p0);
+        void show_car_combat_help_text(num p0);
+        num get_hood_gang(vector3d p0);
+        void set_hero(str p0);
+        void set_spiderman_health();
+        void run_hot_pursuit();
+        void clear_all_scripts();
+        void prepare_open_city_vars();
+        num cycle_tod(num p0);
+        void switch_to_spiderman();
+        void switch_to_venom();
+        void hot_pursuit_checker();
+        void update_open_city_times();
+        num adjust_mission_num(num p0);
+        void set_TOD_and_shoreline(num p0);
+        void enable_mission_tokens_by_hero();
+        void go_to_my_neighborhood(vector3d p0);
+        void city_tutorial_manager(num p0, num p4, num p8);
+        void handle_objective_list(num p0);
+        void launch_trick_race(num p0);
+        void launch_venom_trick_race(num p0);
+        void launch_torch_race(num p0);
+        void set_up_tokens(num p0, num p4);
+        void kill_shenanigans();
+        void disable_mission_tokens();
+        void launch_combat_tour(num p0);
+        void set_hood_gang();
+        void show_mission_text(num p0);
+        void update_open_city_shen_times();
+        num convert_to_progression_step(num p0);
+        void disable_all_tokens();
+        void enable_pickup_tokens();
+        void set_torch_token(num p0);
+        void set_tour_tokens();
+        void set_race_tokens();
+        void reset_all_tours();
+        void process_neighborhood_tours();
+        void handle_health_increase(num p0);
+        void handle_race_unlocking(num p0);
+        void handle_tour_unlocking(num p0);
+        void handle_combo_unlocking(num p0, num p4);
+        void unlock_chars(num p0, num p4);
+        void unlock_concept(num p0, num p4);
+        void handle_costume_unlocking(num p0, num p4);
+        void city_goals_hint();
+        void process_master_objective();
+        void set_progression_display_vars();
+        void initialize_location_mission();
+        void turn_off_hero(num p0);
+        void restart_race();
+        void temp_function();
+        void sinker();
+        void water_prep();
+        void trick_race_music_thread();
+        void run_race();
+        void fix_it();
+        void clean_it();
+        void end_mission_music();
+        void breakdown_location_mission();
+        void set_spidey();
+        void death_checker();
+        void start_timer();
+        void times();
+        void race_time_limit_checker();
+        void stop_timer();
+        void show_results();
+        void try_again();
+        void total_completed_races_increment();
+        void handle_unlocking(num p0, num p4);
+        void on_combat_tour_enter(entity p0, num p4, str p8);
+        void on_storm_race_enter(entity p0, num p4, str p8);
+        void on_venom_race_enter(entity p0, num p4, str p8);
+        void on_trick_race_enter(entity p0, num p4, str p8);
+        void on_token_pickup(entity p0, num p4, num p8, num p12, str p16);
+        void progression_mission_aborted();
+        void progression_mission_failed();
+        void clear_missions_for_unlockables();
+        void toggle_hero();
+        void set_hero_costume(str p0);
+        void left_token_trigger();
+        void display_car_combat_warning_panel(num p0);
+    };
+
+    class local_timer
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        num field_12;
+        num field_16;
+        num field_20;
+        num field_24;
+        num field_28;
+        num field_32;
+        num field_36;
+        num field_40;
+        num field_44;
+        local_timer();
+        ~local_timer();
+        void set_allow_auto_color_change(num p4);
+        void spawn_time_tracker(num p4);
+        void set_count_up();
+        void destroy_and_reset();
+        void set_time(num p4);
+        void freeze();
+        void run();
+        void hide_timer();
+        void show_timer();
+        void time_tracker(num p4);
+        void init_widget();
+        void init_turn_green();
+        void turn_green();
+        void turn_yellow();
+        void turn_red();
+        void turn_flashing();
+        num done();
+        num get_time();
+        num get_time_inc();
+        void stop_time_tracker();
+    };
+
+    class trick_marker
+    {
+    public:
+        trick_marker field_0;
+        vector3d field_4;
+        vector3d field_16;
+        num field_28;
+        num field_32;
+        num field_36;
+        entity_tracker field_40;
+        entity field_44;
+        entity field_48;
+        entity field_52;
+        num unused_56[1];
+        trigger field_60;
+        num field_64;
+        num unused_68[3];
+        num field_80;
+        num field_84;
+        num field_88;
+        num unused_92[1];
+        num field_96;
+        num unused_100[1];
+        num field_104;
+        void failure();
+        void on_enter_trigger();
+        void on_exit_trigger();
+        num run_marker();
+        void icon_rotation();
+        void pulser();
+        void neutralize_it();
+        void rotator1();
+        void look_at_cam_halo();
+        void blow_up();
+        void emploder();
+        void helper();
+        void help_checker();
+        void spawner();
+        void walljump_trick_it();
+        void set_objects();
+    };
+
+    class trick_race_data
+    {
+    public:
+        num field_0;
+        num unused_4[3];
+        num field_16;
+        num field_20;
+        num unused_24[6];
+        num field_48;
+        num field_52;
+        num field_56;
+        num field_60;
+        num field_64;
+        num field_68;
+        trick_marker field_72[16];
+        trick_race_data();
+        ~trick_race_data();
+        void startup();
+        void shutdown();
+    };
+
+    class ai_auditor
+    {
+    public:
+        num field_0;
+        ai_auditor();
+    };
+
+    class common_thug_manager
+    {
+    public:
+        num field_0[18];
+        num field_72;
+        num field_76;
+        num field_80;
+        num field_84;
+        num field_88;
+        num field_92;
+        num field_96;
+        num field_100;
+        common_thug_manager();
+        ~common_thug_manager();
+    };
+
+    class common_simple_civ_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        common_simple_civ_manager();
+        ~common_simple_civ_manager();
+    };
+
+    class common_gmu_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        num field_80;
+        common_gmu_manager();
+        ~common_gmu_manager();
+    };
+
+    class common_vehicle_manager
+    {
+    public:
+        num unused_0[22];
+        num field_88;
+        num field_92;
+        common_vehicle_manager();
+        ~common_vehicle_manager();
+    };
+
+    class goal_tracker
+    {
+    public:
+        num field_0;
+        goal_tracker();
+        ~goal_tracker();
+        void shutdown();
+    };
+
+    class city_point_manager
+    {
+    public:
+        city_point_manager();
+        ~city_point_manager();
+        void shutdown();
+    };
+
+    void _trick_race::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    void _trick_race::clear_all_scripts()
+    {
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        unload_script();
+        while (is_mission_active()) {
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _trick_race::go_to_my_neighborhood(vector3d p0)
+    {
+        district v2;
+        district v1;
+        num v3 = 0;
+        if ((hero()).physical_ifc_is_biped_physics_running()) {
+            (hero()).physical_ifc_stop_biped_physics();
+        }
+        if (is_hero_venom()) {
+            malor(RESPAWN_CENTRAL_PARK, 1);
+        } else {
+            v2 = find_district_for_point(p0);
+            v3 = (v2).get_neighborhood();
+            switch (v3) {
+            case 0:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            case 1:
+            {
+                malor(RESPAWN_ESU, 1);
+                break;
+            }
+            case 2:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            case 3:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            default:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            }
+        }
+        v1 = find_district_for_point((hero()).get_abs_position());
+        (v1).wait_for_load();
+        wait_for_streamer_to_reach_equilibrium();
+    }
+
+    local_timer::local_timer()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        field_12 = 0;
+        field_16 = 0;
+        field_20 = 0;
+        field_24 = 0;
+        field_28 = 0;
+        field_32 = 0.75;
+        field_36 = 0.5;
+        field_40 = 0.25;
+        field_44 = 1;
+        field_8 = 1;
+        field_12 = 0;
+        field_16 = 0;
+        (this).init_widget();
+        bind_signal_once_on(this, signal_id(hero(), "entity::DESTROYED"), (this).destroy_and_reset());
+    }
+
+    local_timer::~local_timer()
+    {
+        (this).destroy_and_reset();
+    }
+
+    void local_timer::set_allow_auto_color_change(num p4)
+    {
+        field_44 = p4;
+    }
+
+    void local_timer::spawn_time_tracker(num p4)
+    {
+        start_thread_on(this, (this).time_tracker(p4));
+    }
+
+    void local_timer::set_count_up()
+    {
+        timer_widget_set_count_up(1);
+        field_20 = 0;
+    }
+
+    void local_timer::destroy_and_reset()
+    {
+        kill_threads_on(this, local_timer::time_tracker);
+        (this).freeze();
+        (this).hide_timer();
+        (this).turn_green();
+        field_12 = 0;
+    }
+
+    void local_timer::set_time(num p4)
+    {
+        field_28 = p4;
+        timer_widget_set_time(p4);
+    }
+
+    void local_timer::freeze()
+    {
+        field_8 = 1;
+        timer_widget_stop();
+        if ((timer_widget_get_time() == 0)) {
+            timer_widget_set_time(0.1);
+        }
+    }
+
+    void local_timer::run()
+    {
+        wait_frame();
+        field_12 = 0;
+        timer_widget_start();
+    }
+
+    void local_timer::hide_timer()
+    {
+        timer_widget_turn_off();
+    }
+
+    void local_timer::show_timer()
+    {
+        wait_frame();
+        timer_widget_turn_on();
+        delay(0.5);
+    }
+
+    void local_timer::time_tracker(num p4)
+    {
+        field_8 = 0;
+        num v2 = 0;
+        num v1 = 0;
+        num v0 = (this).get_time_inc();
+        while ((!(this).done())) {
+            v2 = (this).get_time();
+            if ((v0 == 1)) {
+                v1 = (v2 / field_28);
+            } else if ((v0 == 0)) {
+                v1 = ((p4 - v2) / p4);
+            }
+            if ((((v2 >= p4) && (v0 == 0)) || ((v2 <= p4) && (v0 == 1)))) {
+                delay(0.5);
+                (this).stop_time_tracker();
+                field_12 = 1;
+                if ((v0 == 1)) {
+                    raise_signal("LOCAL_TIMER_TIMED_OUT");
+                }
+            } else if ((((field_44 && (v1 < field_32)) && (v1 >= field_36)) && (field_24 != 1))) {
+                (this).turn_yellow();
+            } else if ((((field_44 && (v1 < field_36)) && (v1 >= field_40)) && (field_24 != 2))) {
+                (this).turn_red();
+            } else if (((field_44 && (v1 < field_40)) && (field_24 != 3))) {
+                (this).turn_flashing();
+            }
+            wait_frame();
+        }
+    }
+
+    void local_timer::init_widget()
+    {
+        timer_widget_set_time(15);
+        (this).init_turn_green();
+    }
+
+    void local_timer::init_turn_green()
+    {
+        field_24 = 0;
+    }
+
+    void local_timer::turn_green()
+    {
+        field_24 = 0;
+    }
+
+    void local_timer::turn_yellow()
+    {
+        field_24 = 1;
+        raise_signal("LOCAL_TIMER_TURNED_YELLOW");
+    }
+
+    void local_timer::turn_red()
+    {
+        field_24 = 2;
+        raise_signal("LOCAL_TIMER_TURNED_RED");
+    }
+
+    void local_timer::turn_flashing()
+    {
+        field_24 = 3;
+        raise_signal("LOCAL_TIMER_TURNED_FLASHING");
+    }
+
+    num local_timer::done()
+    {
+        return field_16;
+    }
+
+    num local_timer::get_time()
+    {
+        num v0 = timer_widget_get_time();
+        return v0;
+    }
+
+    num local_timer::get_time_inc()
+    {
+        return field_20;
+    }
+
+    void local_timer::stop_time_tracker()
+    {
+        field_16 = 1;
+    }
+
+    void trick_marker::failure()
+    {
+        if ((field_44).is_valid()) {
+            (field_44).clear_callbacks();
+        }
+        (field_60).clear_callbacks();
+        field_84 = 1;
+        destroy_entity_tracker(field_40);
+    }
+
+    void trick_marker::on_enter_trigger()
+    {
+        field_36 = 1;
+        bind_signal_once_on(this, signal_id(field_60, "trigger::ENTER"), (this).on_enter_trigger());
+    }
+
+    void trick_marker::on_exit_trigger()
+    {
+        field_36 = 0;
+        bind_signal_once_on(this, signal_id(field_60, "trigger::LEAVE"), (this).on_exit_trigger());
+        (hero()).clear_callback("pole_trick_it()");
+        (hero()).clear_callback("walljump_trick_it()");
+        field_88 = 0;
+        turn_off_mission_text();
+    }
+
+    num trick_marker::run_marker()
+    {
+        kill_threads_on(this, trick_marker::helper);
+        kill_threads_on(this, trick_marker::help_checker);
+        turn_off_mission_text();
+        g_trick_race_box_called = 0;
+        field_104 = 0;
+        field_88 = 0;
+        sound_inst v0;
+        if ((bit_cast<num>(field_0) == 0)) {
+            return 0;
+        } else {
+            v0 = create_sound_inst("fx_racewaypoint");
+            (this).set_objects();
+            if (((((!field_80) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                field_44 = create_entity("effects\\entities\\fx_tmsphere");
+                field_48 = create_entity("effects\\entities\\fx_tmglow");
+                field_52 = create_entity("effects\\entities\\fx_tmspidey");
+                field_60 = create_trigger(field_4, field_32);
+                (field_44).set_rel_position(field_4);
+                (field_48).set_rel_position(field_4);
+                (field_52).set_rel_position(field_4);
+                (field_44).set_render_alpha(0.6);
+                field_64 = (field_32 - 0.8);
+                (field_44).set_render_color(vector3d(1, 0, 0));
+                if ((bit_cast<num>(field_0) == 3)) {
+                    (field_48).set_render_color(vector3d(0, 1.5, 0));
+                } else if ((bit_cast<num>(field_0) == 1)) {
+                    (field_48).set_render_color(vector3d(0, 0, 1.5));
+                } else if ((bit_cast<num>(field_0) == 4)) {
+                    (field_48).set_render_color(vector3d(1.5, 0, 0));
+                } else if ((bit_cast<num>(field_0) == 2)) {
+                    (field_48).set_render_color(vector3d(252, 255, 0));
+                }
+                (field_44).set_distance_clip(300);
+                (field_48).set_distance_clip(300);
+                (field_52).set_distance_clip(300);
+                start_thread_on(this, (this).spawner());
+                start_thread_on(this, (this).look_at_cam_halo());
+                start_thread_on(this, (this).icon_rotation());
+            }
+            if (g_first_trick_marker) {
+                malor(g_race_start_position, 1);
+                (hero()).set_abs_xz_facing((field_44).get_abs_position());
+                _trick_race::wait_frame(3);
+                spiderman_camera_autocorrect(0);
+                delay(1.5);
+                district v10 = find_district_for_point(g_race_start_position);
+                _trick_race::wait_frame(3);
+                (v10).wait_for_load();
+                blackscreen_off(0.5);
+                delay(0.5);
+                g_first_trick_marker = 0;
+                while ((!g_done_showing_trick_times)) {
+                    wait_frame();
+                }
+                bring_up_race_announcer();
+                g_ready_to_race = 1;
+            }
+            if ((bit_cast<num>(field_0) != 6)) {
+                bind_signal_once_on(this, signal_id(field_60, "trigger::ENTER"), (this).on_enter_trigger());
+                bind_signal_once_on(this, signal_id(field_60, "trigger::LEAVE"), (this).on_exit_trigger());
+            }
+            if ((((!g_racing_hero_died) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                field_40 = create_entity_tracker(field_44);
+                (field_40).set_poi_icon(4);
+                (field_40).set_poi_active(1);
+                (field_40).set_health_widget_active(0);
+            }
+            while ((((((!field_104) && (!field_84)) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                if ((!g_trick_race_box_called)) {
+                    g_trick_race_box_called = 1;
+                    start_thread_on(this, (this).help_checker());
+                }
+                vector3d v1 = (hero()).get_abs_position();
+                if (((hero()).get_ifc_num("HIT_POINTS") <= 0)) {
+                    destroy_entity_tracker(field_40);
+                }
+                while ((((((!field_36) && (!field_84)) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+                    if ((bit_cast<num>(field_0) == 6)) {
+                        vector3d v2 = ((hero()).get_abs_position() - v1);
+                        if (((v2).length2() > 0)) {
+                            vector3d v4 = (field_16 - field_4);
+                            v4 = normal(v4);
+                            num v5 = (-dot(field_4, v4));
+                            num v3 = dot(v2, v4);
+                            if (((v3 > 0.001) || (v3 < -0.001))) {
+                                num v7 = ((-(dot(v4, v1) + v5)) / v3);
+                                if (((v7 >= 0) && (v7 <= 1))) {
+                                    vector3d v9 = (v1 + (v2 * v7));
+                                    if ((((v9 - field_4)).length2() < (field_32 * field_32))) {
+                                        field_36 = 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    v1 = (hero()).get_abs_position();
+                    wait_frame();
+                }
+                if ((!field_84)) {
+                    switch (bit_cast<num>(field_0)) {
+                    case 1:
+                    {
+                        field_104 = 1;
+                        break;
+                    }
+                    case 3:
+                    {
+                        field_104 = spiderman_is_on_ground();
+                        break;
+                    }
+                    case 4:
+                    {
+                        field_104 = spiderman_is_on_wall();
+                        break;
+                    }
+                    case 2:
+                    {
+                        if ((!field_88)) {
+                            bind_signal_once_on(this, signal_id(hero(), "entity::TRICK_WALL_JUMP"), (this).walljump_trick_it());
+                            field_88 = 1;
+                        }
+                        break;
+                    }
+                    case 5:
+                    {
+                        field_104 = spiderman_is_on_ground();
+                        if (field_104) {
+                            raise_signal(field_44, "entity::DISABLE_TRICK_WAYPOINT");
+                        }
+                        break;
+                    }
+                    case 6:
+                    {
+                        field_104 = 1;
+                        if (field_104) {
+                            raise_signal(field_44, "entity::DISABLE_TRICK_WAYPOINT");
+                        }
+                        break;
+                    }
+                    }
+                    wait_frame();
+                }
+            }
+            turn_off_mission_text();
+            destroy_entity_tracker(field_40);
+            switch (bit_cast<num>(field_0)) {
+            case 1:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            case 3:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            case 4:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            case 5:
+            {
+                break;
+            }
+            case 6:
+            {
+                start_thread_on(this, (this).neutralize_it());
+                break;
+            }
+            case 2:
+            {
+                start_thread_on(this, (this).blow_up());
+                break;
+            }
+            }
+            destroy_trigger(field_60);
+            g_last_trick_marker_type = bit_cast<num>(field_0);
+            (v0).play(0);
+            return field_28;
+        }
+    }
+
+    void trick_marker::icon_rotation()
+    {
+        (field_52).apply_continuous_rotation(vector3d(1, 0, 1), 1.5, 1);
+    }
+
+    void trick_marker::pulser()
+    {
+        num v0 = (field_32 - 0.8);
+        num v1 = 0;
+        num v2 = 1;
+        num v3 = 0;
+        while (((!field_96) && (field_44).is_valid())) {
+            if (v3) {
+                v1 = (v1 - 0.02);
+                if ((v1 <= 0)) {
+                    v3 = 0;
+                    v2 = 1;
+                }
+            } else if (v2) {
+                v1 = (v1 + 0.1);
+                if ((v1 >= 0.4)) {
+                    v3 = 1;
+                    v2 = 0;
+                }
+            }
+            (field_44).set_render_scale(vector3d((v0 + v1), (v0 + v1), (v0 + v1)));
+            (field_48).set_render_scale(vector3d((v0 + v1), (v0 + v1), (v0 + v1)));
+            (field_52).set_render_scale(vector3d((v0 + v1), (v0 + v1), (v0 + v1)));
+            wait_frame();
+        }
+    }
+
+    void trick_marker::neutralize_it()
+    {
+        num v0 = 1;
+        while ((v0 > 0)) {
+            (field_44).set_render_alpha(v0);
+            v0 = (v0 - 0.1);
+            delay(0.01);
+        }
+        destroy_entity(field_44);
+    }
+
+    void trick_marker::rotator1()
+    {
+        num v1 = random(12);
+        vector3d v4 = (hero()).get_ifc_vec("VELOCITY");
+        num v2 = (v4).length();
+        num v0 = 0;
+        if ((v2 <= 5)) {
+            v0 = 0.1;
+        } else if (((v2 > 5) && (v2 <= 10))) {
+            v0 = 0.4;
+        } else if (((v2 > 10) && (v2 <= 15))) {
+            v0 = 0.8;
+        } else if (((v2 > 15) && (v2 <= 20))) {
+            v0 = 1.2;
+        } else if (((v2 > 20) && (v2 <= 25))) {
+            v0 = 1.6;
+        } else if (((v2 > 30) && (v2 <= 35))) {
+            v0 = 2;
+        } else if (((v2 > 35) && (v2 <= 40))) {
+            v0 = 2.4;
+        } else if ((v2 > 40)) {
+            v0 = 3.5;
+        }
+        switch (v1) {
+        case 0:
+        {
+            (field_48).apply_continuous_rotation(vector3d(-1, -1, 0), v0, 0);
+            break;
+        }
+        case 1:
+        {
+            (field_48).apply_continuous_rotation(vector3d(-1, 0, 0), v0, 0);
+            break;
+        }
+        case 2:
+        {
+            (field_48).apply_continuous_rotation(vector3d(-1, 1, 0), v0, 0);
+            break;
+        }
+        case 3:
+        {
+            (field_48).apply_continuous_rotation(vector3d(1, 0, 0), v0, 0);
+            break;
+        }
+        case 4:
+        {
+            (field_48).apply_continuous_rotation(vector3d(1, 1, 0), v0, 0);
+            break;
+        }
+        case 5:
+        {
+            (field_48).apply_continuous_rotation(vector3d(1, -1, 0), v0, 0);
+            break;
+        }
+        case 6:
+        {
+            (field_48).apply_continuous_rotation(vector3d(0, 1, 0), v0, 0);
+            break;
+        }
+        case 7:
+        {
+            (field_48).apply_continuous_rotation(vector3d(0, -1, 0), v0, 0);
+            break;
+        }
+        case 8:
+        {
+            (field_48).apply_continuous_rotation(vector3d(0, 0, 1), v0, 0);
+            break;
+        }
+        case 9:
+        {
+            (field_48).apply_continuous_rotation(vector3d(0, 0, -1), v0, 0);
+            break;
+        }
+        case 10:
+        {
+            (field_48).apply_continuous_rotation(vector3d(0, 1, 1), v0, 0);
+            break;
+        }
+        case 11:
+        {
+            (field_48).apply_continuous_rotation(vector3d(0, 1, -1), v0, 0);
+            break;
+        }
+        }
+    }
+
+    void trick_marker::look_at_cam_halo()
+    {
+        while (((field_48).is_valid() && (!field_96))) {
+            (field_48).look_at((chase_cam()).get_abs_position());
+            wait_frame();
+        }
+    }
+
+    void trick_marker::blow_up()
+    {
+        kill_threads_on(this, trick_marker::look_at_cam_halo);
+        kill_threads_on(this, trick_marker::pulser);
+        kill_threads_on(this, trick_marker::spawner);
+        field_96 = 1;
+        num v1 = 1;
+        num v0 = 0.6;
+        start_thread_on(this, (this).emploder());
+        (field_52).set_render_alpha(0);
+        while ((v0 > 0)) {
+            v0 = (v0 - 0.1);
+            v1 = (v1 - 0.1);
+            (field_44).set_render_alpha(v0);
+            (field_48).set_render_alpha(v1);
+            delay(0.1);
+        }
+    }
+
+    void trick_marker::emploder()
+    {
+        num v0 = 0;
+        if ((field_32 < 3)) {
+            v0 = 1;
+        } else if (((field_32 >= 3) && (field_32 < 6))) {
+            v0 = 2;
+        } else if (((field_32 >= 6) && (field_32 < 9))) {
+            v0 = 3;
+        } else if (((field_32 >= 9) && (field_32 < 12))) {
+            v0 = 4;
+        } else if (((field_32 >= 12) && (field_32 < 15))) {
+            v0 = 5;
+        } else if ((field_32 > 15)) {
+            v0 = 6;
+        }
+        v0 = 1;
+        (field_52).apply_continuous_rotation(vector3d(1, 0, 0), 10, 1);
+        (field_44).set_render_scale(vector3d(1, 1, 1));
+        (field_52).set_render_scale(vector3d(1, 1, 1));
+        (field_48).set_render_scale(vector3d(1, 1, 1));
+        v0 = 1;
+        start_thread_on(this, (this).rotator1());
+        while ((v0 < 20)) {
+            v0 = (v0 + 2);
+            (field_44).set_render_scale(vector3d(v0, v0, v0));
+            (field_48).set_render_scale(vector3d(v0, v0, v0));
+            delay(0.0001);
+        }
+        destroy_entity(field_44);
+        destroy_entity(field_48);
+        destroy_entity(field_52);
+    }
+
+    void trick_marker::helper()
+    {
+        turn_off_mission_text();
+        set_mission_text_box_flavor(1);
+        switch (bit_cast<num>(field_0)) {
+        case 3:
+        {
+            set_mission_text(200);
+            break;
+        }
+        case 2:
+        {
+            set_mission_text(201);
+            break;
+        }
+        case 4:
+        {
+            set_mission_text(203);
+            break;
+        }
+        }
+    }
+
+    void trick_marker::help_checker()
+    {
+        if ((g_last_trick_marker_type != bit_cast<num>(field_0))) {
+            start_thread_on(this, (this).helper());
+            delay(3);
+        }
+        num v0 = 0;
+        turn_off_mission_text();
+        while (((!field_104) && (!g_wet_trick_race))) {
+            if (((v0 >= 10) && (!g_wet_trick_race))) {
+                start_thread_on(this, (this).helper());
+                delay(3);
+                turn_off_mission_text();
+                v0 = 0;
+            }
+            v0 = (v0 + 0.1);
+            delay(0.1);
+        }
+    }
+
+    void trick_marker::spawner()
+    {
+        num v0 = 0;
+        while ((v0 < (field_32 - 0.8))) {
+            v0 = (v0 + 1);
+            (field_52).set_render_scale(vector3d(v0, v0, v0));
+            (field_44).set_render_scale(vector3d(v0, v0, v0));
+            (field_48).set_render_scale(vector3d(v0, v0, v0));
+            delay(0.0001);
+        }
+        (field_52).set_render_scale(vector3d((field_32 - 0.8), (field_32 - 0.8), (field_32 - 0.8)));
+        (field_44).set_render_scale(vector3d((field_32 - 0.8), (field_32 - 0.8), (field_32 - 0.8)));
+        (field_48).set_render_scale(vector3d((field_32 - 0.8), (field_32 - 0.8), (field_32 - 0.8)));
+        start_thread_on(this, (this).pulser());
+    }
+
+    void trick_marker::walljump_trick_it()
+    {
+        field_104 = 1;
+    }
+
+    void trick_marker::set_objects()
+    {
+        switch (bit_cast<num>(field_0)) {
+        case 5:
+        {
+            field_44 = create_entity("items\\entities\\itm_marktrick_plata");
+            (field_44).set_rel_position(field_4);
+            field_60 = create_trigger(field_44, field_32);
+            field_80 = 1;
+            _trick_race::wait_frame(3);
+            raise_signal(field_44, "entity::ENABLE_TRICK_WAYPOINT");
+            break;
+        }
+        case 6:
+        {
+            field_44 = create_entity("items\\entities\\itm_marktrick_hoopa");
+            (field_44).set_rel_position(field_4);
+            field_60 = find_trigger((field_44).get_member("TRIG"));
+            (field_44).look_at(field_16);
+            field_80 = 1;
+            _trick_race::wait_frame(3);
+            raise_signal(field_44, "entity::ENABLE_TRICK_WAYPOINT");
+            break;
+        }
+        }
+        (field_44).set_distance_clip(300);
+    }
+
+    trick_race_data::trick_race_data()
+    {
+        field_0 = 0;
+        field_16 = 0;
+        field_20 = 0;
+        field_48 = 0;
+        field_52 = 0;
+        field_56 = 0;
+        field_60 = 0;
+        field_64 = 0;
+        field_68 = 0;
+    }
+
+    trick_race_data::~trick_race_data()
+    {
+    }
+
+    void trick_race_data::startup()
+    {
+        initialize_encounter_object();
+    }
+
+    void trick_race_data::shutdown()
+    {
+    }
+
+    void _trick_race::end_mission_music_check(sound_inst p0)
+    {
+        if (g_mission_music_active) {
+            (p0).fade_out(1);
+        }
+        g_ambient_music_allowed = 1;
+    }
+
+    void _trick_race::start_mission_music()
+    {
+        g_ambient_music_allowed = 0;
+        g_mission_music_active = 1;
+        raise_signal("AMBIENT_MUSIC_FADE_OUT");
+    }
+
+    void _trick_race::end_mission_success()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _trick_race::end_mission_failed()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _trick_race::trick_race_music_thread()
+    {
+        bind_signal_once(signal_id("TRICK_MUSIC_START"), _trick_race::trick_music_start());
+        bind_signal_once(signal_id("TRICK_MUSIC_SUCCESS"), _trick_race::trick_music_success());
+        bind_signal_once(signal_id("TRICK_MUSIC_FAILED"), _trick_race::trick_music_failed());
+    }
+
+    void _trick_race::trick_music_start()
+    {
+        _trick_race::start_mission_music();
+        num v1 = random(4);
+        switch (v1) {
+        case 0:
+        {
+            _trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc02_mus");
+            break;
+        }
+        case 1:
+        {
+            _trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc03_mus");
+            break;
+        }
+        case 2:
+        {
+            _trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc04_mus");
+            break;
+        }
+        case 3:
+        {
+            _trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc05_mus");
+            break;
+        }
+        default:
+        {
+            _trick_race::global_0 = create_stompable_music_sound_inst("cit_01rc02_mus");
+            break;
+        }
+        }
+        (_trick_race::global_0).play(0);
+    }
+
+    void _trick_race::trick_music_success()
+    {
+        (_trick_race::global_0).fade_out(1);
+        _trick_race::end_mission_success();
+    }
+
+    void _trick_race::trick_music_failed()
+    {
+        (_trick_race::global_0).fade_out(1);
+        _trick_race::end_mission_failed();
+    }
+
+    void _trick_race::end_mission_music()
+    {
+        _trick_race::end_mission_music_check(_trick_race::global_0);
+    }
+
+    void _trick_race::city_tutorial_manager(num p0, num p4, num p8)
+    {
+        if ((p0 == 0)) {
+            if ((!gv_city_tutorials[0])) {
+                gv_city_tutorials[0] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(131, 1, 130);
+            }
+        } else if ((p0 == 1)) {
+            if ((!gv_city_tutorials[5])) {
+                blackscreen_off(0);
+                gv_city_tutorials[5] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(76, 1, 75);
+            }
+        } else if ((p0 == 2)) {
+            switch (p8) {
+            case 0:
+            {
+                if ((!gv_city_tutorials[6])) {
+                    gv_city_tutorials[6] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(239, 1, 238);
+                }
+                break;
+            }
+            case 1:
+            {
+                if ((!gv_city_tutorials[7])) {
+                    gv_city_tutorials[7] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(241, 1, 240);
+                }
+                break;
+            }
+            case 2:
+            {
+                if ((!gv_city_tutorials[8])) {
+                    gv_city_tutorials[8] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(237, 1, 236);
+                }
+                break;
+            }
+            }
+        }
+    }
+
+    void _trick_race::display_car_combat_warning_panel(num p0)
+    {
+        _trick_race::show_car_combat_help_text(3);
+        if (p0) {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_left");
+            (v0).wait_play();
+        } else {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_right");
+            (v0).wait_play();
+        }
+    }
+
+    num _trick_race::get_hood_gang(vector3d p0)
+    {
+        num v3 = -1;
+        district v1;
+        num v2 = 0;
+        v1 = find_district_for_point(p0);
+        v2 = (v1).get_neighborhood();
+        switch (v2) {
+        case 0:
+        {
+            v3 = 3;
+            break;
+        }
+        case 1:
+        {
+            v3 = 2;
+            break;
+        }
+        case 2:
+        {
+            v3 = 0;
+            break;
+        }
+        case 3:
+        {
+            v3 = 1;
+            break;
+        }
+        }
+        return v3;
+    }
+
+    void _trick_race::set_hood_gang()
+    {
+        vector3d v0;
+        v0 = get_mission_key_position();
+        g_hood_gang = _trick_race::get_hood_gang(v0);
+    }
+
+    void _trick_race::left_token_trigger()
+    {
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        if ((!g_trick_race_running)) {
+        }
+        turn_off_mission_text();
+        if ((hero()).is_valid()) {
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+        }
+    }
+
+    void _trick_race::switch_to_spiderman()
+    {
+        _trick_race::set_hero("ultimate_spiderman");
+    }
+
+    void _trick_race::switch_to_venom()
+    {
+        if (gv_story_finished) {
+            _trick_race::set_hero("venom_spider");
+        } else {
+            _trick_race::set_hero("venom");
+        }
+    }
+
+    void _trick_race::set_hero(str p0)
+    {
+        stop_vibration();
+        vector3d v0 = (hero()).get_abs_position();
+        swap_hero_costume(p0);
+        malor(v0, 1);
+        spiderman_camera_autocorrect(0);
+        if (is_hero_spidey()) {
+            _trick_race::set_spiderman_health();
+        } else {
+            turn_on_hero_health(4, hero());
+        }
+    }
+
+    void _trick_race::set_hero_costume(str p0)
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_trick_race::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _trick_race::clear_all_scripts();
+        _trick_race::set_hero(p0);
+        _trick_race::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    void _trick_race::toggle_hero()
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_trick_race::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _trick_race::clear_all_scripts();
+        if (is_hero_venom()) {
+            gv_current_city_tod = _trick_race::cycle_tod(gv_current_city_tod);
+            _trick_race::switch_to_spiderman();
+        } else {
+            gv_current_venom_city_tod = _trick_race::cycle_tod(gv_current_venom_city_tod);
+            _trick_race::switch_to_venom();
+            start_thread(_trick_race::hot_pursuit_checker());
+        }
+        _trick_race::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    num _trick_race::cycle_tod(num p0)
+    {
+        num v0 = 0;
+        if ((p0 == 3)) {
+            v0 = 0;
+        } else {
+            v0 = (p0 + 1);
+        }
+        return v0;
+    }
+
+    void _trick_race::set_TOD_and_shoreline(num p0)
+    {
+        set_time_of_day(p0);
+        raise_signal("UPDATE_SHORELINE");
+    }
+
+    void _trick_race::hot_pursuit_checker()
+    {
+        bind_signal_once(signal_id("A_CAR_HAS_EXPLODED"), _trick_race::run_hot_pursuit());
+    }
+
+    void _trick_race::run_hot_pursuit()
+    {
+        if ((((!g_enable_hot_pursuit) && (!g_enable_venom_trick_race)) && (!g_trick_race_running))) {
+            g_enable_sh = 0;
+            g_enable_story = 0;
+            g_enable_hot_pursuit = 1;
+        }
+        while (((g_enable_hot_pursuit || g_enable_venom_trick_race) || g_trick_race_running)) {
+            _global_slc::wait_frame();
+        }
+        start_thread(_trick_race::hot_pursuit_checker());
+    }
+
+    num _trick_race::adjust_mission_num(num p0)
+    {
+        num v1 = p0;
+        switch (p0) {
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 3:
+        {
+            v1 = 36;
+            break;
+        }
+        case 7:
+        {
+            v1 = 30;
+            break;
+        }
+        case 15:
+        {
+            v1 = 31;
+            break;
+        }
+        case 34:
+        {
+            v1 = 25;
+            break;
+        }
+        case 8:
+        {
+            v1 = 25;
+            break;
+        }
+        case 17:
+        {
+            v1 = 32;
+            break;
+        }
+        case 33:
+        {
+            v1 = 32;
+            break;
+        }
+        case 10:
+        {
+            v1 = 27;
+            break;
+        }
+        case 28:
+        {
+            v1 = 27;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _trick_race::prepare_open_city_vars()
+    {
+        if ((!gv_story_finished)) {
+            _trick_race::update_open_city_times();
+            if ((!is_hero_spidey())) {
+                _trick_race::switch_to_spiderman();
+            }
+        }
+        g_story_checkpoint = 0;
+        g_enable_story = 0;
+        gv_num_current_story = _trick_race::adjust_mission_num(gv_num_current_story);
+        if (is_hero_spidey()) {
+            _trick_race::set_TOD_and_shoreline(gv_current_city_tod);
+        } else {
+            _trick_race::set_TOD_and_shoreline(gv_current_venom_city_tod);
+        }
+        g_enable_igc = 0;
+        g_enable_venom_igc = 0;
+        g_mission_status = 0;
+        g_mission_type = 0;
+        g_enable_sh = 1;
+        g_enable_can = 1;
+        g_switch_to_open_city_music = 1;
+        g_enable_token_event = 0;
+        g_enable_trick_race = 0;
+        g_enable_venom_trick_race = 0;
+        gv_num_current_token_event = 0;
+        _trick_race::enable_mission_tokens_by_hero();
+    }
+
+    void _trick_race::clear_missions_for_unlockables()
+    {
+        g_unlockables_entered = 1;
+        blackscreen_on(0);
+        num v1 = g_mission_type;
+        num v0 = g_queens_tour_running;
+        _trick_race::prepare_open_city_vars();
+        g_trick_race_restarted = 0;
+        g_enable_trick_race = 0;
+        g_enable_storm_race = 0;
+        g_enable_venom_trick_race = 0;
+        g_torch_race_running = 0;
+        g_trick_race_running = 0;
+        _trick_race::clear_all_scripts();
+        if (((v1 == 4) || (v0 == 1))) {
+            _trick_race::go_to_my_neighborhood(gv_hero_restart_pos);
+        }
+        blackscreen_off(0);
+        invoke_pause_menu_unlockables();
+        raise_signal("MISSION_START_UPDATE");
+        g_unlockables_entered = 0;
+    }
+
+    void _trick_race::progression_mission_failed()
+    {
+        blackscreen_on(0);
+        spiderman_camera_clear_fixedstatic();
+        _trick_race::prepare_open_city_vars();
+        _trick_race::clear_all_scripts();
+        _trick_race::go_to_my_neighborhood(gv_hero_restart_pos);
+        raise_signal("MISSION_START_UPDATE");
+        blackscreen_off(1);
+    }
+
+    void _trick_race::progression_mission_aborted()
+    {
+        if ((g_mission_type == 4)) {
+            stop_vibration();
+            clear_controls();
+        }
+        if (((hero()).get_ifc_num("HIT_POINTS") > 0)) {
+            g_story_checkpoint = 0;
+            if ((g_mission_type == 3)) {
+                if ((!g_trick_race_controls_locked)) {
+                    enable_controls(0);
+                    clear_controls();
+                    spiderman_camera_enable_lookaround(0);
+                    g_trick_race_controls_locked = 1;
+                }
+                g_race_exited_via_pause = 1;
+                g_done_with_storm_anim = 1;
+            } else {
+                blackscreen_on(0);
+                spiderman_camera_clear_fixedstatic();
+                if ((gv_num_current_story == 42)) {
+                    g_mission_status = 2;
+                    raise_signal("MISSION_END");
+                } else {
+                    _trick_race::prepare_open_city_vars();
+                    _trick_race::clear_all_scripts();
+                    if ((g_mission_type != 1)) {
+                        _trick_race::go_to_my_neighborhood(gv_hero_restart_pos);
+                    }
+                    raise_signal("MISSION_START_UPDATE");
+                }
+            }
+            blackscreen_off(1);
+        }
+    }
+
+    void _trick_race::on_token_pickup(entity p0, num p4, num p8, num p12, str p16)
+    {
+        _trick_race::city_tutorial_manager(2, 0, p4);
+        _trick_race::handle_objective_list(2);
+        if ((p4 != 4)) {
+            destroy_entity(p0);
+        }
+        switch (p4) {
+        case 1:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(12);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(11, p8, p12);
+            }
+            num v0 = 1;
+            while ((v0 <= 79)) {
+                if ((v0 == 1)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[0] = 1;
+                        gv_unlockable_covers[1] = 1;
+                        gv_unlockable_covers[2] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 2)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[3] = 1;
+                        gv_unlockable_covers[4] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 10)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        gv_unlockable_covers[(v0 + 3)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                    gv_unlockable_covers[(v0 + 3)] = 1;
+                    v0 = 79;
+                }
+                v0++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(13);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(17, p8, p12);
+            }
+            if ((p16 == "MV_TOKEN_01")) {
+                gv_unlockable_landmark[5] = 1;
+            } else if ((p16 == "MV_TOKEN_02")) {
+                gv_unlockable_landmark[13] = 1;
+            } else if ((p16 == "MV_TOKEN_03")) {
+                gv_unlockable_landmark[4] = 1;
+            } else if ((p16 == "MV_TOKEN_04")) {
+                gv_unlockable_landmark[0] = 1;
+            } else if ((p16 == "MV_TOKEN_05")) {
+                gv_unlockable_landmark[6] = 1;
+            } else if ((p16 == "MV_TOKEN_06")) {
+                gv_unlockable_landmark[1] = 1;
+            } else if ((p16 == "MV_TOKEN_07")) {
+                gv_unlockable_landmark[2] = 1;
+            } else if ((p16 == "MV_TOKEN_08")) {
+                gv_unlockable_landmark[7] = 1;
+            } else if ((p16 == "MV_TOKEN_09")) {
+                gv_unlockable_landmark[9] = 1;
+            } else if ((p16 == "MV_TOKEN_10")) {
+                gv_unlockable_landmark[10] = 1;
+            } else if ((p16 == "MV_TOKEN_11")) {
+                gv_unlockable_landmark[11] = 1;
+            } else if ((p16 == "MV_TOKEN_12")) {
+                gv_unlockable_landmark[8] = 1;
+            } else if ((p16 == "MV_TOKEN_13")) {
+                gv_unlockable_landmark[14] = 1;
+            } else if ((p16 == "MV_TOKEN_14")) {
+                gv_unlockable_landmark[3] = 1;
+            } else if ((p16 == "MV_TOKEN_15")) {
+                gv_unlockable_landmark[12] = 1;
+            }
+            break;
+        }
+        case 2:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(15);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(18, p8, p12);
+            }
+            break;
+        }
+        case 4:
+        {
+            break;
+        }
+        }
+        sound_inst v2 = create_sound_inst("token_sfx");
+        (v2).play(0);
+        delay(1.5);
+        turn_off_mission_text();
+    }
+
+    void _trick_race::on_trick_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            v2 = g_spidey_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _trick_race::launch_trick_race(p4));
+            }
+        }
+    }
+
+    void _trick_race::on_venom_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_venom()) && (p4 != -1))) {
+            v2 = g_venom_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_venom_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_venom_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_venom_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_venom_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _trick_race::launch_venom_trick_race(p4));
+            }
+        }
+    }
+
+    void _trick_race::on_storm_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            num v0 = get_token_index_from_id(4, p4);
+            set_mission_text_box_flavor(0);
+            if ((!g_torch_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(78);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _trick_race::launch_torch_race(p4));
+            }
+        }
+    }
+
+    void _trick_race::disable_all_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(0, 0);
+        enable_tokens_of_type(1, 0);
+        enable_tokens_of_type(2, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _trick_race::disable_mission_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _trick_race::enable_mission_tokens_by_hero()
+    {
+        if (is_hero_venom()) {
+            enable_tokens_of_type(5, 1);
+            enable_tokens_of_type(4, 0);
+            enable_tokens_of_type(6, 0);
+            enable_tokens_of_type(8, 0);
+        } else {
+            _trick_race::set_up_tokens(gv_num_current_story, 0);
+        }
+    }
+
+    void _trick_race::enable_pickup_tokens()
+    {
+        enable_tokens_of_type(0, 1);
+        enable_tokens_of_type(1, 1);
+        enable_tokens_of_type(2, 1);
+    }
+
+    void _trick_race::kill_shenanigans()
+    {
+        g_enable_sh = 0;
+        g_enable_can = 0;
+        _global_slc::wait_frame();
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        if ((is_mission_active() && (g_mission_type == 1))) {
+            unload_script();
+            while (is_mission_active()) {
+                _global_slc::wait_frame();
+            }
+        }
+    }
+
+    void _trick_race::launch_combat_tour(num p0)
+    {
+        turn_off_mission_text();
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        g_enable_token_event = 1;
+        blackscreen_on(1);
+        delay(1);
+        _trick_race::kill_shenanigans();
+        gv_hero_restart_pos = (hero()).get_abs_position();
+        gv_num_current_token_event = p0;
+        _trick_race::disable_mission_tokens();
+    }
+
+    void _trick_race::on_combat_tour_enter(entity p0, num p4, str p8)
+    {
+        set_mission_text_box_flavor(0);
+        set_mission_text(277);
+        bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _trick_race::launch_combat_tour(p4));
+    }
+
+    void _trick_race::launch_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_trick_race = 1;
+            _trick_race::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _trick_race::launch_venom_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            if (g_enable_hot_pursuit) {
+                g_enable_hot_pursuit = 0;
+                unload_script();
+            }
+            g_enable_venom_trick_race = 1;
+            _trick_race::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _trick_race::launch_torch_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_storm_race = 1;
+            _trick_race::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+                g_trick_race_controls_locked = 1;
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _trick_race::initialize_location_mission()
+    {
+        g_enable_sh = 0;
+        g_enable_can = 0;
+        g_enable_token_event = 0;
+        g_enable_pn = 0;
+        g_entity_list = create_entity_list();
+        g_mission_status = 1;
+        _trick_race::set_hood_gang();
+    }
+
+    void _trick_race::breakdown_location_mission()
+    {
+        destroy_entity_list(g_entity_list);
+        if ((!g_enable_story)) {
+            _trick_race::prepare_open_city_vars();
+            raise_signal("MISSION_START_UPDATE");
+        }
+        g_mission_status = 0;
+    }
+
+    void _trick_race::show_car_combat_help_text(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_land_shown))) {
+                start_thread(_trick_race::show_mission_text(136));
+                g_tutorial_car_combat_land_shown = 1;
+            }
+            break;
+        }
+        case 1:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(135, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_trick_race::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 2:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(290, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_trick_race::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 3:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_dodge_shown))) {
+                start_thread(_trick_race::show_mission_text(138));
+                g_tutorial_car_combat_dodge_shown = 1;
+            }
+            gv_tutorial_car_combat_counter++;
+            break;
+        }
+        }
+    }
+
+    void _trick_race::show_mission_text(num p0)
+    {
+        set_mission_text_box_flavor(1);
+        set_mission_text(p0);
+        delay(1.5);
+        turn_off_mission_text();
+    }
+
+    void _trick_race::update_open_city_times()
+    {
+        _trick_race::update_open_city_shen_times();
+        g_next_can_time = (game_clock_timer + 15);
+    }
+
+    void _trick_race::update_open_city_shen_times()
+    {
+        if (gv_shen_speed_normal) {
+            g_next_shenani_time = (game_clock_timer + 35);
+        } else {
+            g_next_shenani_time = (game_clock_timer + 3);
+        }
+    }
+
+    void _trick_race::set_race_tokens()
+    {
+        num v2 = 0;
+        if ((gv_torch_race_03_done || gv_torch_race_02_done)) {
+            v2 = 3;
+        } else if (gv_torch_race_01_done) {
+            v2 = 2;
+        } else if (gv_torch_race_00_done) {
+            v2 = 1;
+        } else if (gv_torch_race_000_done) {
+            v2 = 0;
+        }
+        num v0 = 0;
+        num v1 = 0;
+        while ((v0 < 55)) {
+            v1 = get_token_index_from_id(4, v0);
+            if ((v1 > 0)) {
+                if ((g_spidey_trick_difficulty[v0] <= v2)) {
+                    gv_token_collected[v1] = 0;
+                } else {
+                    gv_token_collected[v1] = 1;
+                }
+            }
+            v0++;
+        }
+        enable_tokens_of_type(4, 1);
+    }
+
+    num _trick_race::convert_to_progression_step(num p0)
+    {
+        num v1 = 31;
+        switch (p0) {
+        case 1:
+        {
+            v1 = 0;
+            break;
+        }
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 35:
+        {
+            v1 = 2;
+            break;
+        }
+        case 36:
+        {
+            v1 = 3;
+            break;
+        }
+        case 3:
+        {
+            v1 = 4;
+            break;
+        }
+        case 4:
+        {
+            v1 = 5;
+            break;
+        }
+        case 40:
+        {
+            v1 = 6;
+            break;
+        }
+        case 5:
+        {
+            v1 = 7;
+            break;
+        }
+        case 6:
+        {
+            v1 = 8;
+            break;
+        }
+        case 30:
+        {
+            v1 = 9;
+            break;
+        }
+        case 7:
+        {
+            v1 = 10;
+            break;
+        }
+        case 11:
+        {
+            v1 = 11;
+            break;
+        }
+        case 38:
+        {
+            v1 = 12;
+            break;
+        }
+        case 31:
+        {
+            v1 = 13;
+            break;
+        }
+        case 15:
+        {
+            v1 = 14;
+            break;
+        }
+        case 16:
+        {
+            v1 = 15;
+            break;
+        }
+        case 25:
+        {
+            v1 = 16;
+            break;
+        }
+        case 34:
+        {
+            v1 = 17;
+            break;
+        }
+        case 8:
+        {
+            v1 = 18;
+            break;
+        }
+        case 9:
+        {
+            v1 = 19;
+            break;
+        }
+        case 32:
+        {
+            v1 = 20;
+            break;
+        }
+        case 17:
+        {
+            v1 = 21;
+            break;
+        }
+        case 33:
+        {
+            v1 = 22;
+            break;
+        }
+        case 27:
+        {
+            v1 = 23;
+            break;
+        }
+        case 10:
+        {
+            v1 = 24;
+            break;
+        }
+        case 28:
+        {
+            v1 = 25;
+            break;
+        }
+        case 18:
+        {
+            v1 = 26;
+            break;
+        }
+        case 19:
+        {
+            v1 = 27;
+            break;
+        }
+        case 20:
+        {
+            v1 = 28;
+            break;
+        }
+        case 23:
+        {
+            v1 = 29;
+            break;
+        }
+        case 22:
+        {
+            v1 = 30;
+            break;
+        }
+        case 41:
+        {
+            v1 = 31;
+            break;
+        }
+        case 24:
+        {
+            v1 = 32;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _trick_race::set_tour_tokens()
+    {
+        num v0 = 0;
+        num v1 = 0;
+        while ((v0 < 16)) {
+            if ((gv_tour_diff_ulocked >= gv_tour_difficulty[v0])) {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 0;
+            } else {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 1;
+            }
+            v0++;
+        }
+    }
+
+    void _trick_race::set_up_tokens(num p0, num p4)
+    {
+        if ((_trick_race::convert_to_progression_step(p0) <= _trick_race::convert_to_progression_step(35))) {
+            _trick_race::disable_all_tokens();
+        } else {
+            _trick_race::enable_pickup_tokens();
+            if (((g_mission_type == 0) || (g_mission_type == 1))) {
+                _trick_race::set_torch_token(p4);
+                if (is_hero_spidey()) {
+                    _trick_race::set_tour_tokens();
+                    enable_tokens_of_type(4, 1);
+                    enable_tokens_of_type(5, 0);
+                } else {
+                    enable_tokens_of_type(4, 0);
+                    if (gv_story_finished) {
+                        enable_tokens_of_type(5, 1);
+                    }
+                }
+                if (((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(40)) && is_hero_spidey())) {
+                    enable_tokens_of_type(6, 1);
+                } else {
+                    enable_tokens_of_type(6, 0);
+                }
+            }
+        }
+    }
+
+    void _trick_race::unlock_chars(num p0, num p4)
+    {
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(2))) {
+            gv_unlockable_chars[38] = 1;
+            gv_unlockable_chars[21] = 1;
+            gv_unlockable_chars[20] = 1;
+            gv_unlockable_chars[35] = 1;
+            gv_unlockable_chars[9] = 1;
+            gv_unlockable_chars[8] = 1;
+            gv_unlockable_chars[18] = 1;
+            gv_unlockable_chars[19] = 1;
+            gv_unlockable_chars[22] = 1;
+            gv_unlockable_chars[4] = 1;
+            gv_unlockable_chars[31] = 1;
+            gv_unlockable_chars[5] = 1;
+            gv_unlockable_chars[12] = 1;
+            gv_unlockable_chars[24] = 1;
+            gv_unlockable_chars[32] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(35))) {
+            gv_unlockable_chars[17] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(4))) {
+            gv_unlockable_chars[39] = 1;
+            gv_unlockable_chars[36] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(6))) {
+            gv_unlockable_chars[23] = 1;
+            gv_unlockable_chars[0] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(7))) {
+            gv_unlockable_chars[27] = 1;
+            gv_unlockable_chars[28] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(16))) {
+            gv_unlockable_chars[11] = 1;
+            gv_unlockable_chars[10] = 1;
+            gv_unlockable_chars[15] = 1;
+            gv_unlockable_chars[30] = 1;
+            gv_unlockable_chars[37] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(9))) {
+            gv_unlockable_chars[1] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(10))) {
+            gv_unlockable_chars[16] = 1;
+            gv_unlockable_chars[29] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(41))) {
+            gv_unlockable_chars[3] = 1;
+        }
+        if ((gv_shen_difficulty >= 1)) {
+            gv_unlockable_chars[2] = 1;
+        }
+        if (((gv_shen_difficulty >= 1) || (gv_tour_diff_ulocked >= 2))) {
+            gv_unlockable_chars[26] = 1;
+            gv_unlockable_chars[7] = 1;
+            gv_unlockable_chars[14] = 1;
+            gv_unlockable_chars[34] = 1;
+        }
+        if (((gv_shen_difficulty > 1) || (gv_tour_diff_ulocked >= 3))) {
+            gv_unlockable_chars[25] = 1;
+            gv_unlockable_chars[6] = 1;
+            gv_unlockable_chars[13] = 1;
+            gv_unlockable_chars[33] = 1;
+        }
+    }
+
+    void _trick_race::unlock_concept(num p0, num p4)
+    {
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(1))) {
+            gv_unlockable_concept[0] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(2))) {
+            gv_unlockable_concept[1] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(3))) {
+            gv_unlockable_concept[2] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(4))) {
+            gv_unlockable_concept[3] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(5))) {
+            gv_unlockable_concept[4] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(6))) {
+            gv_unlockable_concept[5] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(7))) {
+            gv_unlockable_concept[7] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) >= _trick_race::convert_to_progression_step(8))) {
+            gv_unlockable_concept[10] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(9))) {
+            gv_unlockable_concept[11] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(10))) {
+            gv_unlockable_concept[13] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(11))) {
+            gv_unlockable_concept[6] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(15))) {
+            gv_unlockable_concept[8] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(16))) {
+            gv_unlockable_concept[9] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(17))) {
+            gv_unlockable_concept[12] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(18))) {
+            gv_unlockable_concept[14] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) >= _trick_race::convert_to_progression_step(19))) {
+            gv_unlockable_concept[15] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(20))) {
+            gv_unlockable_concept[16] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(41))) {
+            gv_unlockable_concept[18] = 1;
+        }
+        if ((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(23))) {
+            gv_unlockable_concept[17] = 1;
+        }
+    }
+
+    void _trick_race::handle_race_unlocking(num p0)
+    {
+        num v0 = get_game_info_num("SWING_SPEED");
+        if ((gv_torch_race_01_done && (v0 < 3))) {
+            set_game_info_num("SWING_SPEED", 3);
+            set_dialog_box_flavor(1);
+            bring_up_dialog_box_title(294, 1, 291);
+        } else if ((gv_torch_race_00_done && (v0 < 2))) {
+            set_game_info_num("SWING_SPEED", 2);
+            set_dialog_box_flavor(1);
+            bring_up_dialog_box_title(293, 1, 291);
+        } else if ((gv_torch_race_000_done && (v0 < 1))) {
+            set_game_info_num("SWING_SPEED", 1);
+            set_dialog_box_flavor(1);
+            bring_up_dialog_box_title(292, 1, 291);
+        }
+        _trick_race::set_race_tokens();
+    }
+
+    void _trick_race::handle_combo_unlocking(num p0, num p4)
+    {
+        if (((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(32)) && (gv_combat_level < 4))) {
+            gv_combat_level = 4;
+        } else if (((_trick_race::convert_to_progression_step(p0) > _trick_race::convert_to_progression_step(30)) && (gv_combat_level < 2))) {
+            gv_combat_level = 2;
+        }
+    }
+
+    void _trick_race::set_spiderman_health()
+    {
+        switch (gv_health_ulocked) {
+        case 3:
+        {
+            turn_on_hero_health(3, hero());
+            break;
+        }
+        case 2:
+        {
+            turn_on_hero_health(2, hero());
+            break;
+        }
+        case 1:
+        {
+            turn_on_hero_health(1, hero());
+            break;
+        }
+        default:
+        {
+            turn_on_hero_health(0, hero());
+            break;
+        }
+        }
+        (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+    }
+
+    void _trick_race::handle_health_increase(num p0)
+    {
+        switch (gv_health_ulocked) {
+        case 3:
+        {
+            gv_current_max_hitpoints = 200;
+            turn_on_hero_health(3, hero());
+            break;
+        }
+        case 2:
+        {
+            gv_current_max_hitpoints = 166;
+            turn_on_hero_health(2, hero());
+            break;
+        }
+        case 1:
+        {
+            gv_current_max_hitpoints = 133;
+            turn_on_hero_health(1, hero());
+            break;
+        }
+        }
+        (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+        set_dialog_box_flavor(2);
+        bring_up_dialog_box_title(296, 1, 175);
+    }
+
+    void _trick_race::process_neighborhood_tours()
+    {
+        num v0 = 2;
+        if ((gv_tour_diff_ulocked == 0)) {
+            v0 = 2;
+        } else if ((gv_tour_diff_ulocked == 1)) {
+            v0 = 3;
+        }
+        num token_collected_values_4[16];
+        num v6 = 0;
+        num v7 = 0;
+        num v5 = 0;
+        num v1 = 0;
+        num v2 = 0;
+        num v3 = 0;
+        while ((v6 < 16)) {
+            v7 = get_token_index_from_id(6, v6);
+            token_collected_values_4[v6] = gv_token_collected[v7];
+            v6++;
+        }
+        v5 = (((token_collected_values_4[0] + token_collected_values_4[4]) + token_collected_values_4[8]) + token_collected_values_4[12]);
+        v3 = (((token_collected_values_4[1] + token_collected_values_4[5]) + token_collected_values_4[9]) + token_collected_values_4[13]);
+        v2 = (((token_collected_values_4[2] + token_collected_values_4[6]) + token_collected_values_4[10]) + token_collected_values_4[14]);
+        v1 = (((token_collected_values_4[3] + token_collected_values_4[7]) + token_collected_values_4[11]) + token_collected_values_4[15]);
+        if ((v5 >= v0)) {
+            v7 = get_token_index_from_id(6, 0);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[0] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 4);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[4] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 8);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[8] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 12);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[12] = (gv_tour_diff_ulocked + 1);
+        }
+        if ((v3 >= v0)) {
+            v7 = get_token_index_from_id(6, 1);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[1] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 5);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[5] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 9);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[9] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 13);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[13] = (gv_tour_diff_ulocked + 1);
+        }
+        if ((v2 >= v0)) {
+            v7 = get_token_index_from_id(6, 2);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[2] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 6);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[6] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 10);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[10] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 14);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[14] = (gv_tour_diff_ulocked + 1);
+        }
+        if ((v1 >= v0)) {
+            v7 = get_token_index_from_id(6, 3);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[3] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 7);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[7] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 11);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[11] = (gv_tour_diff_ulocked + 1);
+            v7 = get_token_index_from_id(6, 15);
+            gv_token_collected[v7] = 1;
+            gv_tour_difficulty[15] = (gv_tour_diff_ulocked + 1);
+        }
+    }
+
+    void _trick_race::reset_all_tours()
+    {
+        num v0 = 0;
+        num v1 = 0;
+        while ((v0 < 16)) {
+            v1 = get_token_index_from_id(6, v0);
+            gv_token_collected[v1] = 0;
+            gv_tour_difficulty[v0] = gv_tour_diff_ulocked;
+            v0++;
+        }
+    }
+
+    void _trick_race::handle_tour_unlocking(num p0)
+    {
+        num v0 = gv_health_ulocked;
+        if ((((gv_tour_diff_ulocked != 3) && gv_story_finished) && (gv_combat_tours_completed == 36))) {
+            gv_tour_diff_ulocked = 3;
+            _trick_race::reset_all_tours();
+        } else if (((gv_tour_diff_ulocked != 2) && (gv_combat_tours_completed == (8 + 12)))) {
+            gv_health_ulocked = 3;
+            gv_tour_diff_ulocked = 2;
+            _trick_race::reset_all_tours();
+        } else if (((gv_tour_diff_ulocked != 1) && (gv_combat_tours_completed == 8))) {
+            gv_tour_diff_ulocked = 1;
+            gv_health_ulocked = 2;
+            _trick_race::reset_all_tours();
+        } else if (((gv_health_ulocked == 0) && (gv_combat_tours_completed == 1))) {
+            gv_health_ulocked = 1;
+        } else if (((gv_tour_diff_ulocked == 0) || (gv_tour_diff_ulocked == 1))) {
+            _trick_race::process_neighborhood_tours();
+        }
+        if ((v0 != gv_health_ulocked)) {
+            _trick_race::handle_health_increase(p0);
+        }
+    }
+
+    void _trick_race::handle_costume_unlocking(num p0, num p4)
+    {
+        num v2 = 0;
+        num v0 = 0;
+        num v1 = 0;
+        if (gv_story_finished) {
+            if ((!gv_unlockable_costumes[3])) {
+                gv_unlockable_costumes[3] = 1;
+            }
+            v0 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+            if ((((!gv_unlockable_costumes[5]) && (gv_shens_successfully_completed >= 30)) && (v0 >= 30))) {
+                gv_unlockable_costumes[5] = 1;
+                v2 = 1;
+            }
+            if (((((!gv_unlockable_costumes[1]) && (gv_shens_successfully_completed >= 50)) && (v0 >= 50)) && gv_torch_race_03_done)) {
+                gv_unlockable_costumes[1] = 1;
+                v2 = 1;
+            }
+            if (((((!gv_unlockable_costumes[2]) && (gv_shens_successfully_completed >= 75)) && (v0 >= 75)) && (gv_combat_tours_completed >= 8))) {
+                gv_unlockable_costumes[2] = 1;
+                v2 = 1;
+            }
+            v1 = (((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed);
+            if ((((((!gv_unlockable_costumes[4]) && (gv_shens_successfully_completed >= 100)) && (v0 >= 190)) && (gv_combat_tours_completed >= 36)) && (v1 >= 55))) {
+                gv_unlockable_costumes[4] = 1;
+                v2 = 1;
+            }
+            if (((((!gv_unlockable_costumes[0]) && (gv_shens_successfully_completed >= 90)) && (v0 >= 90)) && (gv_combat_tours_completed >= (8 + 12)))) {
+                gv_unlockable_costumes[0] = 1;
+                v2 = 1;
+            }
+            if ((v2 && p4)) {
+                bring_up_dialog_box_title(22, 1, 175);
+            }
+        }
+    }
+
+    void _trick_race::handle_unlocking(num p0, num p4)
+    {
+        _trick_race::handle_race_unlocking(p4);
+        _trick_race::set_up_tokens(p0, p4);
+        _trick_race::handle_tour_unlocking(p4);
+        _trick_race::handle_combo_unlocking(p0, p4);
+        _trick_race::unlock_chars(p0, p4);
+        _trick_race::unlock_concept(p0, p4);
+        _trick_race::handle_costume_unlocking(p0, p4);
+    }
+
+    void _trick_race::city_goals_hint()
+    {
+        while ((!gv_master_prog[gv_obj_list_needed])) {
+            delay(180);
+            while ((g_mission_status != 0)) {
+                delay(1);
+            }
+            if ((!gv_master_prog[gv_obj_list_needed])) {
+                set_mission_text_box_flavor(1);
+                set_mission_text(275);
+                delay(5);
+                turn_off_mission_text();
+            }
+        }
+    }
+
+    void _trick_race::process_master_objective()
+    {
+        num v0 = 0;
+        while (((v0 < 13) && (((gv_tour_prog[v0] && gv_token_prog[v0]) && gv_shen_prog[v0]) && gv_race_prog[v0]))) {
+            if ((!gv_master_prog[v0])) {
+                gv_master_prog[v0] = 1;
+                gv_shen_speed_normal = 1;
+                _trick_race::update_open_city_shen_times();
+                if (((v0 == gv_obj_list_needed) && (v0 > 0))) {
+                    kill_threads(_trick_race::city_goals_hint);
+                    if ((_trick_race::convert_to_progression_step(gv_num_current_story) <= _trick_race::convert_to_progression_step(3))) {
+                        set_dialog_box_flavor(1);
+                        bring_up_dialog_box_title(133, 1, 132);
+                    } else {
+                        set_dialog_box_flavor(2);
+                        bring_up_dialog_box_title(274, 1, 175);
+                    }
+                }
+            }
+            v0 = (v0 + 1);
+        }
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _trick_race::set_progression_display_vars()
+    {
+        num v1 = 0;
+        num v0 = 0;
+        num v3 = 0;
+        num v5 = 0;
+        num v4 = 0;
+        num v2 = 0;
+        num v6 = 0;
+        num v7 = 0;
+        num v8 = 0;
+        num v9 = 0;
+        if ((gv_obj_list_needed > 0)) {
+            v6 = gv_shen_req[(gv_obj_list_needed - 1)];
+            v7 = gv_tour_req[(gv_obj_list_needed - 1)];
+            v8 = gv_token_req[(gv_obj_list_needed - 1)];
+            v9 = gv_race_req[(gv_obj_list_needed - 1)];
+        }
+        v1 = gv_shens_successfully_completed;
+        v0 = gv_combat_tours_completed;
+        v2 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+        v3 = v2;
+        v4 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+        v5 = v4;
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_COUNT", gv_shens_successfully_completed);
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_MAX", 100);
+        set_game_info_num("CITY_EVENTS_COMPLETED_COUNT", v1);
+        set_game_info_num("CITY_EVENTS_COMPLETED_MAX", gv_shen_req[gv_obj_list_needed]);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_COUNT", gv_combat_tours_completed);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_MAX", 36);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_COUNT", v0);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_MAX", gv_tour_req[gv_obj_list_needed]);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_COUNT", v2);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_MAX", 60);
+        set_game_info_num("RACE_POINTS_EARNED_COUNT", v3);
+        set_game_info_num("RACE_POINTS_EARNED_MAX", gv_race_req[gv_obj_list_needed]);
+        set_game_info_num("TOKENS_COLLECTED_TOT_COUNT", v4);
+        set_game_info_num("TOKENS_COLLECTED_TOT_MAX", 190);
+        set_game_info_num("TOKENS_COLLECTED_COUNT", v5);
+        set_game_info_num("TOKENS_COLLECTED_MAX", gv_token_req[gv_obj_list_needed]);
+    }
+
+    void _trick_race::set_torch_token(num p0)
+    {
+        num v0 = 0;
+        if ((((!gv_torch_race_00_done) && (!gv_torch_race_unlocked_2)) && (gv_easy_trick_races_completed >= gv_torch_race_unlock_req_easy))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_2 = 1;
+        } else if ((((!gv_torch_race_01_done) && (!gv_torch_race_unlocked_3)) && (gv_medium_trick_races_completed >= gv_torch_race_unlock_req_med))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_3 = 1;
+        } else if ((((!gv_torch_race_02_done) && (!gv_torch_race_unlocked_4)) && (gv_hard_trick_races_completed >= gv_torch_race_unlock_req_hard))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_4 = 1;
+        } else if ((((!gv_torch_race_03_done) && (!gv_torch_race_unlocked_5)) && (gv_insane_trick_races_completed >= gv_torch_race_unlock_req_insane))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_5 = 1;
+        }
+        v0 = (((gv_torch_race_unlocked_2 || gv_torch_race_unlocked_3) || gv_torch_race_unlocked_4) || gv_torch_race_unlocked_5);
+        if (v0) {
+            enable_tokens_of_type(8, 1);
+        }
+        if (g_torch_message_flag) {
+            g_torch_message_flag = 0;
+            set_dialog_box_flavor(2);
+            bring_up_dialog_box_title(232, 1, 77);
+        }
+    }
+
+    void _trick_race::handle_objective_list(num p0)
+    {
+        num v1 = 0;
+        num v2 = 0;
+        switch (p0) {
+        case 3:
+        {
+            v1 = 0;
+            num v3 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+            num v4 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_race_req[v1];
+                if (((v3 >= v4) && (!gv_race_prog[v1]))) {
+                    gv_race_prog[v1] = 1;
+                    _trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 2:
+        {
+            v1 = 0;
+            num v3 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+            num v4 = 0;
+            num unused_value724 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_token_req[v1];
+                if (((v3 >= v4) && (!gv_token_prog[v1]))) {
+                    gv_token_prog[v1] = 1;
+                    _trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if (((gv_shens_successfully_completed >= 100) && (!gv_shens_finished))) {
+                gv_shens_finished = 1;
+                set_dialog_box_flavor(2);
+                bring_up_dialog_box_title(308, 1, 175);
+            }
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_shen_req[v1];
+                if (((gv_shens_successfully_completed >= v3) && (!gv_shen_prog[v1]))) {
+                    gv_shen_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 5:
+        {
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_tour_req[v1];
+                if (((gv_combat_tours_completed >= v3) && (!gv_tour_prog[v1]))) {
+                    gv_tour_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _trick_race::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        }
+        _trick_race::set_progression_display_vars();
+        if (((((!gv_shen_prog[gv_obj_list_needed]) && gv_tour_prog[gv_obj_list_needed]) && gv_token_prog[gv_obj_list_needed]) && gv_race_prog[gv_obj_list_needed])) {
+            gv_shen_speed_normal = 0;
+            _trick_race::update_open_city_shen_times();
+        }
+    }
+
+    ai_auditor::ai_auditor()
+    {
+        field_0 = 0;
+    }
+
+    common_thug_manager::common_thug_manager()
+    {
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = 0;
+        field_92 = 0;
+        field_96 = 0;
+        field_100 = 0;
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = -1;
+        field_96 = 0;
+        field_100 = 0;
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_0[v0] = 31;
+            v0++;
+        }
+        field_92 = g_hood_gang;
+    }
+
+    common_thug_manager::~common_thug_manager()
+    {
+    }
+
+    common_simple_civ_manager::common_simple_civ_manager()
+    {
+        field_76 = 0;
+    }
+
+    common_simple_civ_manager::~common_simple_civ_manager()
+    {
+    }
+
+    common_gmu_manager::common_gmu_manager()
+    {
+        field_76 = 0;
+        field_80 = 0;
+        field_76 = 0;
+    }
+
+    common_gmu_manager::~common_gmu_manager()
+    {
+    }
+
+    common_vehicle_manager::common_vehicle_manager()
+    {
+        field_88 = 0;
+        field_92 = 0;
+        field_88 = 0;
+    }
+
+    common_vehicle_manager::~common_vehicle_manager()
+    {
+    }
+
+    goal_tracker::goal_tracker()
+    {
+        field_0 = 0;
+        field_0 = 0;
+    }
+
+    goal_tracker::~goal_tracker()
+    {
+        (this).shutdown();
+    }
+
+    void goal_tracker::shutdown()
+    {
+    }
+
+    city_point_manager::city_point_manager()
+    {
+    }
+
+    city_point_manager::~city_point_manager()
+    {
+        (this).shutdown();
+    }
+
+    void city_point_manager::shutdown()
+    {
+    }
+
+    _trick_race::_trick_race(num p0)
+    {
+        _global_slc::wait_frame();
+        _trick_race::initialize_location_mission();
+        if ((!g_trick_race_controls_locked)) {
+            _trick_race::turn_off_hero(1);
+        }
+        g_mission_type = 3;
+        raise_signal("MISSION_START_UPDATE");
+        _trick_race::start_mission_music();
+        bind_signal_once(signal_id("DEATH_RETRY_YES"), _trick_race::restart_race());
+        bind_signal_once(signal_id("DEATH_RETRY_NO"), _trick_race::temp_function());
+        bind_signal_once(signal_id(hero(), "_cop_pistol::ENTITY_EXITED_WATER_ON_WALL"), _trick_race::sinker());
+        bind_signal_once(signal_id(hero(), "_cop_pistol::ENTITY_JUST_GOT_IN_WATER"), _trick_race::water_prep());
+        _trick_race::disable_mission_tokens();
+        _trick_race::city_tutorial_manager(1, 0, 0);
+        blackscreen_on(0);
+        g_trick_race_running = 1;
+        g_enable_trick_race = 0;
+        str unused_value170 = "";
+        str unused_value171 = "";
+        str unused_value172 = "";
+        str unused_value173 = "";
+        str unused_value174 = "";
+        _trick_race::global_4 = 0;
+        g_trick_race_box_called = 0;
+        _trick_race::global_8 = 0;
+        _trick_race::global_12 = 0;
+        _trick_race::global_16 = 0;
+        g_died_during_trick_race = 0;
+        _trick_race::global_20 = 0;
+        _trick_race::global_24 = 0;
+        g_racing_hero_died = 0;
+        _trick_race::global_28 = 0;
+        _trick_race::global_32 = 0;
+        g_wet_trick_race = 0;
+        g_ready_to_race = 0;
+        g_done_showing_trick_times = 0;
+        g_race_exited_via_pause = 0;
+        _trick_race::global_36 = 0;
+        g_last_trick_marker_type = -1;
+        push_pack("trick_race_res");
+        _trick_race::trick_race_music_thread();
+        (_trick_race::TRICK_RACE).startup();
+        _trick_race::wait_frame(3);
+        g_race_start_position = get_mission_key_position();
+        while ((!is_pack_pushed("trick_race_res"))) {
+            _global_slc::wait_frame();
+        }
+        (hero()).set_time_dilation(1);
+        _global_slc::wait_frame();
+        _trick_race::run_race();
+        while (g_racing_hero_died) {
+            _global_slc::wait_frame();
+        }
+        if (_trick_race::global_8) {
+            _trick_race::fix_it();
+        } else if ((!g_racing_hero_died)) {
+            if (g_trick_race_controls_locked) {
+                _trick_race::turn_off_hero(0);
+            }
+        }
+        _trick_race::clean_it();
+        unload_script();
+    }
+
+    str _trick_race::global_92 = "";
+
+    str _trick_race::global_96 = "";
+
+    str _trick_race::global_204 = "";
+
+    str _trick_race::global_208 = "";
+
+    _trick_race::~_trick_race()
+    {
+        g_mission_type = 0;
+        _trick_race::update_open_city_shen_times();
+        if (_trick_race::global_12) {
+            (_trick_race::local_timer).hide_timer();
+            (_trick_race::local_timer).destroy_and_reset();
+        }
+        _trick_race::end_mission_music();
+        turn_off_mission_text();
+        (_trick_race::TRICK_RACE).shutdown();
+        g_trick_race_running = 0;
+        if ((!_trick_race::global_8)) {
+            g_trick_race_restarted = 0;
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+            (hero()).set_time_dilation(1);
+            if (g_trick_race_controls_locked) {
+                _trick_race::turn_off_hero(0);
+            }
+        } else {
+            g_enable_trick_race = 1;
+            g_trick_race_restarted = 1;
+        }
+        if (g_unlockables_entered) {
+            g_trick_race_restarted = 0;
+            g_enable_trick_race = 0;
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+            if (g_trick_race_controls_locked) {
+                _trick_race::turn_off_hero(0);
+            }
+        }
+        (hero()).set_time_dilation(1);
+        (hero()).set_ifc_num("GRAVITY", 1);
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _trick_race::clean_it()
+    {
+        if ((!_trick_race::global_8)) {
+            _trick_race::breakdown_location_mission();
+        }
+    }
+
+    void _trick_race::water_prep()
+    {
+        g_wet_trick_race = 1;
+        g_race_dry = 0;
+    }
+
+    void _trick_race::sinker()
+    {
+        g_race_dry = 1;
+    }
+
+    void _trick_race::turn_off_hero(num p0)
+    {
+        if (p0) {
+            g_trick_race_controls_locked = 1;
+            enable_controls(0);
+            clear_controls();
+            spiderman_camera_enable_lookaround(0);
+        } else {
+            g_trick_race_controls_locked = 0;
+            enable_controls(1);
+            clear_controls();
+            spiderman_camera_enable_lookaround(1);
+        }
+    }
+
+    void _trick_race::restart_race()
+    {
+        g_died_during_trick_race = 1;
+        g_racing_hero_died = 0;
+        _trick_race::global_8 = 1;
+    }
+
+    void _trick_race::temp_function()
+    {
+        unload_script();
+    }
+
+    void _trick_race::fix_it()
+    {
+        if ((((_trick_race::global_28 || g_wet_trick_race) || g_race_exited_via_pause) || g_racing_hero_died)) {
+            blackscreen_on(1);
+            delay(1);
+        }
+        (hero()).suspend();
+        _trick_race::wait_frame(3);
+        (hero()).unsuspend();
+        (hero()).pop_ai_base_machine();
+        _trick_race::set_spidey();
+        (_trick_race::TRICK_RACE).shutdown();
+        _global_slc::wait_frame();
+    }
+
+    void _trick_race::set_spidey()
+    {
+        malor(g_race_start_position, 1);
+        district v0 = find_district_for_point(g_race_start_position);
+        _trick_race::wait_frame(3);
+        (v0).wait_for_load();
+    }
+
+    void _trick_race::race_time_limit_checker()
+    {
+        num v0 = 0;
+        while ((!_trick_race::global_20)) {
+            _global_slc::wait_frame();
+        }
+        while ((_trick_race::global_12 && (!v0))) {
+            if (((_trick_race::local_timer).get_time() >= 300)) {
+                raise_signal("TRICK_MUSIC_FAILED");
+                _trick_race::global_16 = 1;
+                v0 = 1;
+                ((_trick_race::TRICK_RACE).field_72[_trick_race::global_48]).failure();
+            }
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _trick_race::run_race()
+    {
+        if (g_trick_race_restarted) {
+            (hero()).pop_ai_base_machine();
+        }
+        g_first_trick_marker = 1;
+        start_thread(_trick_race::death_checker());
+        start_thread(_trick_race::start_timer());
+        if ((!g_trick_race_restarted)) {
+            start_thread(_trick_race::times());
+        } else {
+            g_done_showing_trick_times = 1;
+        }
+        start_thread(_trick_race::race_time_limit_checker());
+        g_trick_race_restarted = 0;
+        while ((((((_trick_race::global_48 < 16) && (!_trick_race::global_16)) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+            num v0 = ((_trick_race::TRICK_RACE).field_72[_trick_race::global_48]).run_marker();
+            _trick_race::global_48++;
+        }
+        if ((!g_trick_race_controls_locked)) {
+            _trick_race::turn_off_hero(1);
+        }
+        if ((!g_racing_hero_died)) {
+            (hero()).set_time_dilation(0.0001);
+        }
+        turn_off_mission_text();
+        _trick_race::stop_timer();
+        if ((((!g_racing_hero_died) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+            _trick_race::global_28 = 1;
+        }
+        if (((((!_trick_race::global_16) && (!g_racing_hero_died)) && (!g_wet_trick_race)) && (!g_race_exited_via_pause))) {
+            _trick_race::show_results();
+        }
+        _trick_race::wait_frame(2);
+        if (g_wet_trick_race) {
+            if ((!g_trick_race_controls_locked)) {
+                _trick_race::turn_off_hero(1);
+            }
+            while ((!g_race_dry)) {
+                _global_slc::wait_frame();
+            }
+        }
+        if (((g_race_exited_via_pause || g_wet_trick_race) || _trick_race::global_16)) {
+            _trick_race::try_again();
+        }
+    }
+
+    void _trick_race::times()
+    {
+        str v0 = "";
+        str v1 = "";
+        str v2 = "";
+        str v3 = "";
+        str v4 = "";
+        while (g_first_trick_marker) {
+            _global_slc::wait_frame();
+        }
+        if ((gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0] != 0)) {
+            set_dialog_box_flavor(0);
+            v0 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+            v1 = format_time_string((_trick_race::TRICK_RACE).field_52);
+            v2 = format_time_string((_trick_race::TRICK_RACE).field_56);
+            v3 = format_time_string((_trick_race::TRICK_RACE).field_60);
+            v4 = format_time_string((_trick_race::TRICK_RACE).field_64);
+            bring_up_dialog_box_title(224, 1, 223, bit_cast<num>(v0), bit_cast<num>(v1), bit_cast<num>(v2), bit_cast<num>(v3), bit_cast<num>(v4));
+        } else {
+            set_dialog_box_flavor(0);
+            v0 = format_time_string((_trick_race::TRICK_RACE).field_52);
+            v1 = format_time_string((_trick_race::TRICK_RACE).field_56);
+            v2 = format_time_string((_trick_race::TRICK_RACE).field_60);
+            v3 = format_time_string((_trick_race::TRICK_RACE).field_64);
+            set_dialog_box_lockout_time(0.5);
+            bring_up_dialog_box_title(225, 1, 223, 226, bit_cast<num>(v0), bit_cast<num>(v1), bit_cast<num>(v2), bit_cast<num>(v3));
+        }
+        g_done_showing_trick_times = 1;
+    }
+
+    void _trick_race::death_checker()
+    {
+        while (((hero()).get_ifc_num("HIT_POINTS") > 0)) {
+            _global_slc::wait_frame();
+        }
+        g_racing_hero_died = 1;
+    }
+
+    void _trick_race::start_timer()
+    {
+        while ((!g_ready_to_race)) {
+            _global_slc::wait_frame();
+        }
+        if (g_trick_race_controls_locked) {
+            _trick_race::turn_off_hero(0);
+        }
+        (hero()).set_ai_param_int("loco_allow_punch", 1);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+        (hero()).set_ai_param_int("loco_allow_swing", 1);
+        (hero()).set_physical(1);
+        raise_signal("TRICK_MUSIC_START");
+        _trick_race::wait_frame(3);
+        _trick_race::global_12 = 1;
+        _trick_race::global_20 = 1;
+        (_trick_race::local_timer).set_count_up();
+        (_trick_race::local_timer).spawn_time_tracker(0);
+        (_trick_race::local_timer).set_allow_auto_color_change(1);
+        (_trick_race::local_timer).set_time(0.01);
+        (_trick_race::local_timer).show_timer();
+        (_trick_race::local_timer).run();
+    }
+
+    void _trick_race::stop_timer()
+    {
+        _trick_race::global_36 = (_trick_race::local_timer).get_time();
+        (_trick_race::local_timer).freeze();
+        (_trick_race::local_timer).hide_timer();
+    }
+
+    void _trick_race::show_results()
+    {
+        str v5 = "";
+        str v6 = "";
+        str v4 = "";
+        num v1 = 0;
+        num v0 = 0;
+        if ((gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0] == 0)) {
+            gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0] = _trick_race::global_36;
+            v0 = 1;
+        } else if ((gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0] > _trick_race::global_36)) {
+            v0 = 1;
+            gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0] = _trick_race::global_36;
+        } else {
+            v0 = 0;
+        }
+        if (greater_than_or_equal_rounded((_trick_race::TRICK_RACE).field_52, _trick_race::global_36)) {
+            v1 = 4;
+        } else if (greater_than_or_equal_rounded((_trick_race::TRICK_RACE).field_56, _trick_race::global_36)) {
+            v1 = 3;
+        } else if (greater_than_or_equal_rounded((_trick_race::TRICK_RACE).field_60, _trick_race::global_36)) {
+            v1 = 2;
+        } else if (greater_than_or_equal_rounded((_trick_race::TRICK_RACE).field_64, _trick_race::global_36)) {
+            v1 = 1;
+        } else {
+            v1 = 0;
+        }
+        num v3 = 0;
+        if (((_trick_race::TRICK_RACE).field_20 == 3)) {
+            v3 = 3;
+        } else if (((_trick_race::TRICK_RACE).field_20 == 2)) {
+            v3 = 2;
+        } else if (((_trick_race::TRICK_RACE).field_20 == 1)) {
+            v3 = 1;
+        } else if (((_trick_race::TRICK_RACE).field_20 == 0)) {
+            v3 = 0;
+        }
+        switch (v1) {
+        case 0:
+        {
+            if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_64);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(218, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_52);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_56);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_60);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_64);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(218, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                }
+            }
+            break;
+        }
+        case 1:
+        {
+            if ((!gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0])) {
+                _trick_race::global_24 = 1;
+                bring_up_medal_award_box(0);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_60);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_60);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_52);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_56);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_60);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(219, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                }
+            }
+            gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            break;
+        }
+        case 2:
+        {
+            if ((!gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0])) {
+                _trick_race::global_24 = 1;
+                bring_up_medal_award_box(1);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_56);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_56);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_52);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_56);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                }
+            }
+            gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            break;
+        }
+        case 3:
+        {
+            if ((!gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0])) {
+                _trick_race::global_24 = 1;
+                bring_up_medal_award_box(2);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_52);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                v4 = format_time_string((_trick_race::TRICK_RACE).field_52);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(0);
+                if (gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_52);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(221, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                } else if (gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                    v5 = format_time_string(_trick_race::global_36);
+                    v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                    v4 = format_time_string((_trick_race::TRICK_RACE).field_56);
+                    set_dialog_box_lockout_time(1.5);
+                    if ((bring_up_dialog_box_title(220, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6), bit_cast<num>(v4)) == 0)) {
+                        _trick_race::global_8 = 1;
+                    }
+                }
+            }
+            gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            break;
+        }
+        case 4:
+        {
+            if ((!gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0])) {
+                _trick_race::global_24 = 1;
+                bring_up_medal_award_box(3);
+                set_dialog_box_flavor(2);
+                delay(1);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else if (v0) {
+                set_dialog_box_flavor(2);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else if (gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0]) {
+                set_dialog_box_flavor(0);
+                v5 = format_time_string(_trick_race::global_36);
+                v6 = format_time_string(gv_trick_marker_best_time[(_trick_race::TRICK_RACE).field_0]);
+                set_dialog_box_lockout_time(1.5);
+                if ((bring_up_dialog_box_title(222, 0, 197, bit_cast<num>(v5), bit_cast<num>(v6)) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            }
+            gv_trick_marker_bronze_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            gv_trick_marker_silver_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            gv_trick_marker_gold_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            gv_trick_marker_ultimate_medal_status[(_trick_race::TRICK_RACE).field_0] = 1;
+            break;
+        }
+        }
+        if ((_trick_race::global_36 < (_trick_race::TRICK_RACE).field_64)) {
+            if ((gv_trick_marker_complete_status[(_trick_race::TRICK_RACE).field_0] != 1)) {
+                gv_trick_marker_complete_status[(_trick_race::TRICK_RACE).field_0] = 1;
+                _trick_race::total_completed_races_increment();
+                _trick_race::handle_objective_list(3);
+                _trick_race::handle_unlocking(gv_num_current_story, 1);
+            }
+        }
+        _trick_race::global_4 = 1;
+    }
+
+    void _trick_race::total_completed_races_increment()
+    {
+        switch ((_trick_race::TRICK_RACE).field_20) {
+        case 0:
+        {
+            gv_easy_trick_races_completed = (gv_easy_trick_races_completed + 1);
+            if ((gv_easy_trick_races_completed == 13)) {
+                set_dialog_box_flavor(2);
+                set_dialog_box_lockout_time(1);
+                bring_up_dialog_box_title(191, 1, 175);
+            }
+            break;
+        }
+        case 1:
+        {
+            gv_medium_trick_races_completed = (gv_medium_trick_races_completed + 1);
+            if ((gv_medium_trick_races_completed == 13)) {
+                set_dialog_box_flavor(2);
+                set_dialog_box_lockout_time(1);
+                bring_up_dialog_box_title(192, 1, 175);
+            }
+            break;
+        }
+        case 2:
+        {
+            gv_hard_trick_races_completed = (gv_hard_trick_races_completed + 1);
+            if ((gv_hard_trick_races_completed == 14)) {
+                set_dialog_box_flavor(2);
+                set_dialog_box_lockout_time(1);
+                bring_up_dialog_box_title(193, 1, 175);
+            }
+            break;
+        }
+        case 3:
+        {
+            gv_insane_trick_races_completed = (gv_insane_trick_races_completed + 1);
+            if ((gv_insane_trick_races_completed == 15)) {
+                set_dialog_box_flavor(2);
+                set_dialog_box_lockout_time(1);
+                bring_up_dialog_box_title(194, 1, 175);
+            }
+            break;
+        }
+        }
+    }
+
+    void _trick_race::try_again()
+    {
+        if ((!_trick_race::global_4)) {
+            if (_trick_race::global_16) {
+                set_dialog_box_flavor(3);
+                set_dialog_box_lockout_time(0.5);
+                if ((bring_up_dialog_box_title(25, 0, 195) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            } else {
+                set_dialog_box_flavor(3);
+                set_dialog_box_lockout_time(0.5);
+                if ((bring_up_dialog_box_title(25, 0, 196) == 0)) {
+                    _trick_race::global_8 = 1;
+                }
+            }
+        }
+        _trick_race::global_12 = 0;
+    }
+
+}

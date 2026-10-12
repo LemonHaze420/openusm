@@ -1,0 +1,219 @@
+namespace LD {
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern num _global_slc::entity_exists(str);
+    extern entity _global_slc::find_entity(str);
+    extern num _global_slc::get_time_of_day();
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern vector3d entity::get_facing();
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_facing(vector3d,vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_color(vector3d);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _ld
+    {
+    public:
+        static shoreline_effects shorelineEffects = shoreline_effects::create_named("shorelineEffects");
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static str global_44;
+        static str global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64;
+        static num global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static str global_156;
+        static str global_160;
+        static num global_164 = 0;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _ld(num p0);
+        ~_ld();
+    };
+
+    class shoreline_effects
+    {
+    public:
+        entity_list field_0;
+        num field_4;
+        shoreline_effects();
+        void find_shoreline_markers(str p4);
+        void place_breakwater(entity p4, num p8);
+        void tint_all_for_TOD();
+        void tint_for_TOD(entity p4);
+        void destroy_shoreline();
+    };
+
+    shoreline_effects::shoreline_effects()
+    {
+        field_4 = 0;
+    }
+
+    str _ld::global_44 = "";
+
+    str _ld::global_48 = "";
+
+    str _ld::global_156 = "";
+
+    str _ld::global_160 = "";
+
+    void shoreline_effects::find_shoreline_markers(str p4)
+    {
+        if ((!field_4)) {
+            field_4 = 1;
+            field_0 = create_entity_list();
+            num v1 = 1;
+            str v3 = "";
+            str v2 = "";
+            while ((v1 < 17)) {
+                if ((v1 < 10)) {
+                    v3 = (p4 + "0");
+                } else {
+                    v3 = p4;
+                }
+                v2 = (v3 + to_integer_string(v1));
+                if (entity_exists(v2)) {
+                    (this).place_breakwater(find_entity(v2), 0);
+                }
+                wait_frame();
+                v1++;
+            }
+            v1 = 1;
+            p4 = (p4 + "_b");
+            while ((v1 < 15)) {
+                if ((v1 < 10)) {
+                    v3 = (p4 + "0");
+                } else {
+                    v3 = p4;
+                }
+                v2 = (v3 + to_integer_string(v1));
+                if (entity_exists(v2)) {
+                    (this).place_breakwater(find_entity(v2), 1);
+                }
+                wait_frame();
+                v1++;
+            }
+            bind_signal_on(this, signal_id("UPDATE_SHORELINE"), (this).tint_all_for_TOD());
+        }
+    }
+
+    void shoreline_effects::place_breakwater(entity p4, num p8)
+    {
+        entity fx_shorebreak_wide;
+        if (p8) {
+            fx_shorebreak_wide = create_entity("effects\\aeps\\fx_shorebreak_wide");
+        } else {
+            fx_shorebreak_wide = create_entity("effects\\aeps\\fx_shorebreak");
+        }
+        (fx_shorebreak_wide).set_distance_clip(150);
+        (fx_shorebreak_wide).set_rel_position((p4).get_abs_position());
+        (fx_shorebreak_wide).set_facing((p4).get_facing(), vector3d(0, 1, 0));
+        (this).tint_for_TOD(fx_shorebreak_wide);
+        (field_0).add(fx_shorebreak_wide);
+    }
+
+    void shoreline_effects::tint_all_for_TOD()
+    {
+        if (((field_0).size() > 0)) {
+            num v0 = 0;
+            while ((v0 < (field_0).size())) {
+                (this).tint_for_TOD((field_0).get_index(v0));
+                v0++;
+            }
+        }
+    }
+
+    void shoreline_effects::tint_for_TOD(entity p4)
+    {
+        num v0 = get_time_of_day();
+        if ((v0 == 1)) {
+            (p4).set_render_color(vector3d(0.55, 0.7, 0.55));
+        } else if ((v0 == 2)) {
+            (p4).set_render_color(vector3d(0.5, 0.6, 0.6));
+        } else if ((v0 == 3)) {
+            (p4).set_render_color(vector3d(0.25, 0.64, 1));
+        }
+    }
+
+    void shoreline_effects::destroy_shoreline()
+    {
+        if (field_4) {
+            if (((field_0).size() > 0)) {
+                field_4 = 0;
+                num v0 = 0;
+                while ((v0 < (field_0).size())) {
+                    destroy_entity((field_0).get_index(v0));
+                    wait_frame();
+                    v0++;
+                }
+                destroy_entity_list(field_0);
+            }
+        }
+    }
+
+    _ld::_ld(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            (_ld::shorelineEffects).find_shoreline_markers("LD_FX_SHORELINE");
+            break;
+        }
+        }
+    }
+
+    _ld::~_ld()
+    {
+    }
+
+}

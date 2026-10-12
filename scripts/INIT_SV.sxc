@@ -1,0 +1,201 @@
+namespace INIT_SV {
+    extern vector3d x_axis;
+    extern vector3d y_axis;
+    extern vector3d z_axis;
+    extern num g_ambient_music_allowed;
+    extern num g_mission_music_active;
+    extern num g_hero_not_active;
+    extern num g_queens_tour_running;
+    extern num g_evaded_combat_tour;
+    extern num g_enable_story;
+    extern num g_enable_igc;
+    extern num g_enable_token_event;
+    extern num g_enable_sh;
+    extern num g_enable_can;
+    extern num g_enable_menu_test;
+    extern num g_enable_be;
+    extern num g_enable_getaways;
+    extern num g_enable_hot_pursuit;
+    extern num g_hurt_civ_saved[];
+    extern num g_holding_hurt_civ;
+    extern num g_super_success_watch;
+    extern num g_insane_venom_race;
+    extern num g_race_exited_via_pause;
+    extern num g_done_with_storm_anim;
+    extern num g_wet_trick_race;
+    extern num g_race_dry;
+    extern num g_done_showing_trick_times;
+    extern num g_ready_to_race;
+    extern num g_trick_race_box_called;
+    extern num g_last_trick_marker_type;
+    extern num g_spidey_ready_to_race;
+    extern num g_racing_hero_died;
+    extern num g_trick_race_restarted;
+    extern num g_unlockables_entered;
+    extern num g_torch_race_running;
+    extern num g_first_trick_marker;
+    extern num g_trick_race_controls_locked;
+    extern num g_first_trick_marker_created;
+    extern num g_torch_won;
+    extern num g_spidey_won;
+    extern num g_trick_race_running;
+    extern num g_trick_marker_id;
+    extern num g_died_during_trick_race;
+    extern num g_spidey_trick_difficulty[];
+    extern num g_venom_trick_difficulty[];
+    extern num g_enable_storm_race;
+    extern num g_enable_free_storm_race;
+    extern num gv_tutorial_wall_bounce_shown;
+    extern num _global_slc::get_ini_flag(str);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _init_sv
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        _init_sv(num p0);
+    };
+
+    _init_sv::_init_sv(num p0)
+    {
+        num v0 = get_ini_flag("FORCE_PROGRESSION");
+        switch (p0) {
+        case 0:
+        {
+            if (v0) {
+                g_enable_story = 1;
+                g_enable_sh = 0;
+                g_enable_can = 0;
+            } else {
+                g_enable_story = 0;
+                g_enable_sh = 1;
+                g_enable_can = 1;
+            }
+            g_evaded_combat_tour = 0;
+            g_enable_hot_pursuit = 0;
+            g_enable_getaways = 1;
+            g_enable_token_event = 0;
+            g_enable_storm_race = 0;
+            g_torch_race_running = 0;
+            g_racing_hero_died = 0;
+            g_trick_race_restarted = 0;
+            g_wet_trick_race = 0;
+            g_race_dry = 1;
+            g_died_during_trick_race = 0;
+            g_spidey_ready_to_race = 0;
+            g_trick_race_box_called = 0;
+            g_last_trick_marker_type = -1;
+            g_torch_won = 0;
+            g_spidey_won = 0;
+            g_insane_venom_race = 0;
+            g_done_with_storm_anim = 0;
+            g_first_trick_marker_created = 0;
+            g_trick_race_controls_locked = 0;
+            g_enable_free_storm_race = 0;
+            g_race_exited_via_pause = 0;
+            g_enable_menu_test = 0;
+            g_enable_be = 0;
+            g_hero_not_active = 1;
+            g_trick_marker_id = 0;
+            gv_tutorial_wall_bounce_shown = 0;
+            g_queens_tour_running = 0;
+            g_super_success_watch = 0;
+            g_enable_igc = 0;
+            g_first_trick_marker = 0;
+            g_trick_race_running = 0;
+            g_done_showing_trick_times = 0;
+            g_ready_to_race = 0;
+            g_unlockables_entered = 0;
+            g_spidey_trick_difficulty[0] = 0;
+            g_spidey_trick_difficulty[1] = 2;
+            g_spidey_trick_difficulty[2] = 0;
+            g_spidey_trick_difficulty[3] = 0;
+            g_spidey_trick_difficulty[4] = 2;
+            g_spidey_trick_difficulty[5] = 3;
+            g_spidey_trick_difficulty[6] = 1;
+            g_spidey_trick_difficulty[7] = 0;
+            g_spidey_trick_difficulty[8] = 1;
+            g_spidey_trick_difficulty[9] = 1;
+            g_spidey_trick_difficulty[10] = 1;
+            g_spidey_trick_difficulty[11] = 1;
+            g_spidey_trick_difficulty[12] = 2;
+            g_spidey_trick_difficulty[13] = 2;
+            g_spidey_trick_difficulty[14] = 2;
+            g_spidey_trick_difficulty[15] = 1;
+            g_spidey_trick_difficulty[16] = 2;
+            g_spidey_trick_difficulty[17] = 3;
+            g_spidey_trick_difficulty[18] = 2;
+            g_spidey_trick_difficulty[19] = 2;
+            g_spidey_trick_difficulty[20] = 1;
+            g_spidey_trick_difficulty[21] = 3;
+            g_spidey_trick_difficulty[22] = 1;
+            g_spidey_trick_difficulty[23] = 2;
+            g_spidey_trick_difficulty[24] = 3;
+            g_spidey_trick_difficulty[25] = 1;
+            g_spidey_trick_difficulty[26] = 1;
+            g_spidey_trick_difficulty[27] = 2;
+            g_spidey_trick_difficulty[28] = 1;
+            g_spidey_trick_difficulty[29] = 0;
+            g_spidey_trick_difficulty[30] = 3;
+            g_spidey_trick_difficulty[31] = 2;
+            g_spidey_trick_difficulty[32] = 2;
+            g_spidey_trick_difficulty[33] = 0;
+            g_spidey_trick_difficulty[34] = 0;
+            g_spidey_trick_difficulty[35] = 0;
+            g_spidey_trick_difficulty[36] = 3;
+            g_spidey_trick_difficulty[37] = 3;
+            g_spidey_trick_difficulty[38] = 1;
+            g_spidey_trick_difficulty[39] = 2;
+            g_spidey_trick_difficulty[40] = 0;
+            g_spidey_trick_difficulty[41] = 0;
+            g_spidey_trick_difficulty[42] = 3;
+            g_spidey_trick_difficulty[43] = 3;
+            g_spidey_trick_difficulty[44] = 3;
+            g_spidey_trick_difficulty[45] = 0;
+            g_spidey_trick_difficulty[46] = 0;
+            g_spidey_trick_difficulty[47] = 0;
+            g_spidey_trick_difficulty[48] = 2;
+            g_spidey_trick_difficulty[49] = 3;
+            g_spidey_trick_difficulty[50] = 3;
+            g_spidey_trick_difficulty[51] = 3;
+            g_spidey_trick_difficulty[52] = 1;
+            g_spidey_trick_difficulty[53] = 3;
+            g_spidey_trick_difficulty[54] = 3;
+            g_venom_trick_difficulty[0] = 0;
+            g_venom_trick_difficulty[1] = 2;
+            g_venom_trick_difficulty[2] = 1;
+            g_venom_trick_difficulty[3] = 1;
+            g_venom_trick_difficulty[4] = 1;
+            g_venom_trick_difficulty[5] = 0;
+            g_venom_trick_difficulty[6] = 0;
+            g_venom_trick_difficulty[7] = 2;
+            g_venom_trick_difficulty[8] = 3;
+            g_venom_trick_difficulty[9] = 2;
+            g_venom_trick_difficulty[10] = 0;
+            g_venom_trick_difficulty[11] = 2;
+            g_venom_trick_difficulty[12] = 0;
+            g_venom_trick_difficulty[13] = 1;
+            g_venom_trick_difficulty[14] = 2;
+            g_venom_trick_difficulty[15] = 3;
+            g_venom_trick_difficulty[16] = 2;
+            g_venom_trick_difficulty[17] = 3;
+            g_venom_trick_difficulty[18] = 3;
+            g_hurt_civ_saved[0] = 0;
+            g_hurt_civ_saved[1] = 0;
+            g_holding_hurt_civ = 0;
+            g_ambient_music_allowed = 1;
+            g_mission_music_active = 0;
+            x_axis = vector3d(1, 0, 0);
+            y_axis = vector3d(0, 1, 0);
+            z_axis = vector3d(0, 0, 1);
+            break;
+        }
+        }
+    }
+
+}

@@ -1,0 +1,4563 @@
+namespace V10_BEETLE_BATTLE {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern num g_mission_music_active;
+    extern num g_switch_to_open_city_music;
+    extern num g_story_checkpoint;
+    extern num g_hood_gang;
+    extern num g_mission_type;
+    extern num g_tutorial_car_combat_attack_shown;
+    extern num g_tutorial_car_combat_dodge_shown;
+    extern num g_tutorial_car_combat_land_shown;
+    extern num g_queens_tour_running;
+    extern num g_enable_story;
+    extern num g_enable_igc;
+    extern num g_enable_venom_igc;
+    extern num g_enable_token_event;
+    extern num g_enable_sh;
+    extern num g_enable_can;
+    extern num g_enable_hot_pursuit;
+    extern num g_next_shenani_time;
+    extern num g_next_can_time;
+    extern num g_enable_trick_race;
+    extern num g_race_exited_via_pause;
+    extern num g_done_with_storm_anim;
+    extern num g_trick_race_restarted;
+    extern num g_enable_venom_trick_race;
+    extern num g_unlockables_entered;
+    extern num g_torch_race_running;
+    extern num g_trick_race_controls_locked;
+    extern num g_trick_race_running;
+    extern num g_spidey_trick_difficulty[];
+    extern num g_venom_trick_difficulty[];
+    extern vector3d RESPAWN_PETERS_HOUSE;
+    extern vector3d RESPAWN_DAILY_BUGLE;
+    extern vector3d RESPAWN_ESU;
+    extern vector3d RESPAWN_CENTRAL_PARK;
+    extern num g_enable_storm_race;
+    extern num g_torch_message_flag;
+    extern num game_clock_timer;
+    extern vector3d gv_hero_restart_pos;
+    extern num gv_num_current_story;
+    extern num gv_num_current_token_event;
+    extern num gv_story_finished;
+    extern num gv_unlockable_landmark[];
+    extern num gv_unlockable_covers[];
+    extern num gv_easy_trick_races_completed;
+    extern num gv_medium_trick_races_completed;
+    extern num gv_hard_trick_races_completed;
+    extern num gv_insane_trick_races_completed;
+    extern num gv_tutorial_car_combat_counter;
+    extern num gv_shen_speed_normal;
+    extern num gv_shens_successfully_completed;
+    extern num gv_trick_marker_bronze_medal_status[];
+    extern num gv_trick_marker_silver_medal_status[];
+    extern num gv_trick_marker_gold_medal_status[];
+    extern num gv_trick_marker_ultimate_medal_status[];
+    extern num gv_venom_trick_marker_bronze_medal_status[];
+    extern num gv_venom_trick_marker_silver_medal_status[];
+    extern num gv_venom_trick_marker_gold_medal_status[];
+    extern num gv_venom_trick_marker_ultimate_medal_status[];
+    extern num gv_current_max_hitpoints;
+    extern num gv_total_storm_races_completed;
+    extern num gv_torch_race_00_done;
+    extern num gv_torch_race_01_done;
+    extern num gv_torch_race_02_done;
+    extern num gv_torch_race_03_done;
+    extern num gv_token_tally[];
+    extern num gv_token_collected[];
+    extern num gv_city_tutorials[];
+    extern num gv_health_ulocked;
+    extern num gv_tour_diff_ulocked;
+    extern num gv_combat_tours_completed;
+    extern num gv_tour_difficulty[];
+    extern num gv_tour_req[];
+    extern num gv_race_req[];
+    extern num gv_token_req[];
+    extern num gv_shen_req[];
+    extern num gv_tour_prog[];
+    extern num gv_race_prog[];
+    extern num gv_token_prog[];
+    extern num gv_shen_prog[];
+    extern num gv_master_prog[];
+    extern num gv_shens_finished;
+    extern num gv_obj_list_needed;
+    extern num gv_torch_race_unlock_req_easy;
+    extern num gv_torch_race_unlock_req_med;
+    extern num gv_torch_race_unlock_req_hard;
+    extern num gv_torch_race_unlock_req_insane;
+    extern num gv_torch_race_unlocked_2;
+    extern num gv_torch_race_unlocked_3;
+    extern num gv_torch_race_unlocked_4;
+    extern num gv_torch_race_unlocked_5;
+    extern num gv_current_city_tod;
+    extern num gv_current_venom_city_tod;
+    extern num _global_slc::add_civilian_info(vector3d,num,num,num);
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern num _global_slc::bring_up_dialog_box_title(num,num,num,...);
+    extern entity _global_slc::chase_cam();
+    extern void _global_slc::clear_controls();
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern debug_menu_entry _global_slc::create_debug_menu_entry(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern entity_tracker _global_slc::create_entity_tracker(entity);
+    extern polytube _global_slc::create_polytube();
+    extern sound_inst _global_slc::create_sound_inst(str);
+    extern sound_inst _global_slc::create_stompable_music_sound_inst(str);
+    extern trigger _global_slc::create_trigger(entity,num);
+    extern trigger _global_slc::create_trigger(str,vector3d,num);
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_tracker(entity_tracker);
+    extern void _global_slc::destroy_trigger(trigger);
+    extern void _global_slc::disable_subtitles();
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern void _global_slc::distance_chase_widget_set_pos(num);
+    extern void _global_slc::distance_chase_widget_turn_off();
+    extern void _global_slc::distance_chase_widget_turn_on(num,num);
+    extern void _global_slc::enable_controls(num);
+    extern void _global_slc::enable_mini_map(num);
+    extern void _global_slc::enable_subtitles();
+    extern void _global_slc::enable_tokens_of_type(num,num);
+    extern void _global_slc::end_cut_scenes();
+    extern district _global_slc::find_district_for_point(vector3d);
+    extern entity _global_slc::find_entity(str);
+    extern trigger _global_slc::find_trigger(str);
+    extern void _global_slc::freeze_hero(num);
+    extern num _global_slc::get_time_inc();
+    extern num _global_slc::get_token_index_from_id(num,num);
+    extern entity _global_slc::hero();
+    extern void _global_slc::initialize_encounter_object();
+    extern void _global_slc::invoke_pause_menu_unlockables();
+    extern num _global_slc::is_district_loaded(num);
+    extern num _global_slc::is_hero_spidey();
+    extern num _global_slc::is_hero_venom();
+    extern num _global_slc::is_mission_active();
+    extern num _global_slc::is_mission_loading();
+    extern num _global_slc::is_pack_pushed(str);
+    extern void _global_slc::malor(vector3d,num);
+    extern void _global_slc::pop_pack(str);
+    extern void _global_slc::purge_district(num);
+    extern void _global_slc::push_pack(str);
+    extern num _global_slc::random(num);
+    extern void _global_slc::remove_glass_house(str);
+    extern void _global_slc::set_dialog_box_flavor(num);
+    extern void _global_slc::set_game_info_num(str,num);
+    extern void _global_slc::set_mission_text(num,...);
+    extern void _global_slc::set_mission_text_box_flavor(num);
+    extern void _global_slc::set_time_of_day(num);
+    extern void _global_slc::shut_up_all_ai_voice_boxes();
+    extern void _global_slc::spiderman_camera_autocorrect(num);
+    extern void _global_slc::spiderman_camera_clear_fixedstatic();
+    extern void _global_slc::spiderman_camera_enable_lookaround(num);
+    extern void _global_slc::spiderman_camera_set_fixedstatic(vector3d,vector3d);
+    extern num _global_slc::spiderman_is_on_ground();
+    extern num _global_slc::spiderman_is_on_wall();
+    extern void _global_slc::stop_all_sounds();
+    extern void _global_slc::stop_vibration();
+    extern void _global_slc::subtitle(num,num,num,num,num,num);
+    extern void _global_slc::swap_hero_costume(str);
+    extern void _global_slc::turn_off_boss_health();
+    extern void _global_slc::turn_off_mission_text();
+    extern void _global_slc::turn_on_boss_health(num,entity);
+    extern void _global_slc::turn_on_hero_health(num,entity);
+    extern void _global_slc::unload_script();
+    extern void _global_slc::unlock_district(num);
+    extern void _global_slc::vibrate_controller(num,num);
+    extern void _global_slc::wait_for_streamer_to_reach_equilibrium();
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_damage(num);
+    extern num entity::change_ai_base_machine(str);
+    extern void entity::compute_sector();
+    extern void entity::disable_collisions();
+    extern vector3d entity::get_abs_position();
+    extern str entity::get_debug_name();
+    extern vector3d entity::get_facing();
+    extern num entity::get_ifc_num(str);
+    extern num entity::get_inode_param_int(str,str);
+    extern num entity::get_render_alpha();
+    extern vector3d entity::get_y_facing();
+    extern void entity::ifl_lock(num);
+    extern num entity::is_valid();
+    extern num entity::operator!=(entity);
+    extern num entity::operator==(entity);
+    extern void entity::physical_ifc_apply_force(vector3d,num);
+    extern num entity::physical_ifc_is_biped_physics_running();
+    extern void entity::physical_ifc_stop_biped_physics();
+    extern void entity::reset_ai();
+    extern void entity::set_abs_xz_facing(vector3d);
+    extern void entity::set_ai_param_float(str,num);
+    extern void entity::set_ai_param_int(str,num);
+    extern void entity::set_crawlable(num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_facing(vector3d,vector3d);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_inode_param_float(str,str,num);
+    extern void entity::set_inode_param_int(str,str,num);
+    extern void entity::set_invulnerable(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_path_graph(str);
+    extern void entity::set_path_graph_start_node(num);
+    extern void entity::set_po_facing(vector3d);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_scripted_target(entity);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void entity::set_xz_facing(vector3d);
+    extern void entity::teleport_to_point(vector3d);
+    extern void entity::wait_change_render_scale(vector3d,num);
+    extern void entity::wait_rotate(vector3d,num,num);
+    extern void entity::wait_translate(vector3d,num);
+    extern void cut_scene::wait_play();
+    extern num debug_menu_entry::get_id();
+    extern void debug_menu_entry::set_handler(str);
+    extern void debug_menu_entry::set_id(num);
+    extern void debug_menu_entry::set_name(str);
+    extern void entity_tracker::set_mini_map_active(num);
+    extern void entity_tracker::set_poi_active(num);
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern vector3d polytube::get_control_pt(num);
+    extern num polytube::get_num_control_pts();
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_additive(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tiles_per_meter(num);
+    extern void polytube::set_tube_radius(num);
+    extern void signaller::clear_callbacks();
+    extern void sound_inst::fade_out(num);
+    extern num sound_inst::is_valid();
+    extern void sound_inst::play(num);
+    extern void sound_inst::play_3d(vector3d,num);
+    extern void sound_inst::set_entity(entity);
+    extern void sound_inst::stop(num);
+    extern num trigger::contains(entity);
+    extern num vector3d::length();
+    extern num vector3d::length2();
+    extern num vector3d::operator!=(vector3d);
+    extern vector3d vector3d::operator*(num);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::y();
+    extern num vector3d::z();
+    extern vector3d posfacing3d::get_facing();
+    extern vector3d posfacing3d::get_position();
+    extern district district::district(str);
+    extern num district::get_neighborhood();
+    extern void district::wait_for_load();
+
+    class _v10_beetle_battle
+    {
+    public:
+        static sound_inst global_0;
+        static effects_common beetle_common = effects_common::create_named("beetle_common");
+        static entity global_8;
+        static entity global_12;
+        static v10_beetle_battle_enc_data v10_beetle_battle_enc = v10_beetle_battle_enc_data::from_game_data("v10_beetle_battle_enc");
+        static entity global_20;
+        static entity global_24;
+        static num global_28 = 200;
+        static entity global_32;
+        static num global_36 = 0;
+        static entity global_40;
+        static num global_44 = 0;
+        static beetle_effects beetle_controller = beetle_effects::create_named("beetle_controller");
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static trigger global_64;
+        static num global_68 = 0;
+        static num global_72 = 1;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static entity_tracker global_88;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static trigger global_100;
+        static entity global_104;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static sound_inst global_116[8];
+        static entity global_148[8];
+        static entity global_180[8];
+        static entity global_212[8];
+        static entity global_244;
+        static entity global_248;
+        static num global_252 = 0;
+        static vector3d global_256;
+        static vector3d global_268;
+        static num global_280 = 0;
+        static num global_284 = 0;
+        static num global_288 = 0;
+        static num global_292 = 0;
+        static num global_296 = 0;
+        static num global_300 = 0;
+        static num global_304 = 0;
+        static num global_308 = 0;
+        static str global_312;
+        static str global_316;
+        static num global_320;
+        static num global_324;
+        static num global_328;
+        static num global_332;
+        static num global_336;
+        static num global_340;
+        static num global_344 = 0;
+        static num global_348 = 0;
+        static num global_352 = 0;
+        static num global_356;
+        static num global_360;
+        static num global_364 = 0;
+        static num global_368 = 0;
+        static num global_372 = 0;
+        static num global_376 = 0;
+        static num global_380 = 0;
+        static num global_384 = 0;
+        static num global_388 = 0;
+        static num global_392 = 0;
+        static num global_396 = 0;
+        static num global_400 = 0;
+        static num global_404 = 0;
+        static num global_408 = 0;
+        static num global_412 = 0;
+        static num global_416 = 0;
+        static num global_420 = 0;
+        static num global_424 = 0;
+        static num global_428 = 0;
+        static num global_432 = 0;
+        static num global_436 = 0;
+        static num global_440 = 0;
+        static num global_444 = 0;
+        static str global_448;
+        static str global_452;
+        static num global_456 = 0;
+        static num global_460;
+        static num global_464;
+        static num global_468;
+        static num global_472;
+        static num global_476;
+        static num global_480;
+        static num global_484;
+        static num global_488;
+        static num global_492 = 0;
+        static num global_496 = 0;
+        static num global_500 = 0;
+        static num global_504;
+        static num global_508;
+        static num global_512;
+        static ai_auditor ai_auditor = ai_auditor::create_named("ai_auditor");
+        static goal_tracker goal_tracker = goal_tracker::create_named("goal_tracker");
+        static city_point_manager city_point_manager = city_point_manager::create_named("city_point_manager");
+        static common_gmu_manager common_gmu_manager = common_gmu_manager::create_named("common_gmu_manager");
+        static common_thug_manager common_thug_manager = common_thug_manager::create_named("common_thug_manager");
+        static common_vehicle_manager common_vehicle_manager = common_vehicle_manager::create_named("common_vehicle_manager");
+        static common_simple_civ_manager common_simple_civ_manager = common_simple_civ_manager::create_named("common_simple_civ_manager");
+        static num global_544;
+        static num global_548;
+        static num global_552;
+        static num global_556;
+        static num global_560;
+        static num global_564;
+        static num global_568;
+        static num global_572;
+        static beetle_effects effects_controller = beetle_effects::create_named("effects_controller");
+        static num global_580;
+        static num global_584;
+        static num global_588;
+        static num global_592;
+        static num global_596;
+        static num global_600;
+        static num global_604;
+        static num global_608;
+        static num global_612;
+        static num global_616;
+        static num global_620;
+        static num global_624;
+        static num global_628;
+        static num global_632;
+        static num global_636;
+        static num global_640;
+        static num global_644;
+        static num global_648;
+        static num global_652;
+        static num global_656;
+        static num global_660;
+        static num global_664;
+        static num global_668;
+        static num global_672;
+        static num global_676;
+        static num global_680;
+        static num global_684;
+        static num global_688;
+        static num global_692;
+        static num global_696;
+        static num global_700;
+        static num global_704;
+        static num global_708;
+        static num global_712;
+        static num global_716;
+        static num global_720;
+        static num global_724;
+        static num global_728;
+        static num global_732;
+        static num global_736;
+        static num global_740;
+        static num global_744;
+        static num global_748;
+        static num global_752;
+        static num global_756;
+        static num global_760;
+        static num global_764;
+        static num global_768;
+        static num global_772;
+        static num global_776;
+        static common_vehicle_manager CVM = common_vehicle_manager::create_named("CVM");
+        static num global_784;
+        static num global_788;
+        static num global_792;
+        static num global_796;
+        static num global_800;
+        static num global_804;
+        static num global_808;
+        static num global_812;
+        static num global_816;
+        static num global_820;
+        static num global_824;
+        static num global_828 = 0;
+        static num global_832;
+        static num global_836;
+        static num global_840;
+        static num global_844;
+        static num global_848;
+        static num global_852;
+        static num global_856;
+        static num global_860;
+        static num global_864;
+        static num global_868;
+        static num global_872;
+        static num global_876;
+        static num global_880;
+        static num global_884;
+        static num global_888;
+        static num global_892;
+        static num global_896;
+        static num global_900;
+        static num global_904;
+        static num global_908;
+        static num global_912;
+        static num global_916;
+        static num global_920;
+        _v10_beetle_battle(num p0);
+        ~_v10_beetle_battle();
+        void generic_venom_lose_panel();
+        void failure_dialog(num p0);
+        void clear_all_scripts();
+        void show_car_combat_help_text(num p0);
+        void set_hero(str p0);
+        void set_spiderman_health();
+        void run_hot_pursuit();
+        void prepare_open_city_vars();
+        num cycle_tod(num p0);
+        void switch_to_spiderman();
+        void switch_to_venom();
+        void hot_pursuit_checker();
+        void update_open_city_times();
+        num adjust_mission_num(num p0);
+        void set_TOD_and_shoreline(num p0);
+        void enable_mission_tokens_by_hero();
+        void go_to_my_neighborhood(vector3d p0);
+        void city_tutorial_manager(num p0, num p4, num p8);
+        void handle_objective_list(num p0);
+        void launch_trick_race(num p0);
+        void launch_venom_trick_race(num p0);
+        void launch_torch_race(num p0);
+        void set_up_tokens(num p0, num p4);
+        void kill_shenanigans();
+        void disable_mission_tokens();
+        void launch_combat_tour(num p0);
+        void show_mission_text(num p0);
+        void update_open_city_shen_times();
+        num convert_to_progression_step(num p0);
+        void disable_all_tokens();
+        void enable_pickup_tokens();
+        void set_torch_token(num p0);
+        void set_tour_tokens();
+        void city_goals_hint();
+        void process_master_objective();
+        void set_progression_display_vars();
+        void mission_music_P1_start();
+        void mission_music_P2_start();
+        void mission_music_P3_start();
+        void mission_music_P4_start();
+        void mission_music_P5_start();
+        void mission_music_IGC();
+        void mission_music_failed();
+        void start_mission_music();
+        void end_mission_success();
+        void end_mission_failed();
+        void appear(entity p0);
+        void AI_preview_set_entity(entity p0);
+        void AI_preview_moves_handler(debug_menu_entry p0);
+        void mission_prep();
+        void turn_off_pit_cam(num p0);
+        void debug_menu();
+        void V10_music_thread();
+        void lock_and_load();
+        void play_ending_cutscene();
+        void play_enter_warehouse_cutscene();
+        void stage3_start(num p0);
+        void stage1_start();
+        void mission_start();
+        void play_intro_cutscene();
+        void beetle_preview_set_beetle_entity(entity p0);
+        void spawn_beetle_lite();
+        void v10_igc1_effects();
+        void clean_up_igc1_effects();
+        void destroy_beetle_lite();
+        void destroy_beetle();
+        void v10_igc1B_effects();
+        void clean_up_igc1b_effects();
+        void v10_igc2_effects();
+        void stage1_init();
+        void stage1_complete();
+        void spawn_beetle();
+        void wait_for_load(num p0);
+        void stage2_start();
+        void stage2_init();
+        void turn_off_mission_text(num p0);
+        void stage2_fly();
+        void distance_checker();
+        void pick_path();
+        void create_beetle_tracker();
+        void distance_decay();
+        void stage2_clean();
+        void stage3_cut();
+        num distance2d(vector3d p0, vector3d p12);
+        num rubber_band(num p0);
+        void wait_frame(num p0);
+        void mission_failed();
+        void move_on_my_own();
+        void stage3_init(num p0);
+        void damage_watcher_p3();
+        void charge_attack_panel();
+        void stage3_beetle_prep(num p0);
+        void track_hero_position();
+        void floor_breakA();
+        void raise_walls();
+        void damage_in_the_holes();
+        void plasma_generators();
+        void static_pit_cameras();
+        void bomber_mode();
+        void floor_breakB();
+        void program_arm_cut();
+        void watch_for_entry();
+        void stage3_complete();
+        void stage3_cleanup();
+        void make_trap_lights();
+        void place_trap_lights();
+        void trap_effects_on();
+        void turn_on_pit_camera(num p0);
+        void trap_lights_on(num p0);
+        void lower_panel(entity p0);
+        void add_cage_sound();
+        void speed_controller();
+        void destroy_plasma_generators();
+        void mission_complete();
+        void check_and_raise(trigger p0);
+        void start_phase2();
+        void beetle_preview_setup_debug_menu();
+        void floor_breakC();
+        void mission_cleanup();
+        void mission_fail_venom_specific(num p0);
+        void play_spidey_transition_cutscene();
+        void make_landing(entity p0);
+        void make_hit(entity p0);
+        void make_wham(entity p0);
+        void smoke_cloud(entity p0);
+        void break_wall(entity p0);
+        void break_window();
+        void make_smoke(entity p0);
+        void win_v10(debug_menu_entry p0);
+        void mission_called_from_debug_menu();
+        void debug_jump(debug_menu_entry p0);
+        void offensive_select_attack(entity p0);
+        void defensive_select_attack(entity p0);
+        void bombardment();
+        void stage2_check_attack();
+        void stage2_complete();
+        void beetle_preview_Shockwave(debug_menu_entry p0);
+        void beetle_preview_Throw_Grenade_Fwd_Barrier(debug_menu_entry p0);
+        void beetle_preview_Throw_Grenade_Fwd_ProxMine(debug_menu_entry p0);
+        void beetle_preview_Throw_Grenade_Fwd_Smoke(debug_menu_entry p0);
+        void beetle_preview_Throw_Grenade_Fwd(debug_menu_entry p0);
+        void beetle_preview_Throw_Grenade(debug_menu_entry p0);
+        void beetle_preview_Missile(debug_menu_entry p0);
+        void beetle_preview_Laser_Sweep(debug_menu_entry p0);
+        void beetle_preview_Laser_Volley(debug_menu_entry p0);
+        void beetle_preview_Laser_Attack(debug_menu_entry p0);
+        void beetle_preview_Program_Laser_Left(debug_menu_entry p0);
+        void beetle_preview_LeapAttack(debug_menu_entry p0);
+        void beetle_preview_BumRush(debug_menu_entry p0);
+        void beetle_preview_moves(debug_menu_entry p0);
+        void AI_preview_preview_face_handler(debug_menu_entry p0);
+        void AI_preview_move_handler(debug_menu_entry p0);
+        void AI_preview_loop_handler(debug_menu_entry p0);
+        void AI_preview_empty_handler(debug_menu_entry p0);
+        void on_combat_tour_enter(entity p0, num p4, str p8);
+        void on_storm_race_enter(entity p0, num p4, str p8);
+        void on_venom_race_enter(entity p0, num p4, str p8);
+        void on_trick_race_enter(entity p0, num p4, str p8);
+        void on_token_pickup(entity p0, num p4, num p8, num p12, str p16);
+        void progression_mission_aborted();
+        void progression_mission_failed();
+        void clear_missions_for_unlockables();
+        void toggle_hero();
+        void set_hero_costume(str p0);
+        void left_token_trigger();
+        void display_car_combat_warning_panel(num p0);
+    };
+
+    class point_trigger
+    {
+    public:
+        str field_0;
+        vector3d field_4;
+        num field_16;
+        trigger field_20;
+        void startup();
+        void shutdown();
+    };
+
+    class entity_trigger
+    {
+    public:
+        entity field_0;
+        num field_4;
+        trigger field_8;
+        void startup();
+        void shutdown();
+    };
+
+    class spawner
+    {
+    public:
+        str field_0;
+        str field_4;
+        posfacing3d field_8;
+        entity field_24;
+        entity spawn_it();
+    };
+
+    class finger_of_god
+    {
+    public:
+        num unused_0[1];
+        vector3d field_4;
+        num field_16;
+        num field_20;
+        vector3d field_24;
+        entity field_36;
+        entity_tracker field_40;
+        sound_inst field_44;
+        num unused_48[1];
+        num field_52;
+        void watch_for_hero();
+        void flicker();
+        void deactivate();
+        void play_sound();
+        void destroy_it();
+        void startup();
+        void shutdown();
+    };
+
+    class ai_auditor
+    {
+    public:
+        num field_0;
+        ai_auditor();
+    };
+
+    class common_thug_manager
+    {
+    public:
+        num field_0[18];
+        num field_72;
+        num field_76;
+        num field_80;
+        num field_84;
+        num field_88;
+        num field_92;
+        num field_96;
+        num field_100;
+        common_thug_manager();
+        ~common_thug_manager();
+    };
+
+    class common_simple_civ_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        common_simple_civ_manager();
+        ~common_simple_civ_manager();
+    };
+
+    class common_gmu_manager
+    {
+    public:
+        num unused_0[19];
+        num field_76;
+        num field_80;
+        common_gmu_manager();
+        ~common_gmu_manager();
+    };
+
+    class common_vehicle_manager
+    {
+    public:
+        num unused_0[22];
+        num field_88;
+        num field_92;
+        common_vehicle_manager();
+        ~common_vehicle_manager();
+    };
+
+    class goal_tracker
+    {
+    public:
+        num field_0;
+        goal_tracker();
+        ~goal_tracker();
+        void shutdown();
+    };
+
+    class city_point_manager
+    {
+    public:
+        city_point_manager();
+        ~city_point_manager();
+        void shutdown();
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void wait_fade_alpha(entity p4, num p8);
+        void wait_fade_alpha_in(entity p4, num p8);
+        void animate_trail(entity p4, polytube p8, num p12, num p16);
+        void set_trail_tiling(polytube p4);
+        void set_trail_length(num p4);
+        void shrink_trail(polytube p4, num p8);
+        void shrink_trail_fast(polytube p4, num p8);
+    };
+
+    class beetle_effects
+    {
+    public:
+        num unused_0[1];
+        entity field_4;
+        entity field_8;
+        entity field_12;
+        entity field_16;
+        num unused_20[4];
+        entity field_36;
+        num unused_40[1];
+        entity_list field_44;
+        num field_48;
+        num unused_52[1];
+        entity field_56[10];
+        entity field_96[10];
+        beetle_effects();
+        void upd_blade();
+        void init_proxmine();
+        void free_proxmine();
+        void add_proxmine(entity p4, entity p8, entity p12);
+        void remove_proxmine(item p4, vector3d p8);
+        void multi_shockwave_rings(vector3d p4, num p16);
+        void scale_then_fade(entity p4);
+        void beetle_trail_on(entity p4, num p8);
+        void beetle_trail_off();
+        void trail_fade_control(num p4);
+        void beetle_kill_trail();
+        void make_beetle_trail(entity p4, vector3d p8, num p20);
+        void glows_on(entity p4);
+        void glows_off();
+        void volumetric_glow(entity p4, num p8, num p12);
+    };
+
+    class beetle_barrier
+    {
+    public:
+        vector3d field_0;
+        str field_12;
+        num field_16;
+        num field_20;
+        beetle_barrier field_24;
+        entity field_28;
+        entity field_32;
+        entity field_36;
+        num field_40;
+        num field_44;
+        sound_inst field_48;
+        sound_inst field_52;
+        vector3d field_56;
+        vector3d field_68;
+        num field_80;
+        trigger field_84;
+        void startup();
+        void shutdown();
+        void spawn_it();
+        void watch_for_repulsion_north();
+        void watch_for_repulsion_east();
+        void track_hero_position();
+        void kill_repulsion_watch();
+        void trigger_wall();
+        void start_barrier_sound();
+        void loop_barrier_sound();
+        void start_destroy_timer();
+        void destroy_it();
+    };
+
+    class v10_beetle_battle_enc_data
+    {
+    public:
+        vector3d field_0;
+        num unused_12[10];
+        point_trigger field_52;
+        point_trigger field_56;
+        point_trigger field_60;
+        point_trigger field_64;
+        beetle_barrier field_68;
+        finger_of_god field_72;
+        num unused_76[9];
+        vector3d field_112;
+        vector3d field_124;
+        vector3d field_136;
+        vector3d field_148;
+        num unused_160[11];
+        entity_trigger field_204;
+        finger_of_god field_208;
+        spawner field_212[8];
+        spawner field_244[8];
+        vector3d field_276;
+        vector3d field_288;
+        vector3d field_300;
+        vector3d field_312;
+        vector3d field_324;
+        vector3d field_336;
+        vector3d field_348;
+        vector3d field_360;
+        vector3d field_372;
+        vector3d field_384;
+        vector3d field_396;
+        vector3d field_408;
+        vector3d field_420;
+        vector3d field_432;
+        vector3d field_444;
+        vector3d field_456;
+        spawner field_468;
+        spawner field_472;
+        vector3d field_476;
+        v10_beetle_battle_enc_data();
+        ~v10_beetle_battle_enc_data();
+        void startup();
+        void shutdown();
+    };
+
+    void _v10_beetle_battle::wait_frame(num p0)
+    {
+        while ((p0 > 0)) {
+            _global_slc::wait_frame();
+            p0--;
+        }
+    }
+
+    num _v10_beetle_battle::distance2d(vector3d p0, vector3d p12)
+    {
+        vector3d v0 = (p0 + vector3d(0, (-(p0).y()), 0));
+        vector3d v1 = (p12 + vector3d(0, (-(p12).y()), 0));
+        num v2 = distance3d(v0, v1);
+        return v2;
+    }
+
+    void _v10_beetle_battle::appear(entity p0)
+    {
+        (p0).set_visible(1);
+    }
+
+    void _v10_beetle_battle::mission_fail_venom_specific(num p0)
+    {
+        g_mission_status = 3;
+        stop_all_sounds();
+        stop_vibration();
+        set_dialog_box_flavor(3);
+        (hero()).reset_ai();
+        start_thread(_v10_beetle_battle::generic_venom_lose_panel());
+        delay(3.23);
+        _v10_beetle_battle::failure_dialog(p0);
+    }
+
+    void _v10_beetle_battle::clear_all_scripts()
+    {
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        unload_script();
+        while (is_mission_active()) {
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _v10_beetle_battle::failure_dialog(num p0)
+    {
+        num v1 = 3;
+        num v0 = 0;
+        shut_up_all_ai_voice_boxes();
+        blackscreen_off(0);
+        _global_slc::wait_frame();
+        if (((gv_num_current_story == 1) || (gv_num_current_story == 2))) {
+            v0 = 1;
+        }
+        if (v0) {
+            v1 = 0;
+        } else if ((p0 == -1)) {
+            v1 = bring_up_dialog_box_title(30, 0, 31);
+        } else {
+            v1 = bring_up_dialog_box_title(p0, 0, 31);
+        }
+        if ((v1 == 0)) {
+            blackscreen_on(0);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            end_cut_scenes();
+            _v10_beetle_battle::clear_all_scripts();
+        } else {
+            blackscreen_on(0);
+            (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+            g_story_checkpoint = 0;
+            end_cut_scenes();
+            raise_signal("MISSION_END_FAIL");
+            _v10_beetle_battle::clear_all_scripts();
+        }
+    }
+
+    void _v10_beetle_battle::generic_venom_lose_panel()
+    {
+        end_cut_scenes();
+        cut_scene v0 = create_cut_scene("cutscenes\\in_game\\venom_failpanel");
+        (v0).wait_play();
+    }
+
+    void _v10_beetle_battle::go_to_my_neighborhood(vector3d p0)
+    {
+        district v2;
+        district v1;
+        num v3 = 0;
+        if ((hero()).physical_ifc_is_biped_physics_running()) {
+            (hero()).physical_ifc_stop_biped_physics();
+        }
+        if (is_hero_venom()) {
+            malor(RESPAWN_CENTRAL_PARK, 1);
+        } else {
+            v2 = find_district_for_point(p0);
+            v3 = (v2).get_neighborhood();
+            switch (v3) {
+            case 0:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            case 1:
+            {
+                malor(RESPAWN_ESU, 1);
+                break;
+            }
+            case 2:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            case 3:
+            {
+                malor(RESPAWN_DAILY_BUGLE, 1);
+                break;
+            }
+            default:
+            {
+                malor(RESPAWN_PETERS_HOUSE, 1);
+                break;
+            }
+            }
+        }
+        v1 = find_district_for_point((hero()).get_abs_position());
+        (v1).wait_for_load();
+        wait_for_streamer_to_reach_equilibrium();
+    }
+
+    void point_trigger::startup()
+    {
+        field_20 = create_trigger(field_0, field_4, field_16);
+    }
+
+    void point_trigger::shutdown()
+    {
+        destroy_trigger(field_20);
+    }
+
+    void entity_trigger::startup()
+    {
+        field_8 = create_trigger(field_0, field_4);
+    }
+
+    void entity_trigger::shutdown()
+    {
+        destroy_trigger(field_8);
+    }
+
+    entity spawner::spawn_it()
+    {
+        if ((field_24).is_valid()) {
+        } else {
+            field_24 = create_entity(field_0, field_4);
+            if ((field_24).is_valid()) {
+                wait_frame();
+                (field_24).set_rel_position((field_8).get_position());
+                (field_24).set_xz_facing((field_8).get_facing());
+            }
+        }
+        return field_24;
+    }
+
+    void finger_of_god::watch_for_hero()
+    {
+        vector3d v0 = (hero()).get_abs_position();
+        while (field_52) {
+            v0 = (hero()).get_abs_position();
+            if ((((((((v0).x() < (((field_4).x() + field_16) + (field_24).x())) && ((v0).x() > (((field_4).x() - field_16) + (field_24).x()))) && ((v0).z() < (((field_4).z() + field_16) + (field_24).z()))) && ((v0).z() > (((field_4).z() - field_16) + (field_24).z()))) && ((v0).y() < (((field_4).y() + field_20) + (field_24).y()))) && ((v0).y() > (field_4).y()))) {
+                raise_signal(field_36, "entity::GENERIC_SIGNAL_1");
+            }
+            wait_frame();
+        }
+    }
+
+    void finger_of_god::flicker()
+    {
+        while (((field_36).is_valid() && field_52)) {
+            while ((((field_36).is_valid() && field_52) && ((field_36).get_render_alpha() > 0.1))) {
+                (field_36).set_render_alpha(((field_36).get_render_alpha() - 0.1));
+                wait_frame();
+            }
+            while ((((field_36).is_valid() && field_52) && ((field_36).get_render_alpha() < 1))) {
+                (field_36).set_render_alpha(((field_36).get_render_alpha() + 0.1));
+                wait_frame();
+            }
+            delay(0.5);
+        }
+    }
+
+    void finger_of_god::deactivate()
+    {
+        if ((!field_52)) {
+        } else {
+            start_thread_on(this, (this).play_sound());
+            kill_threads_on(this, finger_of_god::flicker);
+            kill_threads_on(this, finger_of_god::watch_for_hero);
+            (field_40).set_poi_active(0);
+            (field_40).set_mini_map_active(0);
+            destroy_entity_tracker(field_40);
+            field_52 = 0;
+            delay(0.3);
+            destroy_entity(field_36);
+        }
+    }
+
+    void finger_of_god::play_sound()
+    {
+        field_44 = create_sound_inst("fx_waypointmarker");
+        (field_44).play(0);
+    }
+
+    void finger_of_god::destroy_it()
+    {
+        if (field_52) {
+            (this).deactivate();
+        }
+        if ((field_36).is_valid()) {
+            destroy_entity(field_36);
+        }
+    }
+
+    void finger_of_god::startup()
+    {
+    }
+
+    void finger_of_god::shutdown()
+    {
+        if ((field_44).is_valid()) {
+            (field_44).stop(0);
+        }
+        (this).destroy_it();
+    }
+
+    void _v10_beetle_battle::start_mission_music()
+    {
+        g_ambient_music_allowed = 0;
+        g_mission_music_active = 1;
+        raise_signal("AMBIENT_MUSIC_FADE_OUT");
+    }
+
+    void _v10_beetle_battle::end_mission_success()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _v10_beetle_battle::end_mission_failed()
+    {
+        g_mission_music_active = 0;
+    }
+
+    void _v10_beetle_battle::city_tutorial_manager(num p0, num p4, num p8)
+    {
+        if ((p0 == 0)) {
+            if ((!gv_city_tutorials[0])) {
+                gv_city_tutorials[0] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(131, 1, 130);
+            }
+        } else if ((p0 == 1)) {
+            if ((!gv_city_tutorials[5])) {
+                blackscreen_off(0);
+                gv_city_tutorials[5] = 1;
+                set_dialog_box_flavor(1);
+                bring_up_dialog_box_title(76, 1, 75);
+            }
+        } else if ((p0 == 2)) {
+            switch (p8) {
+            case 0:
+            {
+                if ((!gv_city_tutorials[6])) {
+                    gv_city_tutorials[6] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(239, 1, 238);
+                }
+                break;
+            }
+            case 1:
+            {
+                if ((!gv_city_tutorials[7])) {
+                    gv_city_tutorials[7] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(241, 1, 240);
+                }
+                break;
+            }
+            case 2:
+            {
+                if ((!gv_city_tutorials[8])) {
+                    gv_city_tutorials[8] = 1;
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(237, 1, 236);
+                }
+                break;
+            }
+            }
+        }
+    }
+
+    void _v10_beetle_battle::display_car_combat_warning_panel(num p0)
+    {
+        _v10_beetle_battle::show_car_combat_help_text(3);
+        if (p0) {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_left");
+            (v0).wait_play();
+        } else {
+            cut_scene v0 = create_cut_scene("cutscenes\\encounters\\patrols\\gun_panel_right");
+            (v0).wait_play();
+        }
+    }
+
+    void _v10_beetle_battle::left_token_trigger()
+    {
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        if ((!g_trick_race_running)) {
+        }
+        _global_slc::turn_off_mission_text();
+        if ((hero()).is_valid()) {
+            (hero()).set_ai_param_int("loco_allow_punch", 1);
+            (hero()).set_ai_param_int("loco_allow_web_zip", 1);
+            (hero()).set_ai_param_int("loco_allow_swing", 1);
+        }
+    }
+
+    void _v10_beetle_battle::switch_to_spiderman()
+    {
+        _v10_beetle_battle::set_hero("ultimate_spiderman");
+    }
+
+    void _v10_beetle_battle::switch_to_venom()
+    {
+        if (gv_story_finished) {
+            _v10_beetle_battle::set_hero("venom_spider");
+        } else {
+            _v10_beetle_battle::set_hero("venom");
+        }
+    }
+
+    void _v10_beetle_battle::set_hero(str p0)
+    {
+        stop_vibration();
+        vector3d v0 = (hero()).get_abs_position();
+        swap_hero_costume(p0);
+        malor(v0, 1);
+        spiderman_camera_autocorrect(0);
+        if (is_hero_spidey()) {
+            _v10_beetle_battle::set_spiderman_health();
+        } else {
+            turn_on_hero_health(4, hero());
+        }
+    }
+
+    void _v10_beetle_battle::set_hero_costume(str p0)
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_v10_beetle_battle::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _v10_beetle_battle::clear_all_scripts();
+        _v10_beetle_battle::set_hero(p0);
+        _v10_beetle_battle::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    void _v10_beetle_battle::toggle_hero()
+    {
+        blackscreen_on(0);
+        stop_vibration();
+        kill_threads(_v10_beetle_battle::run_hot_pursuit);
+        g_enable_hot_pursuit = 0;
+        _v10_beetle_battle::clear_all_scripts();
+        if (is_hero_venom()) {
+            gv_current_city_tod = _v10_beetle_battle::cycle_tod(gv_current_city_tod);
+            _v10_beetle_battle::switch_to_spiderman();
+        } else {
+            gv_current_venom_city_tod = _v10_beetle_battle::cycle_tod(gv_current_venom_city_tod);
+            _v10_beetle_battle::switch_to_venom();
+            start_thread(_v10_beetle_battle::hot_pursuit_checker());
+        }
+        _v10_beetle_battle::prepare_open_city_vars();
+        blackscreen_off(1);
+    }
+
+    num _v10_beetle_battle::cycle_tod(num p0)
+    {
+        num v0 = 0;
+        if ((p0 == 3)) {
+            v0 = 0;
+        } else {
+            v0 = (p0 + 1);
+        }
+        return v0;
+    }
+
+    void _v10_beetle_battle::set_TOD_and_shoreline(num p0)
+    {
+        set_time_of_day(p0);
+        raise_signal("UPDATE_SHORELINE");
+    }
+
+    void _v10_beetle_battle::hot_pursuit_checker()
+    {
+        bind_signal_once(signal_id("A_CAR_HAS_EXPLODED"), _v10_beetle_battle::run_hot_pursuit());
+    }
+
+    void _v10_beetle_battle::run_hot_pursuit()
+    {
+        if ((((!g_enable_hot_pursuit) && (!g_enable_venom_trick_race)) && (!g_trick_race_running))) {
+            g_enable_sh = 0;
+            g_enable_story = 0;
+            g_enable_hot_pursuit = 1;
+        }
+        while (((g_enable_hot_pursuit || g_enable_venom_trick_race) || g_trick_race_running)) {
+            _global_slc::wait_frame();
+        }
+        start_thread(_v10_beetle_battle::hot_pursuit_checker());
+    }
+
+    num _v10_beetle_battle::adjust_mission_num(num p0)
+    {
+        num v1 = p0;
+        switch (p0) {
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 3:
+        {
+            v1 = 36;
+            break;
+        }
+        case 7:
+        {
+            v1 = 30;
+            break;
+        }
+        case 15:
+        {
+            v1 = 31;
+            break;
+        }
+        case 34:
+        {
+            v1 = 25;
+            break;
+        }
+        case 8:
+        {
+            v1 = 25;
+            break;
+        }
+        case 17:
+        {
+            v1 = 32;
+            break;
+        }
+        case 33:
+        {
+            v1 = 32;
+            break;
+        }
+        case 10:
+        {
+            v1 = 27;
+            break;
+        }
+        case 28:
+        {
+            v1 = 27;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _v10_beetle_battle::prepare_open_city_vars()
+    {
+        if ((!gv_story_finished)) {
+            _v10_beetle_battle::update_open_city_times();
+            if ((!is_hero_spidey())) {
+                _v10_beetle_battle::switch_to_spiderman();
+            }
+        }
+        g_story_checkpoint = 0;
+        g_enable_story = 0;
+        gv_num_current_story = _v10_beetle_battle::adjust_mission_num(gv_num_current_story);
+        if (is_hero_spidey()) {
+            _v10_beetle_battle::set_TOD_and_shoreline(gv_current_city_tod);
+        } else {
+            _v10_beetle_battle::set_TOD_and_shoreline(gv_current_venom_city_tod);
+        }
+        g_enable_igc = 0;
+        g_enable_venom_igc = 0;
+        g_mission_status = 0;
+        g_mission_type = 0;
+        g_enable_sh = 1;
+        g_enable_can = 1;
+        g_switch_to_open_city_music = 1;
+        g_enable_token_event = 0;
+        g_enable_trick_race = 0;
+        g_enable_venom_trick_race = 0;
+        gv_num_current_token_event = 0;
+        _v10_beetle_battle::enable_mission_tokens_by_hero();
+    }
+
+    void _v10_beetle_battle::clear_missions_for_unlockables()
+    {
+        g_unlockables_entered = 1;
+        blackscreen_on(0);
+        num v1 = g_mission_type;
+        num v0 = g_queens_tour_running;
+        _v10_beetle_battle::prepare_open_city_vars();
+        g_trick_race_restarted = 0;
+        g_enable_trick_race = 0;
+        g_enable_storm_race = 0;
+        g_enable_venom_trick_race = 0;
+        g_torch_race_running = 0;
+        g_trick_race_running = 0;
+        _v10_beetle_battle::clear_all_scripts();
+        if (((v1 == 4) || (v0 == 1))) {
+            _v10_beetle_battle::go_to_my_neighborhood(gv_hero_restart_pos);
+        }
+        blackscreen_off(0);
+        invoke_pause_menu_unlockables();
+        raise_signal("MISSION_START_UPDATE");
+        g_unlockables_entered = 0;
+    }
+
+    void _v10_beetle_battle::progression_mission_failed()
+    {
+        blackscreen_on(0);
+        spiderman_camera_clear_fixedstatic();
+        _v10_beetle_battle::prepare_open_city_vars();
+        _v10_beetle_battle::clear_all_scripts();
+        _v10_beetle_battle::go_to_my_neighborhood(gv_hero_restart_pos);
+        raise_signal("MISSION_START_UPDATE");
+        blackscreen_off(1);
+    }
+
+    void _v10_beetle_battle::progression_mission_aborted()
+    {
+        if ((g_mission_type == 4)) {
+            stop_vibration();
+            clear_controls();
+        }
+        if (((hero()).get_ifc_num("HIT_POINTS") > 0)) {
+            g_story_checkpoint = 0;
+            if ((g_mission_type == 3)) {
+                if ((!g_trick_race_controls_locked)) {
+                    enable_controls(0);
+                    clear_controls();
+                    spiderman_camera_enable_lookaround(0);
+                    g_trick_race_controls_locked = 1;
+                }
+                g_race_exited_via_pause = 1;
+                g_done_with_storm_anim = 1;
+            } else {
+                blackscreen_on(0);
+                spiderman_camera_clear_fixedstatic();
+                if ((gv_num_current_story == 42)) {
+                    g_mission_status = 2;
+                    raise_signal("MISSION_END");
+                } else {
+                    _v10_beetle_battle::prepare_open_city_vars();
+                    _v10_beetle_battle::clear_all_scripts();
+                    if ((g_mission_type != 1)) {
+                        _v10_beetle_battle::go_to_my_neighborhood(gv_hero_restart_pos);
+                    }
+                    raise_signal("MISSION_START_UPDATE");
+                }
+            }
+            blackscreen_off(1);
+        }
+    }
+
+    void _v10_beetle_battle::on_token_pickup(entity p0, num p4, num p8, num p12, str p16)
+    {
+        _v10_beetle_battle::city_tutorial_manager(2, 0, p4);
+        _v10_beetle_battle::handle_objective_list(2);
+        if ((p4 != 4)) {
+            destroy_entity(p0);
+        }
+        switch (p4) {
+        case 1:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(12);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(11, p8, p12);
+            }
+            num v0 = 1;
+            while ((v0 <= 79)) {
+                if ((v0 == 1)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[0] = 1;
+                        gv_unlockable_covers[1] = 1;
+                        gv_unlockable_covers[2] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 2)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[3] = 1;
+                        gv_unlockable_covers[4] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 10)) {
+                    if ((p16 == ("CV_TOKEN_0" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 < 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((v0 == 54)) {
+                    if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                        gv_unlockable_covers[(v0 + 2)] = 1;
+                        gv_unlockable_covers[(v0 + 3)] = 1;
+                        v0 = 79;
+                    }
+                } else if ((p16 == ("CV_TOKEN_" + to_integer_string(v0)))) {
+                    gv_unlockable_covers[(v0 + 3)] = 1;
+                    v0 = 79;
+                }
+                v0++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(13);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(17, p8, p12);
+            }
+            if ((p16 == "MV_TOKEN_01")) {
+                gv_unlockable_landmark[5] = 1;
+            } else if ((p16 == "MV_TOKEN_02")) {
+                gv_unlockable_landmark[13] = 1;
+            } else if ((p16 == "MV_TOKEN_03")) {
+                gv_unlockable_landmark[4] = 1;
+            } else if ((p16 == "MV_TOKEN_04")) {
+                gv_unlockable_landmark[0] = 1;
+            } else if ((p16 == "MV_TOKEN_05")) {
+                gv_unlockable_landmark[6] = 1;
+            } else if ((p16 == "MV_TOKEN_06")) {
+                gv_unlockable_landmark[1] = 1;
+            } else if ((p16 == "MV_TOKEN_07")) {
+                gv_unlockable_landmark[2] = 1;
+            } else if ((p16 == "MV_TOKEN_08")) {
+                gv_unlockable_landmark[7] = 1;
+            } else if ((p16 == "MV_TOKEN_09")) {
+                gv_unlockable_landmark[9] = 1;
+            } else if ((p16 == "MV_TOKEN_10")) {
+                gv_unlockable_landmark[10] = 1;
+            } else if ((p16 == "MV_TOKEN_11")) {
+                gv_unlockable_landmark[11] = 1;
+            } else if ((p16 == "MV_TOKEN_12")) {
+                gv_unlockable_landmark[8] = 1;
+            } else if ((p16 == "MV_TOKEN_13")) {
+                gv_unlockable_landmark[14] = 1;
+            } else if ((p16 == "MV_TOKEN_14")) {
+                gv_unlockable_landmark[3] = 1;
+            } else if ((p16 == "MV_TOKEN_15")) {
+                gv_unlockable_landmark[12] = 1;
+            }
+            break;
+        }
+        case 2:
+        {
+            if ((p8 == p12)) {
+                set_mission_text_box_flavor(2);
+                set_mission_text(15);
+            } else {
+                set_mission_text_box_flavor(2);
+                set_mission_text(18, p8, p12);
+            }
+            break;
+        }
+        case 4:
+        {
+            break;
+        }
+        }
+        sound_inst v2 = create_sound_inst("token_sfx");
+        (v2).play(0);
+        delay(1.5);
+        _global_slc::turn_off_mission_text();
+    }
+
+    void _v10_beetle_battle::on_trick_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            v2 = g_spidey_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _v10_beetle_battle::launch_trick_race(p4));
+            }
+        }
+    }
+
+    void _v10_beetle_battle::on_venom_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        num v1 = 0;
+        num v3 = 0;
+        num v2 = 0;
+        _global_slc::wait_frame();
+        if ((((!g_trick_race_restarted) && is_hero_venom()) && (p4 != -1))) {
+            v2 = g_venom_trick_difficulty[p4];
+            switch (v2) {
+            case 0:
+            {
+                v1 = 217;
+                break;
+            }
+            case 1:
+            {
+                v1 = 216;
+                break;
+            }
+            case 2:
+            {
+                v1 = 215;
+                break;
+            }
+            case 3:
+            {
+                v1 = 214;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+            if (gv_venom_trick_marker_ultimate_medal_status[p4]) {
+                v3 = 209;
+            } else if (gv_venom_trick_marker_gold_medal_status[p4]) {
+                v3 = 210;
+            } else if (gv_venom_trick_marker_silver_medal_status[p4]) {
+                v3 = 211;
+            } else if (gv_venom_trick_marker_bronze_medal_status[p4]) {
+                v3 = 212;
+            } else {
+                v3 = 213;
+            }
+            if ((!g_trick_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(208, v1, v3);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _v10_beetle_battle::launch_venom_trick_race(p4));
+            }
+        }
+    }
+
+    void _v10_beetle_battle::on_storm_race_enter(entity p0, num p4, str p8)
+    {
+        (hero()).set_ai_param_int("loco_allow_punch", 0);
+        (hero()).set_ai_param_int("loco_allow_web_zip", 0);
+        (hero()).set_ai_param_int("loco_allow_swing", 0);
+        if ((((!g_trick_race_restarted) && is_hero_spidey()) && (p4 != -1))) {
+            num v0 = get_token_index_from_id(4, p4);
+            set_mission_text_box_flavor(0);
+            if ((!g_torch_race_running)) {
+                set_mission_text_box_flavor(0);
+                set_mission_text(78);
+                bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _v10_beetle_battle::launch_torch_race(p4));
+            }
+        }
+    }
+
+    void _v10_beetle_battle::disable_all_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(0, 0);
+        enable_tokens_of_type(1, 0);
+        enable_tokens_of_type(2, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _v10_beetle_battle::disable_mission_tokens()
+    {
+        enable_tokens_of_type(4, 0);
+        enable_tokens_of_type(6, 0);
+        enable_tokens_of_type(5, 0);
+        enable_tokens_of_type(8, 0);
+    }
+
+    void _v10_beetle_battle::enable_mission_tokens_by_hero()
+    {
+        if (is_hero_venom()) {
+            enable_tokens_of_type(5, 1);
+            enable_tokens_of_type(4, 0);
+            enable_tokens_of_type(6, 0);
+            enable_tokens_of_type(8, 0);
+        } else {
+            _v10_beetle_battle::set_up_tokens(gv_num_current_story, 0);
+        }
+    }
+
+    void _v10_beetle_battle::enable_pickup_tokens()
+    {
+        enable_tokens_of_type(0, 1);
+        enable_tokens_of_type(1, 1);
+        enable_tokens_of_type(2, 1);
+    }
+
+    void _v10_beetle_battle::kill_shenanigans()
+    {
+        g_enable_sh = 0;
+        g_enable_can = 0;
+        _global_slc::wait_frame();
+        if (is_mission_loading()) {
+            while ((!is_mission_active())) {
+                _global_slc::wait_frame();
+            }
+        }
+        if ((is_mission_active() && (g_mission_type == 1))) {
+            unload_script();
+            while (is_mission_active()) {
+                _global_slc::wait_frame();
+            }
+        }
+    }
+
+    void _v10_beetle_battle::launch_combat_tour(num p0)
+    {
+        _global_slc::turn_off_mission_text();
+        (script_controller("CONTROLLER_1")).clear_callbacks();
+        g_enable_token_event = 1;
+        blackscreen_on(1);
+        delay(1);
+        _v10_beetle_battle::kill_shenanigans();
+        gv_hero_restart_pos = (hero()).get_abs_position();
+        gv_num_current_token_event = p0;
+        _v10_beetle_battle::disable_mission_tokens();
+    }
+
+    void _v10_beetle_battle::on_combat_tour_enter(entity p0, num p4, str p8)
+    {
+        set_mission_text_box_flavor(0);
+        set_mission_text(277);
+        bind_signal(signal_id(script_controller("CONTROLLER_1"), "script_controller::SQUARE_PRESSED"), _v10_beetle_battle::launch_combat_tour(p4));
+    }
+
+    void _v10_beetle_battle::launch_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_trick_race = 1;
+            _v10_beetle_battle::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            _global_slc::turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _v10_beetle_battle::launch_venom_trick_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            if (g_enable_hot_pursuit) {
+                g_enable_hot_pursuit = 0;
+                unload_script();
+            }
+            g_enable_venom_trick_race = 1;
+            _v10_beetle_battle::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            _global_slc::turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                g_trick_race_controls_locked = 1;
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _v10_beetle_battle::launch_torch_race(num p0)
+    {
+        if ((spiderman_is_on_ground() || spiderman_is_on_wall())) {
+            blackscreen_on(1);
+            delay(1);
+            g_enable_storm_race = 1;
+            _v10_beetle_battle::kill_shenanigans();
+            g_mission_type = 3;
+            (script_controller("CONTROLLER_1")).clear_callbacks();
+            _global_slc::turn_off_mission_text();
+            if ((!g_trick_race_controls_locked)) {
+                enable_controls(0);
+                clear_controls();
+                spiderman_camera_enable_lookaround(0);
+                g_trick_race_controls_locked = 1;
+            }
+            gv_num_current_token_event = p0;
+        }
+    }
+
+    void _v10_beetle_battle::show_car_combat_help_text(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_land_shown))) {
+                start_thread(_v10_beetle_battle::show_mission_text(136));
+                g_tutorial_car_combat_land_shown = 1;
+            }
+            break;
+        }
+        case 1:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(135, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_v10_beetle_battle::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 2:
+        {
+            switch (gv_tutorial_car_combat_counter) {
+            case 0:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    set_dialog_box_flavor(1);
+                    bring_up_dialog_box_title(290, 1, 134);
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            case 1:
+            case 2:
+            case 3:
+            {
+                if ((!g_tutorial_car_combat_attack_shown)) {
+                    start_thread(_v10_beetle_battle::show_mission_text(137));
+                    g_tutorial_car_combat_attack_shown = 1;
+                }
+                break;
+            }
+            }
+            break;
+        }
+        case 3:
+        {
+            if (((gv_tutorial_car_combat_counter < 4) && (!g_tutorial_car_combat_dodge_shown))) {
+                start_thread(_v10_beetle_battle::show_mission_text(138));
+                g_tutorial_car_combat_dodge_shown = 1;
+            }
+            gv_tutorial_car_combat_counter++;
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::show_mission_text(num p0)
+    {
+        set_mission_text_box_flavor(1);
+        set_mission_text(p0);
+        delay(1.5);
+        _global_slc::turn_off_mission_text();
+    }
+
+    void _v10_beetle_battle::update_open_city_times()
+    {
+        _v10_beetle_battle::update_open_city_shen_times();
+        g_next_can_time = (game_clock_timer + 15);
+    }
+
+    void _v10_beetle_battle::update_open_city_shen_times()
+    {
+        if (gv_shen_speed_normal) {
+            g_next_shenani_time = (game_clock_timer + 35);
+        } else {
+            g_next_shenani_time = (game_clock_timer + 3);
+        }
+    }
+
+    num _v10_beetle_battle::convert_to_progression_step(num p0)
+    {
+        num v1 = 31;
+        switch (p0) {
+        case 1:
+        {
+            v1 = 0;
+            break;
+        }
+        case 2:
+        {
+            v1 = 1;
+            break;
+        }
+        case 35:
+        {
+            v1 = 2;
+            break;
+        }
+        case 36:
+        {
+            v1 = 3;
+            break;
+        }
+        case 3:
+        {
+            v1 = 4;
+            break;
+        }
+        case 4:
+        {
+            v1 = 5;
+            break;
+        }
+        case 40:
+        {
+            v1 = 6;
+            break;
+        }
+        case 5:
+        {
+            v1 = 7;
+            break;
+        }
+        case 6:
+        {
+            v1 = 8;
+            break;
+        }
+        case 30:
+        {
+            v1 = 9;
+            break;
+        }
+        case 7:
+        {
+            v1 = 10;
+            break;
+        }
+        case 11:
+        {
+            v1 = 11;
+            break;
+        }
+        case 38:
+        {
+            v1 = 12;
+            break;
+        }
+        case 31:
+        {
+            v1 = 13;
+            break;
+        }
+        case 15:
+        {
+            v1 = 14;
+            break;
+        }
+        case 16:
+        {
+            v1 = 15;
+            break;
+        }
+        case 25:
+        {
+            v1 = 16;
+            break;
+        }
+        case 34:
+        {
+            v1 = 17;
+            break;
+        }
+        case 8:
+        {
+            v1 = 18;
+            break;
+        }
+        case 9:
+        {
+            v1 = 19;
+            break;
+        }
+        case 32:
+        {
+            v1 = 20;
+            break;
+        }
+        case 17:
+        {
+            v1 = 21;
+            break;
+        }
+        case 33:
+        {
+            v1 = 22;
+            break;
+        }
+        case 27:
+        {
+            v1 = 23;
+            break;
+        }
+        case 10:
+        {
+            v1 = 24;
+            break;
+        }
+        case 28:
+        {
+            v1 = 25;
+            break;
+        }
+        case 18:
+        {
+            v1 = 26;
+            break;
+        }
+        case 19:
+        {
+            v1 = 27;
+            break;
+        }
+        case 20:
+        {
+            v1 = 28;
+            break;
+        }
+        case 23:
+        {
+            v1 = 29;
+            break;
+        }
+        case 22:
+        {
+            v1 = 30;
+            break;
+        }
+        case 41:
+        {
+            v1 = 31;
+            break;
+        }
+        case 24:
+        {
+            v1 = 32;
+            break;
+        }
+        }
+        return v1;
+    }
+
+    void _v10_beetle_battle::set_tour_tokens()
+    {
+        num v0 = 0;
+        num v1 = 0;
+        while ((v0 < 16)) {
+            if ((gv_tour_diff_ulocked >= gv_tour_difficulty[v0])) {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 0;
+            } else {
+                v1 = get_token_index_from_id(6, v0);
+                gv_token_collected[v1] = 1;
+            }
+            v0++;
+        }
+    }
+
+    void _v10_beetle_battle::set_up_tokens(num p0, num p4)
+    {
+        if ((_v10_beetle_battle::convert_to_progression_step(p0) <= _v10_beetle_battle::convert_to_progression_step(35))) {
+            _v10_beetle_battle::disable_all_tokens();
+        } else {
+            _v10_beetle_battle::enable_pickup_tokens();
+            if (((g_mission_type == 0) || (g_mission_type == 1))) {
+                _v10_beetle_battle::set_torch_token(p4);
+                if (is_hero_spidey()) {
+                    _v10_beetle_battle::set_tour_tokens();
+                    enable_tokens_of_type(4, 1);
+                    enable_tokens_of_type(5, 0);
+                } else {
+                    enable_tokens_of_type(4, 0);
+                    if (gv_story_finished) {
+                        enable_tokens_of_type(5, 1);
+                    }
+                }
+                if (((_v10_beetle_battle::convert_to_progression_step(p0) > _v10_beetle_battle::convert_to_progression_step(40)) && is_hero_spidey())) {
+                    enable_tokens_of_type(6, 1);
+                } else {
+                    enable_tokens_of_type(6, 0);
+                }
+            }
+        }
+    }
+
+    void _v10_beetle_battle::set_spiderman_health()
+    {
+        switch (gv_health_ulocked) {
+        case 3:
+        {
+            turn_on_hero_health(3, hero());
+            break;
+        }
+        case 2:
+        {
+            turn_on_hero_health(2, hero());
+            break;
+        }
+        case 1:
+        {
+            turn_on_hero_health(1, hero());
+            break;
+        }
+        default:
+        {
+            turn_on_hero_health(0, hero());
+            break;
+        }
+        }
+        (hero()).set_ifc_num("MAX_HIT_POINTS", gv_current_max_hitpoints);
+        (hero()).set_ifc_num("HIT_POINTS", (hero()).get_ifc_num("MAX_HIT_POINTS"));
+    }
+
+    void _v10_beetle_battle::city_goals_hint()
+    {
+        while ((!gv_master_prog[gv_obj_list_needed])) {
+            delay(180);
+            while ((g_mission_status != 0)) {
+                delay(1);
+            }
+            if ((!gv_master_prog[gv_obj_list_needed])) {
+                set_mission_text_box_flavor(1);
+                set_mission_text(275);
+                delay(5);
+                _global_slc::turn_off_mission_text();
+            }
+        }
+    }
+
+    void _v10_beetle_battle::process_master_objective()
+    {
+        num v0 = 0;
+        while (((v0 < 13) && (((gv_tour_prog[v0] && gv_token_prog[v0]) && gv_shen_prog[v0]) && gv_race_prog[v0]))) {
+            if ((!gv_master_prog[v0])) {
+                gv_master_prog[v0] = 1;
+                gv_shen_speed_normal = 1;
+                _v10_beetle_battle::update_open_city_shen_times();
+                if (((v0 == gv_obj_list_needed) && (v0 > 0))) {
+                    kill_threads(_v10_beetle_battle::city_goals_hint);
+                    if ((_v10_beetle_battle::convert_to_progression_step(gv_num_current_story) <= _v10_beetle_battle::convert_to_progression_step(3))) {
+                        set_dialog_box_flavor(1);
+                        bring_up_dialog_box_title(133, 1, 132);
+                    } else {
+                        set_dialog_box_flavor(2);
+                        bring_up_dialog_box_title(274, 1, 175);
+                    }
+                }
+            }
+            v0 = (v0 + 1);
+        }
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _v10_beetle_battle::set_progression_display_vars()
+    {
+        num v1 = 0;
+        num v0 = 0;
+        num v3 = 0;
+        num v5 = 0;
+        num v4 = 0;
+        num v2 = 0;
+        num v6 = 0;
+        num v7 = 0;
+        num v8 = 0;
+        num v9 = 0;
+        if ((gv_obj_list_needed > 0)) {
+            v6 = gv_shen_req[(gv_obj_list_needed - 1)];
+            v7 = gv_tour_req[(gv_obj_list_needed - 1)];
+            v8 = gv_token_req[(gv_obj_list_needed - 1)];
+            v9 = gv_race_req[(gv_obj_list_needed - 1)];
+        }
+        v1 = gv_shens_successfully_completed;
+        v0 = gv_combat_tours_completed;
+        v2 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+        v3 = v2;
+        v4 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+        v5 = v4;
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_COUNT", gv_shens_successfully_completed);
+        set_game_info_num("CITY_EVENTS_COMPLETED_TOT_MAX", 100);
+        set_game_info_num("CITY_EVENTS_COMPLETED_COUNT", v1);
+        set_game_info_num("CITY_EVENTS_COMPLETED_MAX", gv_shen_req[gv_obj_list_needed]);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_COUNT", gv_combat_tours_completed);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_TOT_MAX", 36);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_COUNT", v0);
+        set_game_info_num("COMBAT_TOURS_COMPLETED_MAX", gv_tour_req[gv_obj_list_needed]);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_COUNT", v2);
+        set_game_info_num("RACE_POINTS_EARNED_TOT_MAX", 60);
+        set_game_info_num("RACE_POINTS_EARNED_COUNT", v3);
+        set_game_info_num("RACE_POINTS_EARNED_MAX", gv_race_req[gv_obj_list_needed]);
+        set_game_info_num("TOKENS_COLLECTED_TOT_COUNT", v4);
+        set_game_info_num("TOKENS_COLLECTED_TOT_MAX", 190);
+        set_game_info_num("TOKENS_COLLECTED_COUNT", v5);
+        set_game_info_num("TOKENS_COLLECTED_MAX", gv_token_req[gv_obj_list_needed]);
+    }
+
+    void _v10_beetle_battle::set_torch_token(num p0)
+    {
+        num v0 = 0;
+        if ((((!gv_torch_race_00_done) && (!gv_torch_race_unlocked_2)) && (gv_easy_trick_races_completed >= gv_torch_race_unlock_req_easy))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_2 = 1;
+        } else if ((((!gv_torch_race_01_done) && (!gv_torch_race_unlocked_3)) && (gv_medium_trick_races_completed >= gv_torch_race_unlock_req_med))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_3 = 1;
+        } else if ((((!gv_torch_race_02_done) && (!gv_torch_race_unlocked_4)) && (gv_hard_trick_races_completed >= gv_torch_race_unlock_req_hard))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_4 = 1;
+        } else if ((((!gv_torch_race_03_done) && (!gv_torch_race_unlocked_5)) && (gv_insane_trick_races_completed >= gv_torch_race_unlock_req_insane))) {
+            g_torch_message_flag = 1;
+            gv_torch_race_unlocked_5 = 1;
+        }
+        v0 = (((gv_torch_race_unlocked_2 || gv_torch_race_unlocked_3) || gv_torch_race_unlocked_4) || gv_torch_race_unlocked_5);
+        if (v0) {
+            enable_tokens_of_type(8, 1);
+        }
+        if (g_torch_message_flag) {
+            g_torch_message_flag = 0;
+            set_dialog_box_flavor(2);
+            bring_up_dialog_box_title(232, 1, 77);
+        }
+    }
+
+    void _v10_beetle_battle::handle_objective_list(num p0)
+    {
+        num v1 = 0;
+        num v2 = 0;
+        switch (p0) {
+        case 3:
+        {
+            v1 = 0;
+            num v3 = ((((gv_insane_trick_races_completed + gv_hard_trick_races_completed) + gv_medium_trick_races_completed) + gv_easy_trick_races_completed) + gv_total_storm_races_completed);
+            num v4 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_race_req[v1];
+                if (((v3 >= v4) && (!gv_race_prog[v1]))) {
+                    gv_race_prog[v1] = 1;
+                    _v10_beetle_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 2:
+        {
+            v1 = 0;
+            num v3 = (((gv_token_tally[0] + gv_token_tally[1]) + gv_token_tally[2]) + gv_token_tally[3]);
+            num v4 = 0;
+            num unused_value724 = 0;
+            while ((v1 < 13)) {
+                v4 = gv_token_req[v1];
+                if (((v3 >= v4) && (!gv_token_prog[v1]))) {
+                    gv_token_prog[v1] = 1;
+                    _v10_beetle_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 0:
+        {
+            if (((gv_shens_successfully_completed >= 100) && (!gv_shens_finished))) {
+                gv_shens_finished = 1;
+                set_dialog_box_flavor(2);
+                bring_up_dialog_box_title(308, 1, 175);
+            }
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_shen_req[v1];
+                if (((gv_shens_successfully_completed >= v3) && (!gv_shen_prog[v1]))) {
+                    gv_shen_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _v10_beetle_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        case 5:
+        {
+            v1 = 0;
+            num v3 = 0;
+            while ((v1 < 13)) {
+                v3 = gv_tour_req[v1];
+                if (((gv_combat_tours_completed >= v3) && (!gv_tour_prog[v1]))) {
+                    gv_tour_prog[v1] = 1;
+                    if (((v3 != 0) && (!v2))) {
+                        v2 = 1;
+                    }
+                    _v10_beetle_battle::process_master_objective();
+                }
+                v1++;
+            }
+            break;
+        }
+        }
+        _v10_beetle_battle::set_progression_display_vars();
+        if (((((!gv_shen_prog[gv_obj_list_needed]) && gv_tour_prog[gv_obj_list_needed]) && gv_token_prog[gv_obj_list_needed]) && gv_race_prog[gv_obj_list_needed])) {
+            gv_shen_speed_normal = 0;
+            _v10_beetle_battle::update_open_city_shen_times();
+        }
+    }
+
+    ai_auditor::ai_auditor()
+    {
+        field_0 = 0;
+    }
+
+    common_thug_manager::common_thug_manager()
+    {
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = 0;
+        field_92 = 0;
+        field_96 = 0;
+        field_100 = 0;
+        field_72 = 0;
+        field_76 = 0;
+        field_80 = 0;
+        field_84 = 0;
+        field_88 = -1;
+        field_96 = 0;
+        field_100 = 0;
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_0[v0] = 31;
+            v0++;
+        }
+        field_92 = g_hood_gang;
+    }
+
+    common_thug_manager::~common_thug_manager()
+    {
+    }
+
+    common_simple_civ_manager::common_simple_civ_manager()
+    {
+        field_76 = 0;
+    }
+
+    common_simple_civ_manager::~common_simple_civ_manager()
+    {
+    }
+
+    common_gmu_manager::common_gmu_manager()
+    {
+        field_76 = 0;
+        field_80 = 0;
+        field_76 = 0;
+    }
+
+    common_gmu_manager::~common_gmu_manager()
+    {
+    }
+
+    common_vehicle_manager::common_vehicle_manager()
+    {
+        field_88 = 0;
+        field_92 = 0;
+        field_88 = 0;
+    }
+
+    common_vehicle_manager::~common_vehicle_manager()
+    {
+    }
+
+    goal_tracker::goal_tracker()
+    {
+        field_0 = 0;
+        field_0 = 0;
+    }
+
+    goal_tracker::~goal_tracker()
+    {
+        (this).shutdown();
+    }
+
+    void goal_tracker::shutdown()
+    {
+    }
+
+    city_point_manager::city_point_manager()
+    {
+    }
+
+    city_point_manager::~city_point_manager()
+    {
+        (this).shutdown();
+    }
+
+    void city_point_manager::shutdown()
+    {
+    }
+
+    void _v10_beetle_battle::V10_music_thread()
+    {
+        bind_signal_once(signal_id("MISSION_MUSIC_P1_START"), _v10_beetle_battle::mission_music_P1_start());
+        bind_signal_once(signal_id("MISSION_MUSIC_P2_START"), _v10_beetle_battle::mission_music_P2_start());
+        bind_signal_once(signal_id("MISSION_MUSIC_P3_START"), _v10_beetle_battle::mission_music_P3_start());
+        bind_signal_once(signal_id("MISSION_MUSIC_P4_START"), _v10_beetle_battle::mission_music_P4_start());
+        bind_signal_once(signal_id("MISSION_MUSIC_P5_START"), _v10_beetle_battle::mission_music_P5_start());
+        bind_signal_once(signal_id("MISSION_MUSIC_IGC"), _v10_beetle_battle::mission_music_IGC());
+        bind_signal_once(signal_id("MISSION_MUSIC_FAILED"), _v10_beetle_battle::mission_music_failed());
+    }
+
+    void _v10_beetle_battle::mission_music_P1_start()
+    {
+        _v10_beetle_battle::start_mission_music();
+        num v0 = random(1);
+        switch (v0) {
+        case 0:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        default:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        }
+        (_v10_beetle_battle::global_0).play(0);
+    }
+
+    void _v10_beetle_battle::mission_music_P2_start()
+    {
+        _v10_beetle_battle::start_mission_music();
+        num v0 = random(1);
+        switch (v0) {
+        case 0:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        default:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        }
+        (_v10_beetle_battle::global_0).play(0);
+    }
+
+    void _v10_beetle_battle::mission_music_P3_start()
+    {
+        _v10_beetle_battle::start_mission_music();
+        num v0 = random(1);
+        switch (v0) {
+        case 0:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        default:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        }
+        (_v10_beetle_battle::global_0).play(0);
+    }
+
+    void _v10_beetle_battle::mission_music_P4_start()
+    {
+        _v10_beetle_battle::start_mission_music();
+        num v0 = random(1);
+        switch (v0) {
+        case 0:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        default:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        }
+        (_v10_beetle_battle::global_0).play(0);
+    }
+
+    void _v10_beetle_battle::mission_music_P5_start()
+    {
+        _v10_beetle_battle::start_mission_music();
+        num v0 = random(1);
+        switch (v0) {
+        case 0:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        default:
+        {
+            _v10_beetle_battle::global_0 = create_stompable_music_sound_inst("v09_01gp01_mus_greatescap");
+            break;
+        }
+        }
+        (_v10_beetle_battle::global_0).play(0);
+    }
+
+    void _v10_beetle_battle::mission_music_IGC()
+    {
+        (_v10_beetle_battle::global_0).fade_out(1);
+        _v10_beetle_battle::end_mission_success();
+    }
+
+    void _v10_beetle_battle::mission_music_failed()
+    {
+        (_v10_beetle_battle::global_0).fade_out(1);
+        _v10_beetle_battle::end_mission_failed();
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::wait_fade_alpha(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v1 = (p4).get_render_alpha();
+        num v2 = (v1 / p8);
+        while ((v0 < p8)) {
+            (p4).set_render_alpha((v1 - (v2 * v0)));
+            wait_frame();
+            v0++;
+        }
+        (p4).set_visible(0);
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::wait_fade_alpha_in(entity p4, num p8)
+    {
+        num v0 = 1;
+        num v2 = (p4).get_render_alpha();
+        num v1 = ((1 - v2) / p8);
+        while ((v0 < p8)) {
+            wait_frame();
+            (p4).set_render_alpha((v1 * v0));
+            v0++;
+        }
+        (p4).set_render_alpha(1);
+    }
+
+    void effects_common::animate_trail(entity p4, polytube p8, num p12, num p16)
+    {
+        wait_frame();
+        (this).set_trail_length(p12);
+        vector3d v5 = (p4).get_abs_position();
+        num v0 = (p8).get_num_control_pts();
+        num v7 = 0;
+        num v1 = (p8).get_render_alpha();
+        while ((v7 < v0)) {
+            (p8).set_control_pt(v7, v5);
+            v7++;
+        }
+        while ((field_0 && (p4).is_valid())) {
+            num v2 = 0;
+            num v3 = (v0 - 1);
+            num unused_value779 = 0.25;
+            vector3d v4;
+            v5 = (p4).get_abs_position();
+            num v6 = 0;
+            if (field_4) {
+                start_thread_on(this, (this).wait_fade_alpha(p8, 60));
+            }
+            while ((v3 > 0)) {
+                (p8).set_control_pt(0, (p4).get_abs_position());
+                v4 = (p8).get_control_pt((v3 - 1));
+                v6 = distance3d((p4).get_abs_position(), (p8).get_control_pt((v0 - 1)));
+                if ((!p16)) {
+                    (this).set_trail_tiling(p8);
+                }
+                if ((v6 < 10)) {
+                    num v8 = (v6 / 11);
+                    if ((v8 > 0)) {
+                        (p8).set_render_alpha(v8);
+                    } else {
+                        (p8).set_render_alpha(0);
+                    }
+                } else {
+                    (p8).set_render_alpha(v1);
+                }
+                if ((v6 < 0.4)) {
+                    v6 = 0.4;
+                }
+                if ((v2 > 12)) {
+                    v2--;
+                    if (p16) {
+                        (this).shrink_trail_fast(p8, v0);
+                    } else {
+                        (this).shrink_trail(p8, v0);
+                    }
+                } else if ((distance3d((p4).get_abs_position(), v5) >= (v6 / (v0 - v3)))) {
+                    v5 = (p4).get_abs_position();
+                    (p8).set_visible(1);
+                    (p8).set_control_pt(v3, v4);
+                    v3--;
+                } else {
+                    v2++;
+                    wait_frame();
+                }
+            }
+        }
+        destroy_entity(p8);
+    }
+
+    void effects_common::set_trail_tiling(polytube p4)
+    {
+        num v0 = 1;
+        num v1 = 0;
+        while ((v0 < (p4).get_num_control_pts())) {
+            v1 = (v1 + distance3d((p4).get_control_pt((v0 - 1)), (p4).get_control_pt(v0)));
+            v0++;
+        }
+        (p4).set_tiles_per_meter((0.96 / v1));
+        num v2 = (v1 / 25);
+        if (((v2 < 2) && (v2 > 0.3))) {
+            (p4).set_tube_radius(v2);
+        }
+    }
+
+    void effects_common::set_trail_length(num p4)
+    {
+        field_8 = p4;
+    }
+
+    void effects_common::shrink_trail(polytube p4, num p8)
+    {
+        num v0 = (p8 - 1);
+        if (((p4).get_control_pt(0) != (p4).get_control_pt(v0))) {
+            while ((v0 > 0)) {
+                num v1 = distance3d((p4).get_control_pt(v0), (p4).get_control_pt((v0 - 1)));
+                if ((v1 < 2)) {
+                    (p4).set_control_pt(v0, (p4).get_control_pt((v0 - 1)));
+                } else {
+                    vector3d v3 = ((p4).get_control_pt((v0 - 1)) - (p4).get_control_pt(v0));
+                    num v4 = (v3).length();
+                    vector3d v2 = (v3 / v4);
+                    (p4).set_control_pt(v0, ((p4).get_control_pt(v0) + (v2 * (v1 / 2))));
+                }
+                v0--;
+            }
+        } else {
+            (p4).set_visible(0);
+        }
+    }
+
+    void effects_common::shrink_trail_fast(polytube p4, num p8)
+    {
+        num v0 = (p8 - 5);
+        if (((p4).get_control_pt(0) != (p4).get_control_pt((p8 - 1)))) {
+            while ((v0 > 0)) {
+                (p4).set_control_pt(v0, (p4).get_control_pt((v0 - 1)));
+                (p4).set_control_pt((v0 + 1), (p4).get_control_pt(v0));
+                (p4).set_control_pt((v0 + 2), (p4).get_control_pt(v0));
+                (p4).set_control_pt((v0 + 3), (p4).get_control_pt(v0));
+                (p4).set_control_pt((v0 + 4), (p4).get_control_pt(v0));
+                v0--;
+            }
+        } else {
+            (p4).set_visible(0);
+        }
+    }
+
+    beetle_effects::beetle_effects()
+    {
+        field_48 = 0;
+        field_36 = entity("NULL");
+        field_44 = create_entity_list();
+    }
+
+    void beetle_effects::upd_blade()
+    {
+        while (1) {
+            vector3d v0 = ((field_4).get_facing() * -1);
+            (field_12).set_rel_position((field_4).get_abs_position());
+            (field_12).set_facing(v0, (field_8).get_y_facing());
+            (field_16).set_rel_position((field_8).get_abs_position());
+            (field_16).set_facing((field_8).get_facing(), (field_8).get_y_facing());
+            wait_frame();
+        }
+    }
+
+    void beetle_effects::init_proxmine()
+    {
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_56[v0] = entity("NULL");
+            field_96[v0] = entity("NULL");
+            v0++;
+        }
+    }
+
+    void beetle_effects::free_proxmine()
+    {
+        num v0 = 0;
+        while ((v0 < 10)) {
+            field_56[v0] = entity("NULL");
+            field_96[v0] = entity("NULL");
+            v0++;
+        }
+    }
+
+    void beetle_effects::add_proxmine(entity p4, entity p8, entity p12)
+    {
+        num v0 = 0;
+        while ((v0 < 10)) {
+            if ((field_56[v0] == entity("NULL"))) {
+                field_56[v0] = p8;
+                field_96[v0] = p12;
+                return;
+            }
+            v0++;
+        }
+    }
+
+    void beetle_effects::remove_proxmine(item p4, vector3d p8)
+    {
+        num v2 = 100000;
+        num v1 = -1;
+        num v0 = 0;
+        while ((v0 < 10)) {
+            if ((field_56[v0] != entity("NULL"))) {
+                num v3 = ((p8 - (field_56[v0]).get_abs_position())).length2();
+                if ((v3 < v2)) {
+                    v1 = v0;
+                    v2 = v3;
+                }
+            }
+            v0++;
+        }
+        if ((v1 >= 0)) {
+            destroy_entity(field_56[v1]);
+            wait_frame();
+            destroy_entity(field_96[v1]);
+            field_56[v1] = entity("NULL");
+            field_96[v1] = entity("NULL");
+        }
+    }
+
+    void beetle_effects::multi_shockwave_rings(vector3d p4, num p16)
+    {
+        num v0 = 0;
+        while ((v0 < p16)) {
+            entity fx_bshockw = create_entity("effects\\entities\\fx_bshockw");
+            (fx_bshockw).set_rel_position(p4);
+            (fx_bshockw).set_distance_clip(150);
+            (fx_bshockw).set_render_scale(vector3d(0.1, 0.1, 0.1));
+            start_thread_on(this, (this).scale_then_fade(fx_bshockw));
+            delay(0.1);
+            v0++;
+        }
+    }
+
+    void beetle_effects::scale_then_fade(entity p4)
+    {
+        (p4).set_render_alpha(0);
+        start_thread_on(this, (_v10_beetle_battle::beetle_common).wait_fade_alpha_in(p4, 13));
+        (p4).wait_change_render_scale(vector3d(7, 7, 7), 0.35);
+        destroy_entity(p4);
+    }
+
+    void beetle_effects::beetle_trail_on(entity p4, num p8)
+    {
+        if ((!(_v10_beetle_battle::beetle_common).field_0)) {
+            (_v10_beetle_battle::beetle_common).field_0 = 1;
+            (_v10_beetle_battle::beetle_common).field_4 = 0;
+            (this).make_beetle_trail(p4, vector3d(1, 1, 0), p8);
+            (this).glows_on(p4);
+            wait_frame();
+        } else {
+            (this).beetle_kill_trail();
+            wait_frame();
+            (_v10_beetle_battle::beetle_common).field_0 = 1;
+            (_v10_beetle_battle::beetle_common).field_4 = 0;
+            (this).make_beetle_trail(p4, vector3d(1, 1, 0), p8);
+        }
+    }
+
+    void beetle_effects::beetle_trail_off()
+    {
+        if ((_v10_beetle_battle::beetle_common).field_0) {
+            (_v10_beetle_battle::beetle_common).field_4 = 1;
+            start_thread_on(this, (this).trail_fade_control(0.1));
+            (this).glows_off();
+        }
+        (this).glows_off();
+    }
+
+    void beetle_effects::trail_fade_control(num p4)
+    {
+        delay(p4);
+        (_v10_beetle_battle::beetle_common).field_0 = 0;
+    }
+
+    void beetle_effects::beetle_kill_trail()
+    {
+        if ((_v10_beetle_battle::beetle_common).field_0) {
+            (_v10_beetle_battle::beetle_common).field_0 = 0;
+        }
+    }
+
+    void beetle_effects::make_beetle_trail(entity p4, vector3d p8, num p20)
+    {
+        num v1 = 0;
+        polytube v0 = create_polytube();
+        (v0).set_rel_position(vector3d(0, 0, 0));
+        (v0).reserve_control_pts(16);
+        while ((v1 < 16)) {
+            wait_frame();
+            (v0).add_control_pt(vector3d(0, -0.1, 0));
+            v1++;
+        }
+        (v0).set_tube_radius(1);
+        (v0).set_num_sides(2);
+        (v0).build(3, 2);
+        (v0).set_material("effects\\textures\\fx_beetle_trailend_01");
+        (v0).set_tiles_per_meter(0.18);
+        (v0).set_render_alpha(0.5);
+        (v0).set_render_color(p8);
+        (v0).set_additive(1);
+        (v0).compute_sector();
+        (v0).set_distance_clip(10000);
+        (v0).set_visible(1);
+        _v10_beetle_battle::appear(v0);
+        start_thread_on(this, (_v10_beetle_battle::beetle_common).animate_trail(p4, v0, p20, 0));
+    }
+
+    void beetle_effects::glows_on(entity p4)
+    {
+        field_48 = 1;
+        start_thread_on(this, (this).volumetric_glow(p4, 3.5, 35));
+    }
+
+    void beetle_effects::glows_off()
+    {
+        field_48 = 0;
+    }
+
+    void beetle_effects::volumetric_glow(entity p4, num p8, num p12)
+    {
+        num v1 = 0;
+        entity fx_beetle_halo = create_entity("effects\\aeps\\fx_beetle_halo");
+        (fx_beetle_halo).set_distance_clip(10000);
+        (fx_beetle_halo).set_state(2, 1);
+        (fx_beetle_halo).set_parent(p4);
+        (fx_beetle_halo).set_rel_position(vector3d(0, 0, 0));
+        (fx_beetle_halo).set_state(1, 0.4);
+        while (((fx_beetle_halo).is_valid() && field_48)) {
+            v1 = (distance3d((p4).get_abs_position(), (chase_cam()).get_abs_position()) / 2);
+            if ((v1 > p12)) {
+                (fx_beetle_halo).set_render_scale(vector3d(p12, p12, p12));
+                (fx_beetle_halo).set_visible(1);
+            } else if ((v1 > p8)) {
+                (fx_beetle_halo).set_render_scale(vector3d(v1, v1, v1));
+                (fx_beetle_halo).set_visible(1);
+            }
+            wait_frame();
+        }
+        destroy_entity(fx_beetle_halo);
+    }
+
+    void beetle_barrier::startup()
+    {
+        raise_signal(hero(), "_v10_beetle_battle::ENERGY_BARRIER_CREATED");
+        field_40 = add_civilian_info(field_0, 5, field_44, 1);
+        (this).start_barrier_sound();
+        (this).spawn_it();
+    }
+
+    void beetle_barrier::shutdown()
+    {
+        (this).destroy_it();
+    }
+
+    void beetle_barrier::spawn_it()
+    {
+        start_thread_on(this, (this).loop_barrier_sound());
+        switch (field_20) {
+        case 0:
+        {
+            vector3d v0 = vector3d(1, 0, 0);
+            num v1 = 0;
+            if ((field_16 == 1)) {
+                field_36 = create_entity("items\\entities\\nullo");
+                (field_36).set_rel_position((field_0 + vector3d(0, -0.25, 0)));
+                field_28 = create_entity("effects\\entities\\fx_bbarrier_10", (field_12 + to_integer_string(v1)));
+                v1++;
+                (field_28).set_rel_position((field_0 + vector3d(0, -0.25, 0)));
+                (field_28).set_xz_facing(v0);
+                (field_28).set_visible(0);
+                field_32 = create_entity("items\\entities\\fx_bbcol_10");
+                (field_32).set_rel_position((field_28).get_abs_position());
+                (field_32).set_xz_facing(v0);
+                trigger v5;
+                v5 = create_trigger(("trigger_" + (field_28).get_debug_name()), (field_0 + vector3d(0, -0.25, 0)), bit_cast<num>(field_24));
+                bind_signal_once_on(this, signal_id(v5, "trigger::ENTER"), (this).trigger_wall());
+            }
+            if ((field_16 == 3)) {
+                field_28 = create_entity("effects\\entities\\fx_bbarrier_30", (field_12 + to_integer_string(v1)));
+                (field_28).set_rel_position(field_0);
+                (field_28).set_xz_facing(v0);
+            }
+            break;
+        }
+        case 1:
+        {
+            num v2 = 0;
+            if ((field_16 == 1)) {
+                field_36 = create_entity("items\\entities\\nullo");
+                (field_36).set_rel_position((field_0 + vector3d(0, -0.25, 0)));
+                field_28 = create_entity("effects\\entities\\fx_bbarrier_10", (field_12 + to_integer_string(v2)));
+                v2++;
+                (field_28).set_rel_position((field_0 + vector3d(0, -0.25, 0)));
+                (field_28).set_visible(0);
+                field_32 = create_entity("items\\entities\\fx_bbcol_10");
+                (field_32).set_rel_position((field_28).get_abs_position());
+                trigger v4;
+                v4 = create_trigger(("trigger_" + (field_28).get_debug_name()), (field_0 + vector3d(0, -0.25, 0)), bit_cast<num>(field_24));
+                bind_signal_once_on(this, signal_id(v4, "trigger::ENTER"), (this).trigger_wall());
+            }
+            if ((field_16 == 3)) {
+                field_28 = create_entity("effects\\entities\\fx_bbarrier_30", (field_12 + to_integer_string(v2)));
+                (field_28).set_rel_position(field_0);
+            }
+            break;
+        }
+        }
+        (field_28).set_crawlable(0);
+        start_thread_on(this, (this).start_destroy_timer());
+    }
+
+    void beetle_barrier::watch_for_repulsion_north()
+    {
+        start_thread_on(this, (this).track_hero_position());
+        while ((field_84).contains(hero())) {
+            vector3d v6 = (hero()).get_abs_position();
+            num v2 = (v6).x();
+            num v0 = (v6).y();
+            num v1 = (v6).z();
+            if (((((((v2 < ((field_0).x() + 3)) && (v2 > ((field_0).x() - 3))) && (v1 < ((field_0).z() + 15))) && (v1 > ((field_0).z() - 15))) && (v0 < ((field_0).y() + 20))) && (v0 > (field_0).y()))) {
+                vector3d v3 = (field_56 - field_68);
+                num v4 = (((v3).x() / field_80) * -1);
+                num retained_value463 = 0;
+                num v7 = (((v3).z() / field_80) * -1);
+                vector3d v5 = vector3d(v4, retained_value463, v7);
+                if (((v5).length() > 0)) {
+                    (hero()).physical_ifc_apply_force(v5, 50);
+                    vibrate_controller(0.5, 0.5);
+                    raise_signal(hero(), "_v10_beetle_battle::ENERGY_BARRIER_REACTION");
+                    delay(1);
+                }
+            }
+            wait_frame();
+        }
+        kill_threads_on(this, beetle_barrier::track_hero_position);
+    }
+
+    void beetle_barrier::watch_for_repulsion_east()
+    {
+        start_thread_on(this, (this).track_hero_position());
+        while ((field_84).contains(hero())) {
+            vector3d v6 = (hero()).get_abs_position();
+            num v1 = (v6).x();
+            num v0 = (v6).y();
+            num v2 = (v6).z();
+            if (((((((v2 < ((field_0).z() + 3)) && (v2 > ((field_0).z() - 3))) && (v1 < ((field_0).x() + 15))) && (v1 > ((field_0).x() - 15))) && (v0 < ((field_0).y() + 20))) && (v0 > (field_0).y()))) {
+                vector3d v3 = (field_56 - field_68);
+                num v4 = (((v3).x() / field_80) * -1);
+                num retained_value463 = 0;
+                num v7 = (((v3).z() / field_80) * -1);
+                vector3d v5 = vector3d(v4, retained_value463, v7);
+                if (((v5).length() > 0)) {
+                    (hero()).physical_ifc_apply_force(v5, 50);
+                    vibrate_controller(0.5, 0.5);
+                    raise_signal(hero(), "_v10_beetle_battle::ENERGY_BARRIER_REACTION");
+                    delay(1);
+                }
+            }
+            wait_frame();
+        }
+        kill_threads_on(this, beetle_barrier::track_hero_position);
+    }
+
+    void beetle_barrier::track_hero_position()
+    {
+        while (1) {
+            field_68 = field_56;
+            field_56 = (hero()).get_abs_position();
+            field_80 = get_time_inc();
+            wait_frame();
+        }
+    }
+
+    void beetle_barrier::kill_repulsion_watch()
+    {
+        kill_threads_on(this, beetle_barrier::watch_for_repulsion_north);
+        kill_threads_on(this, beetle_barrier::watch_for_repulsion_east);
+    }
+
+    void beetle_barrier::trigger_wall()
+    {
+        (field_28).set_visible(1);
+    }
+
+    void beetle_barrier::start_barrier_sound()
+    {
+        field_48 = create_sound_inst("bee_energy_barrier_start");
+        (field_48).set_entity(field_28);
+        (field_48).play_3d((field_28).get_abs_position(), 0);
+        (field_48).stop(0);
+    }
+
+    void beetle_barrier::loop_barrier_sound()
+    {
+        delay(3);
+        (field_48).stop(0);
+        delay(0.2);
+        field_52 = create_sound_inst("bee_energy_barrier_lp_2");
+        (field_52).set_entity(field_28);
+        (field_52).play_3d((field_28).get_abs_position(), 0);
+    }
+
+    void beetle_barrier::start_destroy_timer()
+    {
+        delay(30);
+        (this).destroy_it();
+    }
+
+    void beetle_barrier::destroy_it()
+    {
+        (this).kill_repulsion_watch();
+        if ((field_28).is_valid()) {
+            destroy_entity(field_28);
+        }
+    }
+
+    void _v10_beetle_battle::AI_preview_set_entity(entity p0)
+    {
+        _v10_beetle_battle::global_8 = p0;
+    }
+
+    void _v10_beetle_battle::AI_preview_moves_handler(debug_menu_entry p0)
+    {
+        (p0).set_handler("AI_preview_empty_handler(debug_menu_entry)");
+        (p0).set_name("");
+        debug_menu_entry v0 = create_debug_menu_entry("Loop");
+        (v0).set_handler("AI_preview_loop_handler(debug_menu_entry)");
+        debug_menu_entry v1 = create_debug_menu_entry("Move To Target");
+        (v1).set_handler("AI_preview_move_handler(debug_menu_entry)");
+        debug_menu_entry v2 = create_debug_menu_entry("Face Target");
+        (v2).set_handler("AI_preview_preview_face_handler(debug_menu_entry)");
+    }
+
+    void _v10_beetle_battle::AI_preview_empty_handler(debug_menu_entry p0)
+    {
+    }
+
+    str _v10_beetle_battle::global_312 = "";
+
+    str _v10_beetle_battle::global_316 = "";
+
+    str _v10_beetle_battle::global_448 = "";
+
+    str _v10_beetle_battle::global_452 = "";
+
+    void _v10_beetle_battle::AI_preview_loop_handler(debug_menu_entry p0)
+    {
+        num v0 = (!(_v10_beetle_battle::global_8).get_inode_param_int("preview_combat_inode", "clear_message"));
+        (_v10_beetle_battle::global_8).set_inode_param_int("preview_combat_inode", "clear_message", v0);
+        if (v0) {
+            (p0).set_name("Loop");
+        } else {
+            (p0).set_name("Play Once");
+        }
+    }
+
+    void _v10_beetle_battle::AI_preview_move_handler(debug_menu_entry p0)
+    {
+        num v0 = (!(_v10_beetle_battle::global_8).get_inode_param_int("preview_combat_inode", "move_to_target"));
+        (_v10_beetle_battle::global_8).set_inode_param_int("preview_combat_inode", "move_to_target", v0);
+        if (v0) {
+            (p0).set_name("Stop Moving");
+        } else {
+            (p0).set_name("Move To Target");
+        }
+    }
+
+    void _v10_beetle_battle::AI_preview_preview_face_handler(debug_menu_entry p0)
+    {
+        num v0 = (!(_v10_beetle_battle::global_8).get_inode_param_int("preview_combat_inode", "face_target"));
+        (_v10_beetle_battle::global_8).set_inode_param_int("preview_combat_inode", "face_target", v0);
+        if (v0) {
+            (p0).set_name("Stop Facing");
+        } else {
+            (p0).set_name("Face Target");
+        }
+    }
+
+    void _v10_beetle_battle::beetle_preview_set_beetle_entity(entity p0)
+    {
+        _v10_beetle_battle::AI_preview_set_entity(p0);
+        _v10_beetle_battle::global_12 = p0;
+    }
+
+    void _v10_beetle_battle::beetle_preview_setup_debug_menu()
+    {
+        debug_menu_entry v0 = create_debug_menu_entry("PREVIEW MOVES");
+        (v0).set_handler("beetle_preview_moves(debug_menu_entry)");
+    }
+
+    void _v10_beetle_battle::beetle_preview_moves(debug_menu_entry p0)
+    {
+        _v10_beetle_battle::AI_preview_moves_handler(p0);
+        debug_menu_entry v0 = create_debug_menu_entry("Program_Laser_Left");
+        (v0).set_handler("beetle_preview_Program_Laser_Left(debug_menu_entry)");
+        v0 = create_debug_menu_entry("BumRush");
+        (v0).set_handler("beetle_preview_BumRush(debug_menu_entry)");
+        v0 = create_debug_menu_entry("LeapAttack");
+        (v0).set_handler("beetle_preview_LeapAttack(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Laser_Attack");
+        (v0).set_handler("beetle_preview_Laser_Attack(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Laser_Volley");
+        (v0).set_handler("beetle_preview_Laser_Volley(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Laser_Sweep");
+        (v0).set_handler("beetle_preview_Laser_Sweep(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Missile");
+        (v0).set_handler("beetle_preview_Missile(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Shockwave");
+        (v0).set_handler("beetle_preview_Shockwave(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Throw_Grenade");
+        (v0).set_handler("beetle_preview_Throw_Grenade(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Throw_Grenade_Fwd");
+        (v0).set_handler("beetle_preview_Throw_Grenade_Fwd(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Throw_Grenade_Fwd_Smoke");
+        (v0).set_handler("beetle_preview_Throw_Grenade_Fwd_Smoke(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Throw_Grenade_Fwd_ProxMine");
+        (v0).set_handler("beetle_preview_Throw_Grenade_Fwd_ProxMine(debug_menu_entry)");
+        v0 = create_debug_menu_entry("Throw_Grenade_Fwd_Barrier");
+        (v0).set_handler("beetle_preview_Throw_Grenade_Fwd_Barrier(debug_menu_entry)");
+        (_v10_beetle_battle::global_12).change_ai_base_machine("beetle_preview");
+    }
+
+    void _v10_beetle_battle::beetle_preview_BumRush(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_MELEE_1_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_LeapAttack(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_MELEE_2_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Program_Laser_Left(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Laser_Attack(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_1_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Laser_Volley(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_2_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Laser_Sweep(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_3_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Missile(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_4_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Throw_Grenade(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_6_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Throw_Grenade_Fwd(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_7_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Throw_Grenade_Fwd_Smoke(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_8_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Throw_Grenade_Fwd_ProxMine(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_9_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Throw_Grenade_Fwd_Barrier(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_10_MSG");
+    }
+
+    void _v10_beetle_battle::beetle_preview_Shockwave(debug_menu_entry p0)
+    {
+        raise_signal(_v10_beetle_battle::global_12, "_s04_rhino_beatdown::PREVIEW_TRANS_RANGED_11_MSG");
+    }
+
+    v10_beetle_battle_enc_data::v10_beetle_battle_enc_data()
+    {
+    }
+
+    v10_beetle_battle_enc_data::~v10_beetle_battle_enc_data()
+    {
+    }
+
+    void v10_beetle_battle_enc_data::startup()
+    {
+        initialize_encounter_object();
+        (field_52).startup();
+        (field_56).startup();
+        (field_60).startup();
+        (field_64).startup();
+        (field_68).startup();
+        (field_72).startup();
+        (field_204).startup();
+        (field_208).startup();
+    }
+
+    void v10_beetle_battle_enc_data::shutdown()
+    {
+        (field_52).shutdown();
+        (field_56).shutdown();
+        (field_60).shutdown();
+        (field_64).shutdown();
+        (field_68).shutdown();
+        (field_72).shutdown();
+        (field_204).shutdown();
+        (field_208).shutdown();
+    }
+
+    _v10_beetle_battle::_v10_beetle_battle(num p0)
+    {
+        (_v10_beetle_battle::v10_beetle_battle_enc).startup();
+        debug_menu_entry v0;
+        v0 = create_debug_menu_entry("WIN v10");
+        (v0).set_handler("win_v10(debug_menu_entry)");
+        switch (p0) {
+        case 0:
+        {
+            _global_slc::wait_frame();
+            g_mission_status = 7;
+            g_mission_type = 4;
+            _v10_beetle_battle::mission_prep();
+            break;
+        }
+        }
+    }
+
+    _v10_beetle_battle::~_v10_beetle_battle()
+    {
+        purge_district(1017);
+        enable_mini_map(1);
+        g_mission_type = 0;
+        destroy_entity(_v10_beetle_battle::global_20);
+        destroy_entity(_v10_beetle_battle::global_24);
+        _v10_beetle_battle::turn_off_pit_cam(0);
+        (hero()).set_ifc_num("MAX_HIT_POINTS", _v10_beetle_battle::global_28);
+        (_v10_beetle_battle::v10_beetle_battle_enc).shutdown();
+    }
+
+    void _v10_beetle_battle::mission_prep()
+    {
+        _v10_beetle_battle::set_TOD_and_shoreline(1);
+        _v10_beetle_battle::debug_menu();
+        (hero()).set_ifc_num("HIT_POINTS", _v10_beetle_battle::global_28);
+        _v10_beetle_battle::V10_music_thread();
+        switch (g_story_checkpoint) {
+        case 0:
+        {
+            _v10_beetle_battle::mission_start();
+            break;
+        }
+        case 1:
+        {
+            _v10_beetle_battle::lock_and_load();
+            _v10_beetle_battle::stage1_start();
+            break;
+        }
+        case 2:
+        {
+            _v10_beetle_battle::lock_and_load();
+            _v10_beetle_battle::stage1_start();
+            break;
+        }
+        case 3:
+        {
+            _v10_beetle_battle::lock_and_load();
+            _v10_beetle_battle::stage3_start(0);
+            break;
+        }
+        case 4:
+        {
+            _v10_beetle_battle::lock_and_load();
+            _v10_beetle_battle::stage3_start(0);
+            break;
+        }
+        case 5:
+        {
+            _v10_beetle_battle::lock_and_load();
+            _v10_beetle_battle::play_enter_warehouse_cutscene();
+            break;
+        }
+        case 6:
+        {
+            _v10_beetle_battle::lock_and_load();
+            _v10_beetle_battle::play_ending_cutscene();
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::mission_start()
+    {
+        _v10_beetle_battle::play_intro_cutscene();
+        _v10_beetle_battle::lock_and_load();
+        _v10_beetle_battle::stage1_start();
+    }
+
+    void _v10_beetle_battle::lock_and_load()
+    {
+        blackscreen_on(1);
+        freeze_hero(1);
+    }
+
+    void _v10_beetle_battle::wait_for_load(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            (district("DF")).wait_for_load();
+            break;
+        }
+        case 1:
+        {
+            (district("CE_int_A")).wait_for_load();
+            break;
+        }
+        }
+        blackscreen_off(1);
+        freeze_hero(0);
+    }
+
+    void _v10_beetle_battle::spawn_beetle()
+    {
+        if ((!(_v10_beetle_battle::global_32).is_valid())) {
+            if ((!is_pack_pushed("pk_v10_beetle"))) {
+                push_pack("pk_v10_beetle");
+            }
+            _v10_beetle_battle::global_32 = create_entity("characters\\beetle\\beetle", "beetle");
+            (_v10_beetle_battle::global_32).ifl_lock(106);
+            _v10_beetle_battle::global_36 = (_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS");
+            (_v10_beetle_battle::global_32).set_distance_clip(100000);
+            _v10_beetle_battle::beetle_preview_set_beetle_entity(_v10_beetle_battle::global_32);
+        }
+    }
+
+    void _v10_beetle_battle::destroy_beetle()
+    {
+        if ((_v10_beetle_battle::global_32).is_valid()) {
+            destroy_entity(_v10_beetle_battle::global_32);
+            if (is_pack_pushed("pk_v10_beetle")) {
+                pop_pack("pk_v10_beetle");
+            }
+        }
+    }
+
+    void _v10_beetle_battle::play_intro_cutscene()
+    {
+        push_pack("v10_intro_cut");
+        _v10_beetle_battle::spawn_beetle_lite();
+        _v10_beetle_battle::v10_igc1_effects();
+        cut_scene v0 = create_cut_scene("cutscenes\\v10_beetle_battle\\igc\\v10_bebt_igc1");
+        enable_subtitles();
+        subtitle(331, 0.33, 3.83, 0, 0, 0);
+        (v0).wait_play();
+        disable_subtitles();
+        _v10_beetle_battle::clean_up_igc1_effects();
+        blackscreen_on(0.01);
+        _v10_beetle_battle::destroy_beetle_lite();
+        pop_pack("v10_intro_cut");
+    }
+
+    void _v10_beetle_battle::spawn_beetle_lite()
+    {
+        push_pack("pk_beetle_lite");
+        _v10_beetle_battle::global_40 = create_entity("characters\\beetle\\beetle_lite", "beetle");
+        (_v10_beetle_battle::global_40).ifl_lock(106);
+    }
+
+    void _v10_beetle_battle::destroy_beetle_lite()
+    {
+        destroy_entity(_v10_beetle_battle::global_40);
+        pop_pack("pk_beetle_lite");
+    }
+
+    void _v10_beetle_battle::play_enter_warehouse_cutscene()
+    {
+        _v10_beetle_battle::destroy_beetle();
+        push_pack("v10_wh_cut");
+        _v10_beetle_battle::spawn_beetle_lite();
+        _v10_beetle_battle::v10_igc1B_effects();
+        cut_scene v0 = create_cut_scene("cutscenes\\v10_beetle_battle\\igc\\v10_bebt_igc1_b");
+        (v0).wait_play();
+        _v10_beetle_battle::clean_up_igc1b_effects();
+        blackscreen_on(0.01);
+        _v10_beetle_battle::destroy_beetle_lite();
+        pop_pack("v10_wh_cut");
+    }
+
+    void _v10_beetle_battle::play_ending_cutscene()
+    {
+        push_pack("v10_end_cut");
+        _v10_beetle_battle::spawn_beetle_lite();
+        _v10_beetle_battle::v10_igc2_effects();
+        cut_scene v0 = create_cut_scene("cutscenes\\v10_beetle_battle\\igc\\v10_bebt_igc2\\v10_bebt_igc2");
+        (v0).wait_play();
+        blackscreen_on(0);
+        _v10_beetle_battle::destroy_beetle_lite();
+        pop_pack("v10_end_cut");
+    }
+
+    void _v10_beetle_battle::play_spidey_transition_cutscene()
+    {
+        cut_scene v0 = create_cut_scene("cutscenes\\in_game\\ven_spidey_transition");
+        (v0).wait_play();
+        blackscreen_on(0);
+    }
+
+    void _v10_beetle_battle::program_arm_cut()
+    {
+        cut_scene v0 = create_cut_scene("cutscenes\\v10_beetle_battle\\scripted\\program_arm");
+        (v0).wait_play();
+    }
+
+    void _v10_beetle_battle::stage1_start()
+    {
+        _v10_beetle_battle::stage1_init();
+        enable_mini_map(1);
+        _v10_beetle_battle::stage1_complete();
+    }
+
+    void _v10_beetle_battle::stage1_init()
+    {
+        _v10_beetle_battle::global_44 = 0;
+        g_story_checkpoint = 1;
+        (hero()).teleport_to_point((_v10_beetle_battle::v10_beetle_battle_enc).field_0);
+        malor((_v10_beetle_battle::v10_beetle_battle_enc).field_0, 0);
+        _v10_beetle_battle::spawn_beetle();
+        (_v10_beetle_battle::global_32).teleport_to_point(vector3d(236, 3, -1210));
+        (_v10_beetle_battle::global_32).set_ifc_num("HIT_POINTS", _v10_beetle_battle::global_36);
+        (_v10_beetle_battle::global_32).set_abs_xz_facing((hero()).get_abs_position());
+        (_v10_beetle_battle::beetle_controller).beetle_trail_on(_v10_beetle_battle::global_32, 40);
+        _v10_beetle_battle::global_52 = 40;
+        (hero()).set_xz_facing((_v10_beetle_battle::global_32).get_abs_position());
+        spiderman_camera_autocorrect(0);
+        _v10_beetle_battle::wait_for_load(0);
+    }
+
+    void _v10_beetle_battle::stage1_complete()
+    {
+        (_v10_beetle_battle::global_32).clear_callbacks();
+        _v10_beetle_battle::stage2_start();
+    }
+
+    void _v10_beetle_battle::stage2_start()
+    {
+        _v10_beetle_battle::stage2_init();
+        _v10_beetle_battle::wait_for_load(0);
+        set_mission_text_box_flavor(1);
+        set_mission_text(123);
+        start_thread(_v10_beetle_battle::turn_off_mission_text(5));
+        _v10_beetle_battle::stage2_fly();
+        start_thread(_v10_beetle_battle::distance_checker());
+        (hero()).set_scripted_target(entity("NULL"));
+        enable_mini_map(1);
+        raise_signal("MISSION_MUSIC_P2_START");
+    }
+
+    void _v10_beetle_battle::stage2_init()
+    {
+        _v10_beetle_battle::global_44 = 0;
+        _v10_beetle_battle::global_52 = 40;
+        _v10_beetle_battle::global_56 = 0;
+        _v10_beetle_battle::global_60 = 200;
+        distance_chase_widget_turn_on(1, 1);
+        _v10_beetle_battle::spawn_beetle();
+        (_v10_beetle_battle::global_32).set_invulnerable(1);
+        remove_glass_house("v10_stage1_gh");
+    }
+
+    void _v10_beetle_battle::stage2_fly()
+    {
+        _v10_beetle_battle::pick_path();
+        _v10_beetle_battle::create_beetle_tracker();
+        (_v10_beetle_battle::beetle_controller).beetle_trail_on(_v10_beetle_battle::global_32, 40);
+        (_v10_beetle_battle::global_32).set_inode_param_float("flight_layer", "default_goto_speed", _v10_beetle_battle::global_52);
+        (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_chase");
+    }
+
+    void _v10_beetle_battle::pick_path()
+    {
+        (_v10_beetle_battle::global_32).set_path_graph("v10_final_path");
+    }
+
+    void _v10_beetle_battle::stage2_complete()
+    {
+        start_thread(_v10_beetle_battle::distance_decay());
+        delay(0.1);
+        (_v10_beetle_battle::beetle_controller).beetle_trail_off();
+        while ((((((hero()).get_abs_position()).x() < 393) || (((hero()).get_abs_position()).z() < -1495)) || (((hero()).get_abs_position()).z() > -1388))) {
+            _global_slc::wait_frame();
+        }
+        _v10_beetle_battle::stage2_clean();
+    }
+
+    void _v10_beetle_battle::distance_decay()
+    {
+        while (1) {
+            _v10_beetle_battle::global_60 = (_v10_beetle_battle::global_60 - 1);
+            delay(0.1);
+        }
+    }
+
+    void _v10_beetle_battle::stage2_clean()
+    {
+        (_v10_beetle_battle::global_32).set_invulnerable(0);
+        blackscreen_on(1);
+        kill_threads(_v10_beetle_battle::distance_checker);
+        kill_threads(_v10_beetle_battle::distance_decay);
+        destroy_trigger(_v10_beetle_battle::global_64);
+        distance_chase_widget_turn_off();
+        ((_v10_beetle_battle::v10_beetle_battle_enc).field_208).deactivate();
+        _v10_beetle_battle::stage3_cut();
+    }
+
+    void _v10_beetle_battle::distance_checker()
+    {
+        while ((!_v10_beetle_battle::global_44)) {
+            _v10_beetle_battle::global_56 = _v10_beetle_battle::distance2d((_v10_beetle_battle::global_32).get_abs_position(), (hero()).get_abs_position());
+            distance_chase_widget_set_pos((1 - (_v10_beetle_battle::global_56 / _v10_beetle_battle::global_60)));
+            _v10_beetle_battle::global_52 = _v10_beetle_battle::rubber_band(_v10_beetle_battle::global_56);
+            (_v10_beetle_battle::global_32).set_inode_param_float("flight_layer", "default_goto_speed", _v10_beetle_battle::global_52);
+            if (((_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS") < 20)) {
+                (_v10_beetle_battle::global_32).set_ifc_num("HIT_POINTS", 20);
+            }
+            _v10_beetle_battle::wait_frame(3);
+        }
+    }
+
+    num _v10_beetle_battle::rubber_band(num p0)
+    {
+        if (((p0 > _v10_beetle_battle::global_60) && (g_mission_status != 0))) {
+            _v10_beetle_battle::mission_failed();
+        }
+        return 40;
+    }
+
+    void _v10_beetle_battle::stage2_check_attack()
+    {
+        start_thread(_v10_beetle_battle::move_on_my_own());
+        num v0 = _v10_beetle_battle::distance2d((_v10_beetle_battle::global_32).get_abs_position(), (hero()).get_abs_position());
+        while (((v0 > 40) && (!_v10_beetle_battle::global_68))) {
+            v0 = _v10_beetle_battle::distance2d((_v10_beetle_battle::global_32).get_abs_position(), (hero()).get_abs_position());
+            _global_slc::wait_frame();
+        }
+        if (((v0 > 20) && (!_v10_beetle_battle::global_68))) {
+            (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_1");
+            while (((v0 > 20) && (!_v10_beetle_battle::global_68))) {
+                v0 = _v10_beetle_battle::distance2d((_v10_beetle_battle::global_32).get_abs_position(), (hero()).get_abs_position());
+                _global_slc::wait_frame();
+            }
+        }
+        if ((!_v10_beetle_battle::global_68)) {
+            kill_threads(_v10_beetle_battle::move_on_my_own);
+            _v10_beetle_battle::global_72++;
+            if (((_v10_beetle_battle::global_72 == 5) && (!_v10_beetle_battle::global_76))) {
+                _v10_beetle_battle::global_72 = 11;
+                _v10_beetle_battle::global_76 = 1;
+            }
+            if ((_v10_beetle_battle::global_72 == 12)) {
+                _v10_beetle_battle::global_72 = 5;
+            }
+            if (((_v10_beetle_battle::global_72 == 6) && (!_v10_beetle_battle::global_80))) {
+                _v10_beetle_battle::global_72 = 12;
+                _v10_beetle_battle::global_80 = 1;
+            }
+            if ((_v10_beetle_battle::global_72 == 13)) {
+                _v10_beetle_battle::global_72 = 6;
+            }
+            (_v10_beetle_battle::global_32).set_path_graph_start_node(_v10_beetle_battle::global_72);
+            (_v10_beetle_battle::global_32).set_path_graph("v10_final_path");
+            (_v10_beetle_battle::global_32).set_inode_param_float("flight_layer", "default_goto_speed", _v10_beetle_battle::global_52);
+            (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_chase");
+        }
+        _v10_beetle_battle::global_68 = 0;
+    }
+
+    void _v10_beetle_battle::move_on_my_own()
+    {
+        delay(10);
+        _v10_beetle_battle::global_68 = 1;
+        _v10_beetle_battle::global_72++;
+        if (((_v10_beetle_battle::global_72 == 5) && (!_v10_beetle_battle::global_76))) {
+            _v10_beetle_battle::global_72 = 11;
+            _v10_beetle_battle::global_76 = 1;
+        }
+        if ((_v10_beetle_battle::global_72 == 12)) {
+            _v10_beetle_battle::global_72 = 5;
+        }
+        if (((_v10_beetle_battle::global_72 == 6) && (!_v10_beetle_battle::global_80))) {
+            _v10_beetle_battle::global_72 = 12;
+            _v10_beetle_battle::global_80 = 1;
+        }
+        if ((_v10_beetle_battle::global_72 == 13)) {
+            _v10_beetle_battle::global_72 = 6;
+        }
+        (_v10_beetle_battle::global_32).set_path_graph_start_node(_v10_beetle_battle::global_72);
+        (_v10_beetle_battle::global_32).set_path_graph("v10_final_path");
+        (_v10_beetle_battle::global_32).set_inode_param_float("flight_layer", "default_goto_speed", _v10_beetle_battle::global_52);
+        (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_chase");
+    }
+
+    void _v10_beetle_battle::bombardment()
+    {
+        if ((!_v10_beetle_battle::global_84)) {
+            _v10_beetle_battle::global_84 = 1;
+            while (1) {
+                raise_signal(_v10_beetle_battle::global_32, "_v10_beetle_battle::FLYING_GRENADE_ATTACK");
+                delay(0.2);
+            }
+        }
+    }
+
+    void _v10_beetle_battle::create_beetle_tracker()
+    {
+        _v10_beetle_battle::global_88 = create_entity_tracker(_v10_beetle_battle::global_32);
+        (_v10_beetle_battle::global_88).set_poi_active(1);
+        (_v10_beetle_battle::global_88).set_mini_map_active(1);
+    }
+
+    void _v10_beetle_battle::stage3_cut()
+    {
+        _v10_beetle_battle::play_enter_warehouse_cutscene();
+        _v10_beetle_battle::stage3_start(0);
+    }
+
+    void _v10_beetle_battle::stage3_start(num p0)
+    {
+        _v10_beetle_battle::lock_and_load();
+        _v10_beetle_battle::stage3_init(p0);
+        start_thread(_v10_beetle_battle::damage_watcher_p3());
+        enable_mini_map(0);
+        _v10_beetle_battle::wait_for_load(1);
+        bind_signal_once(signal_id(_v10_beetle_battle::global_32, "_v10_beetle_battle::STARTING_BLADE_CHARGE"), _v10_beetle_battle::charge_attack_panel());
+        raise_signal("MISSION_MUSIC_P3_START");
+    }
+
+    void _v10_beetle_battle::charge_attack_panel()
+    {
+        cut_scene v0 = create_cut_scene("cutscenes\\v10_beetle_battle\\scripted\\charge_attack");
+        (v0).wait_play();
+        bind_signal_once(signal_id(_v10_beetle_battle::global_32, "_v10_beetle_battle::STARTING_BLADE_CHARGE"), _v10_beetle_battle::charge_attack_panel());
+    }
+
+    void _v10_beetle_battle::stage3_init(num p0)
+    {
+        unlock_district(1017);
+        _v10_beetle_battle::global_44 = 0;
+        g_story_checkpoint = 3;
+        _v10_beetle_battle::stage3_beetle_prep(p0);
+        _v10_beetle_battle::global_28 = (hero()).get_ifc_num("MAX_HIT_POINTS");
+        (hero()).set_ifc_num("MAX_HIT_POINTS", 325);
+        (hero()).set_ifc_num("HIT_POINTS", 325);
+        (_v10_beetle_battle::global_32).set_ifc_num("MAX_HIT_POINTS", 225);
+        (_v10_beetle_battle::global_32).set_ifc_num("HIT_POINTS", 225);
+        _v10_beetle_battle::global_92 = (_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS");
+        _v10_beetle_battle::global_96 = (_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS");
+        start_thread(_v10_beetle_battle::track_hero_position());
+        _v10_beetle_battle::global_100 = find_trigger("v10_cage_walls");
+        if ((!p0)) {
+            (hero()).teleport_to_point((_v10_beetle_battle::v10_beetle_battle_enc).field_136);
+            malor((_v10_beetle_battle::v10_beetle_battle_enc).field_136, 0);
+            spiderman_camera_autocorrect(0);
+        } else {
+            (hero()).teleport_to_point((_v10_beetle_battle::v10_beetle_battle_enc).field_148);
+            malor((_v10_beetle_battle::v10_beetle_battle_enc).field_148, 0);
+            spiderman_camera_autocorrect(0);
+            _v10_beetle_battle::floor_breakA();
+            _v10_beetle_battle::raise_walls();
+        }
+        while ((!is_district_loaded(1017))) {
+            _global_slc::wait_frame();
+        }
+        if (p0) {
+            (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_5");
+        } else {
+            (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_3");
+        }
+        (hero()).set_scripted_target(_v10_beetle_battle::global_32);
+        start_thread(_v10_beetle_battle::damage_in_the_holes());
+        start_thread(_v10_beetle_battle::plasma_generators());
+        _v10_beetle_battle::static_pit_cameras();
+    }
+
+    void _v10_beetle_battle::stage3_beetle_prep(num p0)
+    {
+        _v10_beetle_battle::spawn_beetle();
+        _v10_beetle_battle::global_52 = 15;
+        turn_on_boss_health(2, _v10_beetle_battle::global_32);
+        if ((!p0)) {
+            (_v10_beetle_battle::global_32).set_ifc_num("HIT_POINTS", _v10_beetle_battle::global_36);
+            (_v10_beetle_battle::global_32).teleport_to_point((_v10_beetle_battle::v10_beetle_battle_enc).field_112);
+            (_v10_beetle_battle::global_32).set_abs_xz_facing((hero()).get_abs_position());
+            (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_3");
+        } else {
+            (_v10_beetle_battle::global_32).set_ifc_num("HIT_POINTS", (_v10_beetle_battle::global_36 / 2));
+            (_v10_beetle_battle::global_32).teleport_to_point((_v10_beetle_battle::v10_beetle_battle_enc).field_124);
+            (_v10_beetle_battle::global_32).set_abs_xz_facing((hero()).get_abs_position());
+            (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_5");
+        }
+        (_v10_beetle_battle::beetle_controller).beetle_trail_on(_v10_beetle_battle::global_32, 15);
+    }
+
+    void _v10_beetle_battle::damage_in_the_holes()
+    {
+        num unused_local0 = 0;
+        while ((!_v10_beetle_battle::global_44)) {
+            if ((((hero()).get_abs_position()).y() < -101)) {
+                num v0 = 0;
+                v0 = (hero()).get_ifc_num("HIT_POINTS");
+                v0 = (v0 - 5);
+                (hero()).set_ifc_num("HIT_POINTS", v0);
+                vibrate_controller(0.5, 0.3);
+                _v10_beetle_battle::global_104 = create_entity("effects\\entities\\fx_beetle_plasmahit");
+                (_v10_beetle_battle::global_104).set_rel_position((hero()).get_abs_position());
+                delay(0.5);
+            }
+            _v10_beetle_battle::wait_frame(5);
+        }
+    }
+
+    void _v10_beetle_battle::damage_watcher_p3()
+    {
+        num v2 = 0;
+        num v1 = 0;
+        num v0 = 0;
+        while ((!_v10_beetle_battle::global_44)) {
+            if ((((_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS") < 0.0001) || ((hero()).get_ifc_num("HIT_POINTS") < 0.0001))) {
+                _v10_beetle_battle::global_44 = 1;
+            }
+            v2 = ((_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS") / 225);
+            if (((v2 <= 0.6) && (!v1))) {
+                v1 = 1;
+                _v10_beetle_battle::bomber_mode();
+            }
+            if (((v2 <= 0.4) && (!v0))) {
+                _v10_beetle_battle::floor_breakB();
+                v0 = 1;
+                (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_6");
+            }
+            delay(0.1);
+            if ((v1 && (!_v10_beetle_battle::global_108))) {
+                _v10_beetle_battle::global_112 = (_v10_beetle_battle::global_112 - 0.1);
+                if (((_v10_beetle_battle::global_32).get_inode_param_int("beetle", "setting_wall") || (_v10_beetle_battle::global_112 < 0))) {
+                    start_thread(_v10_beetle_battle::program_arm_cut());
+                    delay(1);
+                    _v10_beetle_battle::watch_for_entry();
+                }
+            }
+        }
+        if (((_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS") < 0.0001)) {
+            _v10_beetle_battle::stage3_complete();
+        }
+        if (((hero()).get_ifc_num("HIT_POINTS") < 0.0001)) {
+            _v10_beetle_battle::stage3_cleanup();
+        }
+    }
+
+    void _v10_beetle_battle::speed_controller()
+    {
+        while (1) {
+            if ((_v10_beetle_battle::global_52 < 40)) {
+                _v10_beetle_battle::global_52 = (_v10_beetle_battle::global_52 + 1);
+                (_v10_beetle_battle::global_32).set_inode_param_float("flight_layer", "default_goto_speed", _v10_beetle_battle::global_52);
+            }
+            delay(0.1);
+        }
+    }
+
+    void _v10_beetle_battle::plasma_generators()
+    {
+        num v0 = 0;
+        while ((v0 < 8)) {
+            _v10_beetle_battle::global_116[v0] = create_sound_inst("bee_laserpit_lp");
+            (_v10_beetle_battle::global_116[v0]).set_entity(_v10_beetle_battle::global_148[v0]);
+            v0++;
+        }
+        _v10_beetle_battle::make_trap_lights();
+    }
+
+    void _v10_beetle_battle::destroy_plasma_generators()
+    {
+        num v0 = 0;
+        while ((v0 < 8)) {
+            destroy_entity(_v10_beetle_battle::global_148[v0]);
+            destroy_entity(_v10_beetle_battle::global_180[v0]);
+            destroy_entity(_v10_beetle_battle::global_212[v0]);
+            v0++;
+        }
+    }
+
+    void _v10_beetle_battle::make_trap_lights()
+    {
+        num v0 = 0;
+        while ((v0 < 8)) {
+            _v10_beetle_battle::global_212[v0] = create_entity("effects\\entities\\fx_beetle_trap_light");
+            (_v10_beetle_battle::global_212[v0]).set_visible(0);
+            v0++;
+        }
+        _v10_beetle_battle::place_trap_lights();
+    }
+
+    void _v10_beetle_battle::place_trap_lights()
+    {
+        (_v10_beetle_battle::global_212[0]).set_rel_position(vector3d(493.481, -101.541, -1403.778));
+        (_v10_beetle_battle::global_212[1]).set_rel_position(vector3d(461.481, -101.541, -1403.778));
+        (_v10_beetle_battle::global_212[2]).set_rel_position(vector3d(461.481, -101.541, -1371.778));
+        (_v10_beetle_battle::global_212[3]).set_rel_position(vector3d(493.481, -101.541, -1371.778));
+        (_v10_beetle_battle::global_212[4]).set_rel_position(vector3d(493.481, -101.541, -1387.778));
+        (_v10_beetle_battle::global_212[5]).set_rel_position(vector3d(477.481, -101.541, -1403.778));
+        (_v10_beetle_battle::global_212[6]).set_rel_position(vector3d(461.481, -101.541, -1387.778));
+        (_v10_beetle_battle::global_212[7]).set_rel_position(vector3d(477.481, -101.541, -1371.778));
+    }
+
+    void _v10_beetle_battle::trap_lights_on(num p0)
+    {
+        num v1 = 0;
+        switch (p0) {
+        case 1:
+        {
+            while ((v1 < 4)) {
+                (_v10_beetle_battle::global_212[v1]).set_visible(1);
+                v1++;
+            }
+            _v10_beetle_battle::trap_effects_on();
+            break;
+        }
+        case 2:
+        {
+            v1 = 4;
+            while ((v1 < 8)) {
+                (_v10_beetle_battle::global_212[v1]).set_visible(1);
+                v1++;
+            }
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::trap_effects_on()
+    {
+        num v0 = 0;
+        while ((v0 < 8)) {
+            (_v10_beetle_battle::global_180[v0]).set_visible(1);
+            v0++;
+        }
+    }
+
+    void _v10_beetle_battle::static_pit_cameras()
+    {
+        trigger v0;
+        trigger v1;
+        trigger v2;
+        trigger v3;
+        trigger v4;
+        trigger v5;
+        trigger v6;
+        trigger v7;
+        v0 = find_trigger("V10_PIT00");
+        bind_signal(signal_id(v0, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(0));
+        bind_signal(signal_id(v0, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(0));
+        v1 = find_trigger("V10_PIT01");
+        bind_signal(signal_id(v1, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(1));
+        bind_signal(signal_id(v1, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(1));
+        v2 = find_trigger("V10_PIT02");
+        bind_signal(signal_id(v2, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(2));
+        bind_signal(signal_id(v2, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(2));
+        v3 = find_trigger("V10_PIT03");
+        bind_signal(signal_id(v3, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(3));
+        bind_signal(signal_id(v3, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(3));
+        v4 = find_trigger("V10_PIT04");
+        bind_signal(signal_id(v4, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(4));
+        bind_signal(signal_id(v4, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(4));
+        v5 = find_trigger("V10_PIT05");
+        bind_signal(signal_id(v5, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(5));
+        bind_signal(signal_id(v5, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(5));
+        v6 = find_trigger("V10_PIT06");
+        bind_signal(signal_id(v6, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(6));
+        bind_signal(signal_id(v6, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(6));
+        v7 = find_trigger("V10_PIT07");
+        bind_signal(signal_id(v7, "trigger::ENTER"), _v10_beetle_battle::turn_on_pit_camera(7));
+        bind_signal(signal_id(v7, "trigger::LEAVE"), _v10_beetle_battle::turn_off_pit_cam(7));
+    }
+
+    void _v10_beetle_battle::turn_on_pit_camera(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_432, (_v10_beetle_battle::v10_beetle_battle_enc).field_420);
+            break;
+        }
+        case 1:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_288, (_v10_beetle_battle::v10_beetle_battle_enc).field_276);
+            break;
+        }
+        case 2:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_408, (_v10_beetle_battle::v10_beetle_battle_enc).field_396);
+            break;
+        }
+        case 3:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_360, (_v10_beetle_battle::v10_beetle_battle_enc).field_348);
+            break;
+        }
+        case 4:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_312, (_v10_beetle_battle::v10_beetle_battle_enc).field_300);
+            break;
+        }
+        case 5:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_336, (_v10_beetle_battle::v10_beetle_battle_enc).field_324);
+            break;
+        }
+        case 6:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_384, (_v10_beetle_battle::v10_beetle_battle_enc).field_372);
+            break;
+        }
+        case 7:
+        {
+            spiderman_camera_set_fixedstatic((_v10_beetle_battle::v10_beetle_battle_enc).field_456, (_v10_beetle_battle::v10_beetle_battle_enc).field_444);
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::turn_off_pit_cam(num p0)
+    {
+        spiderman_camera_clear_fixedstatic();
+    }
+
+    void _v10_beetle_battle::floor_breakA()
+    {
+        entity v0 = find_entity("CE_INT_A_CE_INTA_FLRDROPA01");
+        entity v1 = find_entity("CE_INT_A_CE_INTA_FLRDROPA02");
+        entity v2 = find_entity("CE_INT_A_CE_INTA_FLRDROPA03");
+        entity v3 = find_entity("CE_INT_A_CE_INTA_FLRDROPA04");
+        (v0).apply_damage(1000);
+        (v1).apply_damage(1000);
+        (v2).apply_damage(1000);
+        (v3).apply_damage(1000);
+        _v10_beetle_battle::global_148[1] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[1]).spawn_it();
+        _v10_beetle_battle::global_180[1] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[1]).spawn_it();
+        (_v10_beetle_battle::global_180[1]).set_state(2, 1);
+        _v10_beetle_battle::global_148[3] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[3]).spawn_it();
+        _v10_beetle_battle::global_180[3] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[3]).spawn_it();
+        (_v10_beetle_battle::global_180[3]).set_state(2, 1);
+        _v10_beetle_battle::global_148[5] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[5]).spawn_it();
+        _v10_beetle_battle::global_180[5] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[5]).spawn_it();
+        (_v10_beetle_battle::global_180[5]).set_state(2, 1);
+        _v10_beetle_battle::global_148[7] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[7]).spawn_it();
+        _v10_beetle_battle::global_180[7] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[7]).spawn_it();
+        (_v10_beetle_battle::global_180[7]).set_state(2, 1);
+        (_v10_beetle_battle::global_116[1]).play_3d((_v10_beetle_battle::global_148[1]).get_abs_position(), 0);
+        (_v10_beetle_battle::global_116[3]).play_3d((_v10_beetle_battle::global_148[3]).get_abs_position(), 0);
+        (_v10_beetle_battle::global_116[5]).play_3d((_v10_beetle_battle::global_148[5]).get_abs_position(), 0);
+        (_v10_beetle_battle::global_116[7]).play_3d((_v10_beetle_battle::global_148[7]).get_abs_position(), 0);
+        set_mission_text_box_flavor(1);
+        set_mission_text(124);
+        start_thread(_v10_beetle_battle::turn_off_mission_text(5));
+        _v10_beetle_battle::trap_lights_on(1);
+    }
+
+    void _v10_beetle_battle::floor_breakB()
+    {
+        entity v0 = find_entity("CE_INT_A_CE_INTA_FLRDROPA");
+        entity v1 = find_entity("CE_INT_A_CE_INTA_FLRDROPA05");
+        entity v2 = find_entity("CE_INT_A_CE_INTA_FLRDROPA06");
+        entity v3 = find_entity("CE_INT_A_CE_INTA_FLRDROPA07");
+        (v0).apply_damage(1000);
+        (v1).apply_damage(1000);
+        (v2).apply_damage(1000);
+        (v3).apply_damage(1000);
+        _v10_beetle_battle::global_148[0] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[0]).spawn_it();
+        _v10_beetle_battle::global_180[0] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[0]).spawn_it();
+        (_v10_beetle_battle::global_180[0]).set_state(2, 1);
+        _v10_beetle_battle::global_148[2] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[2]).spawn_it();
+        _v10_beetle_battle::global_180[2] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[2]).spawn_it();
+        (_v10_beetle_battle::global_180[2]).set_state(2, 1);
+        _v10_beetle_battle::global_148[4] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[4]).spawn_it();
+        _v10_beetle_battle::global_180[4] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[4]).spawn_it();
+        (_v10_beetle_battle::global_180[4]).set_state(2, 1);
+        _v10_beetle_battle::global_148[6] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_212[6]).spawn_it();
+        _v10_beetle_battle::global_180[6] = ((_v10_beetle_battle::v10_beetle_battle_enc).field_244[6]).spawn_it();
+        (_v10_beetle_battle::global_180[6]).set_state(2, 1);
+        (_v10_beetle_battle::global_116[0]).play_3d((_v10_beetle_battle::global_148[0]).get_abs_position(), 0);
+        (_v10_beetle_battle::global_116[2]).play_3d((_v10_beetle_battle::global_148[2]).get_abs_position(), 0);
+        (_v10_beetle_battle::global_116[4]).play_3d((_v10_beetle_battle::global_148[4]).get_abs_position(), 0);
+        (_v10_beetle_battle::global_116[6]).play_3d((_v10_beetle_battle::global_148[6]).get_abs_position(), 0);
+        set_mission_text_box_flavor(1);
+        set_mission_text(124);
+        start_thread(_v10_beetle_battle::turn_off_mission_text(5));
+        _v10_beetle_battle::trap_lights_on(2);
+    }
+
+    void _v10_beetle_battle::floor_breakC()
+    {
+        entity v0 = find_entity("CE_INT_A_CE_INTA_FLRDROPB");
+        start_thread(_v10_beetle_battle::lower_panel(v0));
+    }
+
+    void _v10_beetle_battle::lower_panel(entity p0)
+    {
+        (p0).wait_translate(vector3d(0, -10, 0), 5);
+    }
+
+    void _v10_beetle_battle::raise_walls()
+    {
+        _v10_beetle_battle::global_20 = ((_v10_beetle_battle::v10_beetle_battle_enc).field_468).spawn_it();
+        (_v10_beetle_battle::global_20).set_crawlable(0);
+        _v10_beetle_battle::global_24 = ((_v10_beetle_battle::v10_beetle_battle_enc).field_472).spawn_it();
+        (_v10_beetle_battle::global_24).set_crawlable(0);
+        _v10_beetle_battle::global_108 = 1;
+        start_thread(_v10_beetle_battle::add_cage_sound());
+        raise_signal("MISSION_MUSIC_P4_START");
+    }
+
+    void _v10_beetle_battle::add_cage_sound()
+    {
+        sound_inst v0;
+        sound_inst v2;
+        sound_inst v1;
+        sound_inst v3;
+        v0 = create_sound_inst("bee_energy_barrier_start");
+        (v0).set_entity(_v10_beetle_battle::global_20);
+        (v0).play_3d((_v10_beetle_battle::global_20).get_abs_position(), 0);
+        v1 = create_sound_inst("bee_energy_barrier_start");
+        (v1).set_entity(_v10_beetle_battle::global_24);
+        (v1).play_3d((_v10_beetle_battle::global_24).get_abs_position(), 0);
+        delay(2.7);
+        v2 = create_sound_inst("bee_energy_barrier_lp_1");
+        (v2).set_entity(_v10_beetle_battle::global_20);
+        (v2).play_3d((_v10_beetle_battle::global_20).get_abs_position(), 0);
+        v3 = create_sound_inst("bee_energy_barrier_lp_1");
+        (v3).set_entity(_v10_beetle_battle::global_24);
+        (v3).play_3d((_v10_beetle_battle::global_24).get_abs_position(), 0);
+    }
+
+    void _v10_beetle_battle::stage3_cleanup()
+    {
+        kill_threads(_v10_beetle_battle::damage_watcher_p3);
+        kill_threads(_v10_beetle_battle::speed_controller);
+        kill_threads(_v10_beetle_battle::damage_in_the_holes);
+        _v10_beetle_battle::mission_failed();
+    }
+
+    void _v10_beetle_battle::stage3_complete()
+    {
+        blackscreen_on(1);
+        delay(1);
+        destroy_entity(_v10_beetle_battle::global_20);
+        destroy_entity(_v10_beetle_battle::global_24);
+        _v10_beetle_battle::destroy_plasma_generators();
+        _v10_beetle_battle::mission_complete();
+    }
+
+    void _v10_beetle_battle::break_window()
+    {
+        _v10_beetle_battle::global_244 = find_entity("CE_WH_WINA");
+        _v10_beetle_battle::global_248 = create_entity("levels\\city\\ce\\entities\\ce_wh_wina_broke");
+        (_v10_beetle_battle::global_248).set_visible(0);
+        (_v10_beetle_battle::global_248).set_rel_position((_v10_beetle_battle::global_244).get_abs_position());
+        (_v10_beetle_battle::global_248).set_xz_facing((_v10_beetle_battle::global_244).get_facing());
+        (_v10_beetle_battle::global_248).wait_rotate(vector3d(0, 0, 1), -0.262, 0.01);
+        (_v10_beetle_battle::global_244).set_visible(0);
+        (_v10_beetle_battle::global_248).set_visible(1);
+        (_v10_beetle_battle::global_248).disable_collisions();
+        destroy_entity(_v10_beetle_battle::global_244);
+    }
+
+    void _v10_beetle_battle::defensive_select_attack(entity p0)
+    {
+        switch (_v10_beetle_battle::global_252) {
+        case 0:
+        {
+            (p0).set_ai_param_float("attack_range", 15);
+            (p0).set_ai_param_float("attack_height", 2);
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::offensive_select_attack(entity p0)
+    {
+        switch (_v10_beetle_battle::global_252) {
+        case 0:
+        {
+            (p0).set_ai_param_float("attack_range", 10);
+            (p0).set_ai_param_float("attack_height", 7);
+            break;
+        }
+        case 1:
+        {
+            (p0).set_ai_param_float("attack_range", 15);
+            (p0).set_ai_param_float("attack_height", 5);
+            break;
+        }
+        case 2:
+        {
+            (p0).set_ai_param_float("attack_range", 5);
+            (p0).set_ai_param_float("attack_height", 2);
+            break;
+        }
+        case 3:
+        {
+            (p0).set_ai_param_float("attack_range", 15);
+            (p0).set_ai_param_float("attack_height", 2);
+            break;
+        }
+        default:
+        {
+            _v10_beetle_battle::global_252 = 0;
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::bomber_mode()
+    {
+        _v10_beetle_battle::global_112 = 240;
+        (_v10_beetle_battle::global_32).clear_callbacks();
+        (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_4");
+        (_v10_beetle_battle::global_32).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+        (_v10_beetle_battle::global_32).set_invulnerable(1);
+    }
+
+    void _v10_beetle_battle::watch_for_entry()
+    {
+        trigger v0 = find_trigger("V10_STAGE3_WALLS");
+        _v10_beetle_battle::check_and_raise(v0);
+    }
+
+    void _v10_beetle_battle::check_and_raise(trigger p0)
+    {
+        if ((p0).contains(_v10_beetle_battle::global_32)) {
+            delay(0.5);
+            _v10_beetle_battle::floor_breakA();
+            delay(1.4);
+            _v10_beetle_battle::raise_walls();
+            (hero()).physical_ifc_stop_biped_physics();
+            if ((hero()).physical_ifc_is_biped_physics_running()) {
+                _global_slc::wait_frame();
+            }
+            (hero()).teleport_to_point((_v10_beetle_battle::v10_beetle_battle_enc).field_476);
+            (hero()).set_xz_facing((_v10_beetle_battle::global_32).get_abs_position());
+            _v10_beetle_battle::start_phase2();
+        }
+    }
+
+    void _v10_beetle_battle::start_phase2()
+    {
+        g_story_checkpoint = 4;
+        (_v10_beetle_battle::global_32).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 1);
+        (_v10_beetle_battle::global_32).set_invulnerable(0);
+        (_v10_beetle_battle::global_32).change_ai_base_machine("beetle_v10_phase_5");
+    }
+
+    void _v10_beetle_battle::track_hero_position()
+    {
+        while (1) {
+            _v10_beetle_battle::global_268 = _v10_beetle_battle::global_256;
+            _v10_beetle_battle::global_256 = (hero()).get_abs_position();
+            _v10_beetle_battle::global_280 = get_time_inc();
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _v10_beetle_battle::debug_menu()
+    {
+        debug_menu_entry v0;
+        v0 = create_debug_menu_entry("1 -Fight in Quad");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(0);
+        v0 = create_debug_menu_entry("2 - The Chase");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(1);
+        v0 = create_debug_menu_entry("3 - Fight in Warehouse");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(2);
+        v0 = create_debug_menu_entry("4 - Fight in Warehouse - in lockdown");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(3);
+        v0 = create_debug_menu_entry("open panels CORNERS");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(4);
+        v0 = create_debug_menu_entry("open panels MIDDLES");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(5);
+        v0 = create_debug_menu_entry("open panel CENTER");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(6);
+        v0 = create_debug_menu_entry("Raise the Walls");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(7);
+        v0 = create_debug_menu_entry("PLAY ENTER WAREHOUSE IGC");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(8);
+        v0 = create_debug_menu_entry("PLAY ENDING CUTSCENE");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(9);
+        v0 = create_debug_menu_entry("Half of Beetle's Health");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(97);
+        v0 = create_debug_menu_entry("Lose V10");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(98);
+        v0 = create_debug_menu_entry("Win V10");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(99);
+        v0 = create_debug_menu_entry("Designers Whim");
+        (v0).set_handler("debug_jump(debug_menu_entry)");
+        (v0).set_id(100);
+        _v10_beetle_battle::beetle_preview_setup_debug_menu();
+    }
+
+    void _v10_beetle_battle::debug_jump(debug_menu_entry p0)
+    {
+        remove_glass_house("v10_stage1_gh");
+        switch ((p0).get_id()) {
+        case 0:
+        {
+            kill_threads(_v10_beetle_battle::distance_checker);
+            kill_threads(_v10_beetle_battle::damage_watcher_p3);
+            (_v10_beetle_battle::global_32).clear_callbacks();
+            _v10_beetle_battle::stage1_start();
+            break;
+        }
+        case 1:
+        {
+            kill_threads(_v10_beetle_battle::damage_watcher_p3);
+            (_v10_beetle_battle::global_32).clear_callbacks();
+            _v10_beetle_battle::stage2_start();
+            break;
+        }
+        case 2:
+        {
+            kill_threads(_v10_beetle_battle::distance_checker);
+            (_v10_beetle_battle::global_32).clear_callbacks();
+            _v10_beetle_battle::stage3_start(0);
+            break;
+        }
+        case 3:
+        {
+            kill_threads(_v10_beetle_battle::distance_checker);
+            (_v10_beetle_battle::global_32).clear_callbacks();
+            _v10_beetle_battle::stage3_start(1);
+            break;
+        }
+        case 4:
+        {
+            _v10_beetle_battle::floor_breakA();
+            break;
+        }
+        case 5:
+        {
+            _v10_beetle_battle::floor_breakB();
+            break;
+        }
+        case 6:
+        {
+            _v10_beetle_battle::floor_breakC();
+            break;
+        }
+        case 7:
+        {
+            _v10_beetle_battle::raise_walls();
+            break;
+        }
+        case 8:
+        {
+            g_story_checkpoint = 5;
+            unload_script();
+            break;
+        }
+        case 9:
+        {
+            g_story_checkpoint = 6;
+            unload_script();
+            break;
+        }
+        case 97:
+        {
+            num v1 = (_v10_beetle_battle::global_32).get_ifc_num("HIT_POINTS");
+            v1 = (v1 / 2);
+            (_v10_beetle_battle::global_32).set_ifc_num("HIT_POINTS", v1);
+            break;
+        }
+        case 98:
+        {
+            (hero()).set_ifc_num("HIT_POINTS", 0);
+            break;
+        }
+        case 99:
+        {
+            _v10_beetle_battle::mission_complete();
+            break;
+        }
+        case 100:
+        {
+            _v10_beetle_battle::bomber_mode();
+            break;
+        }
+        }
+    }
+
+    void _v10_beetle_battle::mission_failed()
+    {
+        if (((!_v10_beetle_battle::global_284) && (g_mission_status != 3))) {
+            g_mission_status = 3;
+            _v10_beetle_battle::global_284 = 1;
+            _v10_beetle_battle::mission_cleanup();
+            _v10_beetle_battle::mission_fail_venom_specific(250);
+        }
+    }
+
+    void _v10_beetle_battle::mission_complete()
+    {
+        _v10_beetle_battle::destroy_beetle();
+        turn_off_boss_health();
+        _v10_beetle_battle::play_ending_cutscene();
+        _v10_beetle_battle::play_spidey_transition_cutscene();
+        enable_mini_map(1);
+        g_story_checkpoint = 0;
+        g_mission_status = 2;
+        raise_signal("MISSION_END");
+        while (is_mission_active()) {
+            _global_slc::wait_frame();
+        }
+    }
+
+    void _v10_beetle_battle::mission_cleanup()
+    {
+        (_v10_beetle_battle::beetle_controller).beetle_trail_off();
+        turn_off_boss_health();
+    }
+
+    void _v10_beetle_battle::turn_off_mission_text(num p0)
+    {
+        delay(p0);
+        _global_slc::turn_off_mission_text();
+    }
+
+    void _v10_beetle_battle::mission_called_from_debug_menu()
+    {
+        g_enable_sh = 0;
+        g_enable_story = 1;
+        gv_num_current_story = 18;
+        raise_signal("MISSION_START_UPDATE");
+    }
+
+    void _v10_beetle_battle::win_v10(debug_menu_entry p0)
+    {
+        _v10_beetle_battle::mission_complete();
+        malor(vector3d(455, 1.5, 346), -1410);
+    }
+
+    void _v10_beetle_battle::v10_igc1_effects()
+    {
+        _v10_beetle_battle::global_288 = 0;
+        entity v2 = create_entity("effects\\entities\\entity_event", "fx_venom_landing");
+        entity v0 = create_entity("effects\\entities\\entity_event", "fx_venom_hit");
+        entity v1 = create_entity("effects\\entities\\entity_event", "fx_venom_wham");
+        bind_signal(signal_id(v2, "entity::ANIM_ACTION"), _v10_beetle_battle::make_landing(v2));
+        bind_signal(signal_id(v0, "entity::ANIM_ACTION"), _v10_beetle_battle::make_hit(v0));
+        bind_signal(signal_id(v1, "entity::ANIM_ACTION"), _v10_beetle_battle::make_wham(v1));
+    }
+
+    void _v10_beetle_battle::clean_up_igc1_effects()
+    {
+        _v10_beetle_battle::global_288 = 1;
+    }
+
+    void _v10_beetle_battle::make_landing(entity p0)
+    {
+        if ((!_v10_beetle_battle::global_288)) {
+            entity fx_characterimpact = create_entity("effects\\aeps\\fx_characterimpact");
+            (fx_characterimpact).set_parent(p0);
+        }
+    }
+
+    void _v10_beetle_battle::make_hit(entity p0)
+    {
+        if ((!_v10_beetle_battle::global_288)) {
+            entity fx_vnm_hit_lg = create_entity("effects\\aeps\\fx_vnm_hit_lg");
+            entity fx_vnm_suitsplat = create_entity("effects\\aeps\\fx_vnm_suitsplat");
+            (fx_vnm_hit_lg).set_parent(p0);
+            (fx_vnm_suitsplat).set_parent(p0);
+        }
+    }
+
+    void _v10_beetle_battle::make_wham(entity p0)
+    {
+        if ((!_v10_beetle_battle::global_288)) {
+            entity fx_characterimpact_hard = create_entity("effects\\aeps\\fx_characterimpact_hard");
+            (fx_characterimpact_hard).set_po_facing(vector3d(0, 1, 0));
+            (fx_characterimpact_hard).set_parent(p0);
+        }
+    }
+
+    void _v10_beetle_battle::v10_igc1B_effects()
+    {
+        _v10_beetle_battle::global_292 = 0;
+        entity v0 = create_entity("effects\\entities\\entity_event", "Venom_Land");
+        entity v1 = create_entity("effects\\entities\\entity_event", "Dive_Through");
+        bind_signal(signal_id(v0, "entity::ANIM_ACTION"), _v10_beetle_battle::smoke_cloud(v0));
+        bind_signal(signal_id(v1, "entity::ANIM_ACTION"), _v10_beetle_battle::break_wall(v1));
+    }
+
+    void _v10_beetle_battle::clean_up_igc1b_effects()
+    {
+        _v10_beetle_battle::global_292 = 1;
+    }
+
+    void _v10_beetle_battle::smoke_cloud(entity p0)
+    {
+        if ((!_v10_beetle_battle::global_292)) {
+            entity fx_characterimpact_lg = create_entity("effects\\aeps\\fx_characterimpact_lg");
+            (fx_characterimpact_lg).set_parent(p0);
+        }
+    }
+
+    void _v10_beetle_battle::break_wall(entity p0)
+    {
+        if ((!_v10_beetle_battle::global_292)) {
+            entity fx_roofshrapnel = create_entity("effects\\aeps\\fx_roofshrapnel");
+            (fx_roofshrapnel).set_parent(p0);
+            _v10_beetle_battle::break_window();
+        }
+    }
+
+    void _v10_beetle_battle::v10_igc2_effects()
+    {
+        entity v0 = create_entity("effects\\entities\\entity_event", "fx_beetle_smoke");
+        _v10_beetle_battle::make_smoke(v0);
+    }
+
+    void _v10_beetle_battle::make_smoke(entity p0)
+    {
+        entity fx_beetle_smolder = create_entity("effects\\aeps\\fx_beetle_smolder");
+        (fx_beetle_smolder).set_parent(p0);
+    }
+
+}

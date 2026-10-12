@@ -1,0 +1,125 @@
+namespace IL_V1 {
+    extern num _global_slc::add_civilian_info(vector3d,num,num,num);
+    extern num _global_slc::remove_civilian_info(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _il_v1
+    {
+    public:
+        static num global_0 = -1;
+        static num global_4 = -1;
+        static num global_8 = -1;
+        static num global_12 = -1;
+        static num global_16 = -1;
+        static num global_20 = -1;
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static str global_64;
+        static str global_68;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84;
+        static num global_88;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static str global_176;
+        static str global_180;
+        static num global_184 = 0;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220 = 0;
+        static num global_224;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        _il_v1(num p0);
+        ~_il_v1();
+    };
+
+    _il_v1::_il_v1(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            _il_v1::global_0 = add_civilian_info(vector3d(-830.4, 0, -293.68), 3, 50, 0);
+            _il_v1::global_4 = add_civilian_info(vector3d(-923.29, 0, -179.559), 3, 35, 0);
+            _il_v1::global_8 = add_civilian_info(vector3d(-963.046, 0, -149.295), 3, 20, 0);
+            _il_v1::global_12 = add_civilian_info(vector3d(-836.965, 0, -225.928), 3, 10, 0);
+            _il_v1::global_16 = add_civilian_info(vector3d(-938.816, 0, -234.097), 3, 10, 0);
+            _il_v1::global_20 = add_civilian_info(vector3d(-978.549, 0, -149.585), 3, 30, 0);
+            break;
+        }
+        }
+    }
+
+    _il_v1::~_il_v1()
+    {
+        if ((_il_v1::global_0 != -1)) {
+            remove_civilian_info(_il_v1::global_0);
+        }
+        _il_v1::global_0 = -1;
+        if ((_il_v1::global_4 != -1)) {
+            remove_civilian_info(_il_v1::global_4);
+        }
+        _il_v1::global_4 = -1;
+        if ((_il_v1::global_8 != -1)) {
+            remove_civilian_info(_il_v1::global_8);
+        }
+        _il_v1::global_8 = -1;
+        if ((_il_v1::global_12 != -1)) {
+            remove_civilian_info(_il_v1::global_12);
+        }
+        _il_v1::global_12 = -1;
+        if ((_il_v1::global_16 != -1)) {
+            remove_civilian_info(_il_v1::global_16);
+        }
+        _il_v1::global_16 = -1;
+        if ((_il_v1::global_20 != -1)) {
+            remove_civilian_info(_il_v1::global_20);
+        }
+        _il_v1::global_20 = -1;
+    }
+
+    str _il_v1::global_64 = "";
+
+    str _il_v1::global_68 = "";
+
+    str _il_v1::global_176 = "";
+
+    str _il_v1::global_180 = "";
+
+}

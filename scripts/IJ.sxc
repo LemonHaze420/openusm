@@ -1,0 +1,258 @@
+namespace IJ {
+    extern entity _global_slc::create_entity(str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern void _global_slc::wait_frame();
+    extern num entity::is_valid();
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_visible(num);
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern num entity_list::size();
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _ij
+    {
+    public:
+        static num global_0 = 0;
+        static entity_list global_4;
+        static entity global_8;
+        static entity global_12;
+        static effects_common ij_common = effects_common::create_named("ij_common");
+        static entity global_20;
+        static entity global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static str global_68;
+        static str global_72;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88;
+        static num global_92;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static str global_180;
+        static str global_184;
+        static num global_188 = 0;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224 = 0;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        _ij(num p0);
+        ~_ij();
+        void bridge_lights_on();
+        void start_smoke_stacks();
+        void bridge_lights_off();
+        void stop_smoke_stacks();
+        void animate_lights();
+        void fade_lights(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void render_entities(entity_list p4, num p8, num p12);
+        void wait_fade_alpha_entities(entity_list p4, num p8);
+        void destroy_list(entity_list p4);
+    };
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::render_entities(entity_list p4, num p8, num p12)
+    {
+        num v0 = 0;
+        if ((p8 > (p4).size())) {
+            p8 = (p4).size();
+        }
+        while ((v0 < p8)) {
+            ((p4).get_index(v0)).set_visible(p12);
+            v0++;
+        }
+    }
+
+    void effects_common::wait_fade_alpha_entities(entity_list p4, num p8)
+    {
+        num v3 = 0;
+        num v0 = 1;
+        if ((p8 > 0)) {
+            num v1 = (0.95 / p8);
+            while ((v0 < p8)) {
+                v3 = 0;
+                num v2 = (1 - (v1 * v0));
+                while ((v3 < (p4).size())) {
+                    ((p4).get_index(v3)).set_render_alpha(v2);
+                    v3++;
+                }
+                v0++;
+                wait_frame();
+            }
+        }
+        (this).render_entities(p4, (p4).size(), 0);
+    }
+
+    void effects_common::destroy_list(entity_list p4)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_visible(0);
+            destroy_entity((p4).get_index(v0));
+            v0++;
+        }
+        destroy_entity_list(p4);
+    }
+
+    _ij::_ij(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            _ij::bridge_lights_on();
+            _ij::start_smoke_stacks();
+            break;
+        }
+        }
+    }
+
+    _ij::~_ij()
+    {
+        _ij::bridge_lights_off();
+        _ij::stop_smoke_stacks();
+    }
+
+    void _ij::bridge_lights_on()
+    {
+        _ij::global_0 = 1;
+        _ij::global_4 = create_entity_list();
+        _ij::global_8 = create_entity("effects\\entity\\fx_bridgelight");
+        (_ij::global_8).set_rel_position(vector3d(-454.17, 121.39, -175.38));
+        _ij::global_12 = create_entity("effects\\entity\\fx_bridgelight");
+        (_ij::global_12).set_rel_position(vector3d(-536.44, 107.63, -175.38));
+        num v0 = 0;
+        while ((v0 < 4)) {
+            entity fx_bridgelight = create_entity("levels\\city\\ii\\entities\\ii_torchtop_glow");
+            (_ij::global_4).add(fx_bridgelight);
+            v0++;
+        }
+        ((_ij::global_4).get_index(0)).set_rel_position(vector3d(-536.08, 107.732, -165.263));
+        ((_ij::global_4).get_index(1)).set_rel_position(vector3d(-536.08, 107.732, -181.828));
+        ((_ij::global_4).get_index(2)).set_rel_position(vector3d(-454.015, 121.814, -181.828));
+        ((_ij::global_4).get_index(3)).set_rel_position(vector3d(-454.015, 121.814, -165.263));
+        start_thread(_ij::animate_lights());
+    }
+
+    void _ij::animate_lights()
+    {
+        while (((_ij::global_8).is_valid() && (_ij::global_12).is_valid())) {
+            delay(2.5);
+            _ij::fade_lights(1);
+            (_ij::global_8).set_visible(0);
+            (_ij::global_12).set_visible(0);
+            delay(0.5);
+            (_ij::global_8).set_visible(1);
+            (_ij::global_12).set_visible(1);
+            start_thread(_ij::fade_lights(0));
+        }
+    }
+
+    void _ij::fade_lights(num p0)
+    {
+        if (p0) {
+            (_ij::ij_common).wait_fade_alpha_entities(_ij::global_4, 20);
+        } else {
+            num v0 = 0;
+            while ((v0 < (_ij::global_4).size())) {
+                ((_ij::global_4).get_index(v0)).set_render_alpha(1);
+                ((_ij::global_4).get_index(v0)).set_visible(1);
+                v0++;
+            }
+        }
+    }
+
+    void _ij::bridge_lights_off()
+    {
+        destroy_entity(_ij::global_8);
+        destroy_entity(_ij::global_12);
+    }
+
+    void _ij::start_smoke_stacks()
+    {
+        _ij::global_20 = create_entity("effects\\aeps\\fx_smokestack");
+        (_ij::global_20).set_rel_position(vector3d(-545.64, 62, -273.11));
+        (_ij::global_20).set_distance_clip(150);
+        _ij::global_24 = create_entity("effects\\aeps\\fx_smokestack");
+        (_ij::global_24).set_rel_position(vector3d(-510.55, 62, -273.11));
+        (_ij::global_24).set_distance_clip(150);
+    }
+
+    void _ij::stop_smoke_stacks()
+    {
+        destroy_entity(_ij::global_20);
+        destroy_entity(_ij::global_24);
+        if (_ij::global_0) {
+            (_ij::ij_common).destroy_list(_ij::global_4);
+            _ij::global_0 = 0;
+        }
+    }
+
+    str _ij::global_68 = "";
+
+    str _ij::global_72 = "";
+
+    str _ij::global_180 = "";
+
+    str _ij::global_184 = "";
+
+}

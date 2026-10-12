@@ -1,0 +1,34 @@
+namespace VENOM_LITE {
+    extern num _global_slc::add_civilian_info_entity(entity,num,num,num);
+    extern void entity::ifl_play();
+
+    class _venom_lite
+    {
+    public:
+        _venom_lite(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+    };
+
+    _venom_lite::_venom_lite(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_0 = p4;
+        (field_0).ifl_play();
+        add_civilian_info_entity(field_0, 1, 25, 1);
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+}

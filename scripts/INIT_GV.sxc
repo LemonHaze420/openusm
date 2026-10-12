@@ -1,0 +1,226 @@
+namespace INIT_GV {
+    extern vector3d gv_hero_restart_pos;
+    extern num gv_hot_pursuit_best_score;
+    extern num gv_num_current_story;
+    extern num gv_num_force_story;
+    extern num gv_num_current_igc;
+    extern num gv_num_current_venom_igc;
+    extern num gv_story_finished;
+    extern num gv_venom_story_finished;
+    extern num gv_story_unlocked;
+    extern num gv_combat_level;
+    extern num gv_unlockable_platinum[];
+    extern num g_score;
+    extern num g_points_for_collectable_token;
+    extern num g_points_bonus_for_completing_patrol;
+    extern num g_points_per_trick_race_marker;
+    extern num gv_easy_trick_races_completed;
+    extern num gv_medium_trick_races_completed;
+    extern num gv_hard_trick_races_completed;
+    extern num gv_insane_trick_races_completed;
+    extern num gv_easy_venom_trick_races_completed;
+    extern num gv_medium_venom_trick_races_completed;
+    extern num gv_hard_venom_trick_races_completed;
+    extern num gv_insane_venom_trick_races_completed;
+    extern num gv_tutorial_car_combat_counter;
+    extern num gv_tutorial_hanger_counter;
+    extern num gv_tutorial_wall_bounce_shown;
+    extern num gv_ftb_members_defeated;
+    extern num gv_srk_members_defeated;
+    extern num gv_merc_members_defeated;
+    extern num gv_skin_members_defeated;
+    extern num gv_shen_speed_normal;
+    extern num gv_shens_successfully_completed;
+    extern num gv_shen_difficulty;
+    extern num gv_shen_diff_stage_one_completed;
+    extern num gv_shen_diff_stage_two_completed;
+    extern num gv_trick_marker_best_time[];
+    extern num gv_trick_marker_bronze_medal_status[];
+    extern num gv_trick_marker_silver_medal_status[];
+    extern num gv_trick_marker_gold_medal_status[];
+    extern num gv_trick_marker_ultimate_medal_status[];
+    extern num gv_venom_trick_marker_best_time[];
+    extern num gv_venom_trick_marker_bronze_medal_status[];
+    extern num gv_venom_trick_marker_silver_medal_status[];
+    extern num gv_venom_trick_marker_gold_medal_status[];
+    extern num gv_venom_trick_marker_ultimate_medal_status[];
+    extern num gv_current_max_hitpoints;
+    extern num gv_total_storm_races_completed;
+    extern num gv_torch_race_000_done;
+    extern num gv_torch_race_00_done;
+    extern num gv_torch_race_01_done;
+    extern num gv_torch_race_02_done;
+    extern num gv_torch_race_03_done;
+    extern num gv_token_tally[];
+    extern num gv_token_collected[];
+    extern num gv_tour_req[];
+    extern num gv_race_req[];
+    extern num gv_token_req[];
+    extern num gv_shen_req[];
+    extern num gv_torch_race_unlock_req_easy;
+    extern num gv_torch_race_unlock_req_med;
+    extern num gv_torch_race_unlock_req_hard;
+    extern num gv_torch_race_unlock_req_insane;
+    extern num _global_slc::get_ini_flag(str);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _init_gv
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        _init_gv(num p0);
+    };
+
+    _init_gv::_init_gv(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_score = 0;
+            g_points_for_collectable_token = 100;
+            g_points_bonus_for_completing_patrol = 300;
+            g_points_per_trick_race_marker = 200;
+            gv_easy_trick_races_completed = 0;
+            gv_medium_trick_races_completed = 0;
+            gv_hard_trick_races_completed = 0;
+            gv_insane_trick_races_completed = 0;
+            gv_easy_venom_trick_races_completed = 0;
+            gv_medium_venom_trick_races_completed = 0;
+            gv_hard_venom_trick_races_completed = 0;
+            gv_insane_venom_trick_races_completed = 0;
+            gv_total_storm_races_completed = 0;
+            gv_ftb_members_defeated = 0;
+            gv_srk_members_defeated = 0;
+            gv_merc_members_defeated = 0;
+            gv_skin_members_defeated = 0;
+            gv_shen_diff_stage_one_completed = 0;
+            gv_shen_diff_stage_two_completed = 0;
+            gv_shens_successfully_completed = 0;
+            gv_shen_difficulty = 0;
+            gv_shen_speed_normal = 1;
+            gv_tutorial_car_combat_counter = 0;
+            gv_tutorial_hanger_counter = 0;
+            gv_tutorial_wall_bounce_shown = 0;
+            gv_unlockable_platinum[0] = 1;
+            gv_unlockable_platinum[1] = 1;
+            gv_unlockable_platinum[2] = 1;
+            gv_unlockable_platinum[3] = 1;
+            gv_unlockable_platinum[4] = 1;
+            gv_unlockable_platinum[5] = 1;
+            gv_unlockable_platinum[6] = 1;
+            gv_current_max_hitpoints = 100;
+            num v2 = 0;
+            while ((v2 < 9)) {
+                gv_token_tally[v2] = 0;
+                v2++;
+            }
+            v2 = 0;
+            while ((v2 < 300)) {
+                gv_token_collected[v2] = 0;
+                v2++;
+            }
+            v2 = 0;
+            while ((v2 < 55)) {
+                gv_trick_marker_best_time[v2] = 0;
+                gv_trick_marker_bronze_medal_status[v2] = 0;
+                gv_trick_marker_silver_medal_status[v2] = 0;
+                gv_trick_marker_gold_medal_status[v2] = 0;
+                gv_trick_marker_ultimate_medal_status[v2] = 0;
+                v2++;
+            }
+            v2 = 0;
+            while ((v2 < 19)) {
+                gv_venom_trick_marker_best_time[v2] = 0;
+                gv_venom_trick_marker_bronze_medal_status[v2] = 0;
+                gv_venom_trick_marker_silver_medal_status[v2] = 0;
+                gv_venom_trick_marker_gold_medal_status[v2] = 0;
+                gv_venom_trick_marker_ultimate_medal_status[v2] = 0;
+                v2++;
+            }
+            gv_torch_race_000_done = 0;
+            gv_torch_race_00_done = 0;
+            gv_torch_race_01_done = 0;
+            gv_torch_race_02_done = 0;
+            gv_torch_race_03_done = 0;
+            gv_num_current_story = 1;
+            gv_num_force_story = 0;
+            gv_num_current_igc = 1;
+            gv_num_current_venom_igc = 0;
+            gv_story_finished = 0;
+            gv_venom_story_finished = 0;
+            gv_combat_level = 1;
+            gv_hero_restart_pos = vector3d(97, 10, 210);
+            gv_hot_pursuit_best_score = 0;
+            num v1 = get_ini_flag("FORCE_PROGRESSION");
+            if (v1) {
+                gv_story_unlocked = 0;
+            } else {
+                gv_story_unlocked = 1;
+            }
+            gv_tour_req[0] = 0;
+            gv_tour_req[1] = 0;
+            gv_tour_req[2] = 0;
+            gv_tour_req[3] = 1;
+            gv_tour_req[4] = 1;
+            gv_tour_req[5] = 2;
+            gv_tour_req[6] = 2;
+            gv_tour_req[7] = 3;
+            gv_tour_req[8] = 3;
+            gv_tour_req[9] = 4;
+            gv_tour_req[10] = 4;
+            gv_tour_req[11] = 5;
+            gv_tour_req[12] = 5;
+            gv_race_req[0] = 0;
+            gv_race_req[1] = 1;
+            gv_race_req[2] = 2;
+            gv_race_req[3] = 2;
+            gv_race_req[4] = 3;
+            gv_race_req[5] = 3;
+            gv_race_req[6] = 4;
+            gv_race_req[7] = 4;
+            gv_race_req[8] = 5;
+            gv_race_req[9] = 5;
+            gv_race_req[10] = 6;
+            gv_race_req[11] = 6;
+            gv_race_req[12] = 6;
+            gv_token_req[0] = 0;
+            gv_token_req[1] = 1;
+            gv_token_req[2] = 2;
+            gv_token_req[3] = 3;
+            gv_token_req[4] = 5;
+            gv_token_req[5] = 6;
+            gv_token_req[6] = 7;
+            gv_token_req[7] = 8;
+            gv_token_req[8] = 10;
+            gv_token_req[9] = 12;
+            gv_token_req[10] = 14;
+            gv_token_req[11] = 17;
+            gv_token_req[12] = 17;
+            gv_shen_req[0] = 0;
+            gv_shen_req[1] = 1;
+            gv_shen_req[2] = 2;
+            gv_shen_req[3] = 4;
+            gv_shen_req[4] = 6;
+            gv_shen_req[5] = 8;
+            gv_shen_req[6] = 10;
+            gv_shen_req[7] = 12;
+            gv_shen_req[8] = 14;
+            gv_shen_req[9] = 16;
+            gv_shen_req[10] = 18;
+            gv_shen_req[11] = 20;
+            gv_shen_req[12] = 20;
+            gv_torch_race_unlock_req_easy = 5;
+            gv_torch_race_unlock_req_med = 5;
+            gv_torch_race_unlock_req_hard = 5;
+            gv_torch_race_unlock_req_insane = 5;
+            break;
+        }
+        }
+    }
+
+}

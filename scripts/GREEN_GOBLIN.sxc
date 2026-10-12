@@ -1,0 +1,1210 @@
+namespace GREEN_GOBLIN {
+    extern vector3d NULL_VECTOR;
+    extern void _global_slc::apply_radius_damage(vector3d,num,num,num,num);
+    extern entity _global_slc::chase_cam();
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern void _global_slc::create_decal(str,vector3d,num,vector3d);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void _global_slc::destroy_entity_list(entity_list);
+    extern num _global_slc::distance3d(vector3d,vector3d);
+    extern num _global_slc::entity_exists(str);
+    extern num _global_slc::find_entities_in_radius(entity_list,vector3d,num,num);
+    extern entity _global_slc::find_entity(str);
+    extern num _global_slc::get_time_inc();
+    extern entity _global_slc::hero();
+    extern void _global_slc::spiderman_camera_add_shake(num,num,num);
+    extern void _global_slc::wait_frame();
+    extern void entity::apply_damage(num);
+    extern void entity::apply_directed_damage_cat(num,vector3d,str,num);
+    extern vector3d entity::get_abs_position();
+    extern num entity::get_ai_param_float(str);
+    extern num entity::get_ifc_num(str);
+    extern entity entity::get_member(str);
+    extern num entity::is_a_car();
+    extern num entity::is_throwable();
+    extern num entity::operator==(entity);
+    extern void entity::physical_ifc_cancel_all_velocity();
+    extern num entity::physical_ifc_is_prop_physics_running();
+    extern void entity::physical_ifc_start_prop_physics(vector3d,num);
+    extern void entity::physical_ifc_stop_prop_physics();
+    extern void entity::set_ai_param_float(str,num);
+    extern void entity::set_distance_clip(num);
+    extern void entity::set_ifc_num(str,num);
+    extern void entity::set_inode_param_int(str,str,num);
+    extern void entity::set_invulnerable(num);
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_scale(vector3d);
+    extern void entity::set_state(num,num);
+    extern void entity::set_visible(num);
+    extern void cut_scene::wait_play();
+    extern void entity_list::add(entity);
+    extern entity entity_list::get_index(num);
+    extern void entity_list::remove(entity);
+    extern num entity_list::size();
+    extern num vector3d::length();
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator-(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern num vector3d::x();
+    extern num vector3d::y();
+    extern num vector3d::z();
+    extern num string_hash::operator==(str);
+
+    class _green_goblin
+    {
+    public:
+        static gg_effects my_goblin = gg_effects::create_named("my_goblin");
+        static camera_effects effects_cam = camera_effects::create_named("effects_cam");
+        static entity global_8;
+        static green_goblin_effects g_gg_effects = green_goblin_effects::create_named("g_gg_effects");
+        static gg_effects my_goblinFx = gg_effects::create_named("my_goblinFx");
+        static num global_20 = 0;
+        static num global_24 = 0;
+        static num global_28 = 3;
+        static num global_32 = 3.6;
+        static num global_36 = 5;
+        static num global_40 = 5;
+        static effects_common gg_common = effects_common::create_named("gg_common");
+        static num global_48 = 4.5;
+        static num global_52 = 4;
+        static num global_56 = 16;
+        static num global_60 = 10;
+        static num global_64;
+        static num global_68;
+        static num global_72;
+        static num global_76;
+        static num global_80;
+        static num global_84;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static str global_104;
+        static str global_108;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124;
+        static num global_128;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static num global_184 = 0;
+        static num global_188 = 0;
+        static num global_192 = 0;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204 = 0;
+        static num global_208 = 0;
+        static num global_212 = 0;
+        static str global_216;
+        static str global_220;
+        static num global_224 = 0;
+        static num global_228;
+        static num global_232;
+        static num global_236;
+        static num global_240;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        static num global_260 = 0;
+        static num global_264 = 0;
+        static effects_common my_common = effects_common::create_named("my_common");
+        static num global_272;
+        static num global_276;
+        static num global_280;
+        static num global_284;
+        static num global_288;
+        static num global_292;
+        static num global_296;
+        static num global_300;
+        _green_goblin(num p0);
+        num lerp(num p0, num p4, num p8);
+        void chargeup_panel();
+        void closeup_panel();
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void render_entities(entity_list p4, num p8, num p12);
+        void scale_entities(entity_list p4, vector3d p8);
+        void wait_scale_entities(entity_list p4, num p8, num p12, num p16);
+        void filtered_impact_force(vector3d p4, num p16, num p20, num p24);
+        void impact_force(entity_list p4, vector3d p8, num p20, num p24, num p28);
+    };
+
+    class gg_effects
+    {
+    public:
+        effects_common field_0;
+        entity_list field_4;
+        entity field_8;
+        num field_12;
+        entity_list field_16;
+        num field_20;
+        gg_effects();
+        void aura_on(entity p4);
+        void smoke_on(entity p4);
+        void make_aura_generic(entity p4, entity_list p8, str p12);
+        void make_aura(entity p4);
+        void make_smoke(entity p4);
+        void aura_off();
+        void smoke_off();
+        void concrete_landing(vector3d p4);
+    };
+
+    class camera_effects
+    {
+    public:
+        entity field_0;
+        camera_effects();
+        void flash_cam(num p4, num p8);
+        void shake_cam(num p4);
+    };
+
+    class green_goblin_effects
+    {
+    public:
+        entity field_0;
+        entity field_4;
+        num field_8;
+        entity field_12;
+        num field_16;
+        entity field_20;
+        entity field_24;
+        green_goblin_effects();
+        ~green_goblin_effects();
+        void set_parent(entity p4);
+        void set_chargeupL_scale(num p4);
+        void set_chargeupR_scale(num p4);
+        void spawn_activate_timer_chargeupL(num p4, num p8);
+        void spawn_activate_timer_chargeupR(num p4, num p8);
+        void spawn_deactivate_timer_chargeupL(num p4, num p8);
+        void spawn_deactivate_timer_chargeupR(num p4, num p8);
+        void spawn_hide_aura(num p4, num p8);
+        void spawn_hide_smoke();
+        void show_chargeupL(num p4, num p8);
+        void show_chargeupR(num p4, num p8);
+        void show_aura(num p4, num p8);
+        void show_smoke();
+        void hide_aura(num p4, num p8);
+        void hide_smoke();
+        void hide_chargeupL(num p4, num p8);
+        void hide_chargeupR(num p4, num p8);
+        void left_fireball_gone();
+        void right_fireball_gone();
+        void scale_effect(entity p4, num p8, num p12, num p16);
+        void show_super_fire_jump_pound(vector3d p4);
+        void hide_super_fire_jump_pound();
+        void show_fire_jump_pound(vector3d p4);
+        void hide_fire_jump_pound();
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void terrain_fx_event(vector3d p4, string_hash p16);
+        void frame_advance(num p4);
+        void look_for_vulnerability();
+        void init_delayed();
+    };
+
+    class gg_fireball_1_charge
+    {
+    public:
+        gg_fireball_1_charge(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class gg_fireball_1_fire
+    {
+    public:
+        gg_fireball_1_fire(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void broadcast_attack();
+    };
+
+    class gg_fireball_2_charge
+    {
+    public:
+        gg_fireball_2_charge(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class gg_fireball_2_fire_r
+    {
+    public:
+        gg_fireball_2_fire_r(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void broadcast_attack();
+    };
+
+    class gg_fireball_2_fire_l
+    {
+    public:
+        gg_fireball_2_fire_l(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void broadcast_attack();
+    };
+
+    class gg_fireball_recover
+    {
+    public:
+        gg_fireball_recover(entity p4);
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+    };
+
+    class gg_fire_jump_pound
+    {
+    public:
+        gg_fire_jump_pound(entity p4);
+        ~gg_fire_jump_pound();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void delayed_pound();
+    };
+
+    class gg_super_fire_jump_pound
+    {
+    public:
+        gg_super_fire_jump_pound(entity p4);
+        ~gg_super_fire_jump_pound();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void delayed_pound();
+        void delayed_expanding_damage_radius();
+    };
+
+    class gg_jump_grab
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        gg_jump_grab(entity p4);
+        ~gg_jump_grab();
+        void activate();
+        void deactivate();
+        void frame_advance(num p4, num p8);
+        void delayed_pound();
+    };
+
+    num _green_goblin::lerp(num p0, num p4, num p8)
+    {
+        num v0 = (p4 - p0);
+        num v1 = (p0 + (p8 * v0));
+        return v1;
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::render_entities(entity_list p4, num p8, num p12)
+    {
+        num v0 = 0;
+        if ((p8 > (p4).size())) {
+            p8 = (p4).size();
+        }
+        while ((v0 < p8)) {
+            ((p4).get_index(v0)).set_visible(p12);
+            v0++;
+        }
+    }
+
+    void effects_common::scale_entities(entity_list p4, vector3d p8)
+    {
+        num v0 = 0;
+        while ((v0 < (p4).size())) {
+            ((p4).get_index(v0)).set_render_scale(p8);
+            v0++;
+        }
+    }
+
+    void effects_common::wait_scale_entities(entity_list p4, num p8, num p12, num p16)
+    {
+        num v0 = 0;
+        num v1 = p8;
+        num v2 = 0;
+        while ((v0 < p16)) {
+            v1 = _green_goblin::lerp(p8, p12, (v0 / p16));
+            v2 = 0;
+            while ((v2 < (p4).size())) {
+                ((p4).get_index(v2)).set_render_scale(vector3d(v1, v1, v1));
+                v2++;
+            }
+            wait_frame();
+            v0 = (v0 + get_time_inc());
+        }
+        v2 = 0;
+        while ((v2 < (p4).size())) {
+            ((p4).get_index(v2)).set_render_scale(vector3d(p12, p12, p12));
+            v2++;
+        }
+    }
+
+    void effects_common::filtered_impact_force(vector3d p4, num p16, num p20, num p24)
+    {
+        entity_list v0 = create_entity_list();
+        (v0).add(hero());
+        if (entity_exists("ELECTRO_SUITED")) {
+            (v0).add(find_entity("ELECTRO_SUITED"));
+        }
+        if (entity_exists("ELECTRO_NOSUITED")) {
+            (v0).add(find_entity("ELECTRO_NOSUITED"));
+        }
+        if (entity_exists("SABLE")) {
+            (v0).add(find_entity("SABLE"));
+        }
+        if (entity_exists("greengoblin")) {
+            (v0).add(find_entity("greengoblin"));
+        }
+        (this).impact_force(v0, p4, p16, p20, p24);
+        destroy_entity_list(v0);
+    }
+
+    void effects_common::impact_force(entity_list p4, vector3d p8, num p20, num p24, num p28)
+    {
+        entity_list v0 = create_entity_list();
+        find_entities_in_radius(v0, p8, p20, (8 + 2));
+        if (((p4).size() > 0)) {
+            num v6 = 0;
+            while ((v6 < (p4).size())) {
+                (v0).remove((p4).get_index(v6));
+                v6++;
+            }
+        }
+        if (((v0).size() > 0)) {
+            num v2 = 0;
+            vector3d v7;
+            vector3d v1 = vector3d(0, 1.2, 0);
+            while ((v2 < (v0).size())) {
+                entity v3 = (v0).get_index(v2);
+                vector3d v5 = (v3).get_abs_position();
+                num v4 = distance3d(v5, p8);
+                if ((v4 < p20)) {
+                    if (((v3).is_a_car() && (v3).is_throwable())) {
+                        if ((v3).physical_ifc_is_prop_physics_running()) {
+                            (v3).physical_ifc_stop_prop_physics();
+                        }
+                        v7 = (v5 - (p8 - v1));
+                        (v3).physical_ifc_start_prop_physics(v7, (p24 / (v7).length()));
+                    }
+                    if ((p28 > 0)) {
+                        (v3).apply_damage((p28 / v4));
+                    }
+                    (v0).remove(v3);
+                } else {
+                    v2++;
+                }
+            }
+        }
+        destroy_entity_list(v0);
+    }
+
+    gg_effects::gg_effects()
+    {
+        field_12 = 0;
+        field_20 = 0;
+        wait_frame();
+        field_4 = create_entity_list();
+        field_16 = create_entity_list();
+        entity fx_decal_land = create_entity("effects\\aeps\\fx_decal_land");
+        wait_frame();
+        destroy_entity(fx_decal_land);
+    }
+
+    void gg_effects::aura_on(entity p4)
+    {
+        if (((field_4).size() < 1)) {
+            (this).make_aura(p4);
+        } else if ((!field_12)) {
+            (field_0).render_entities(field_4, (field_4).size(), 1);
+            (field_0).scale_entities(field_4, vector3d(1, 1, 1));
+            field_12 = 1;
+        } else {
+        }
+    }
+
+    void gg_effects::smoke_on(entity p4)
+    {
+        if (((field_16).size() < 1)) {
+            (this).make_smoke(p4);
+        } else if ((!field_20)) {
+            (field_0).render_entities(field_16, (field_16).size(), 1);
+            (field_0).scale_entities(field_16, vector3d(1, 1, 1));
+            field_20 = 1;
+        } else {
+        }
+    }
+
+    void gg_effects::make_aura_generic(entity p4, entity_list p8, str p12)
+    {
+        num v0 = 0;
+        while ((v0 < 19)) {
+            entity entity_local_v0 = create_entity(p12);
+            (entity_local_v0).set_distance_clip(10000);
+            (entity_local_v0).set_state(2, 1);
+            (entity_local_v0).set_state(4, 1);
+            (p8).add(entity_local_v0);
+            wait_frame();
+            v0++;
+        }
+        ((p8).get_index(0)).set_parent((p4).get_member("Bip01 Head"));
+        ((p8).get_index(0)).set_rel_position(vector3d(-0.3, 0, 0));
+        ((p8).get_index(0)).set_state(1, 0.8);
+        ((p8).get_index(1)).set_parent((p4).get_member("Bip01 R Hand"));
+        ((p8).get_index(1)).set_state(1, 2);
+        ((p8).get_index(2)).set_parent((p4).get_member("Bip01 L Hand"));
+        ((p8).get_index(2)).set_state(1, 2);
+        ((p8).get_index(3)).set_parent((p4).get_member("Bip01 R UpperArm"));
+        ((p8).get_index(3)).set_rel_position(vector3d(-0.3, -0.3, 0));
+        ((p8).get_index(3)).set_state(1, 1.5);
+        ((p8).get_index(4)).set_parent((p4).get_member("Bip01 L UpperArm"));
+        ((p8).get_index(4)).set_rel_position(vector3d(-0.3, 0.3, 0));
+        ((p8).get_index(4)).set_state(1, 1.5);
+        ((p8).get_index(5)).set_parent((p4).get_member("Bip01 Spine"));
+        ((p8).get_index(5)).set_rel_position(vector3d(0, 0.15, 0));
+        ((p8).get_index(5)).set_state(1, 0.6);
+        ((p8).get_index(6)).set_parent((p4).get_member("Bip01 Spine"));
+        ((p8).get_index(6)).set_rel_position(vector3d(0, -0.15, 0));
+        ((p8).get_index(6)).set_state(1, 0.6);
+        ((p8).get_index(7)).set_parent((p4).get_member("Bip01 L Clavicle"));
+        ((p8).get_index(7)).set_rel_position(vector3d(-0.6, 0.05, 0));
+        ((p8).get_index(7)).set_state(1, 1);
+        ((p8).get_index(8)).set_parent((p4).get_member("Bip01 R Clavicle"));
+        ((p8).get_index(8)).set_rel_position(vector3d(-0.6, -0.05, 0));
+        ((p8).get_index(8)).set_state(1, 1);
+        ((p8).get_index(9)).set_parent((p4).get_member("Bip01 R ForeTwist1"));
+        ((p8).get_index(9)).set_rel_position(vector3d(-0.05, 0, 0));
+        ((p8).get_index(9)).set_state(1, 1.5);
+        ((p8).get_index(10)).set_parent((p4).get_member("Bip01 L ForeTwist1"));
+        ((p8).get_index(10)).set_rel_position(vector3d(-0.05, 0, 0));
+        ((p8).get_index(10)).set_state(1, 1.5);
+        ((p8).get_index(11)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((p8).get_index(11)).set_rel_position(vector3d(0, 0.2, 0));
+        ((p8).get_index(11)).set_state(1, 0.6);
+        ((p8).get_index(12)).set_parent((p4).get_member("Bip01 Spine2"));
+        ((p8).get_index(12)).set_rel_position(vector3d(0, -0.2, 0));
+        ((p8).get_index(12)).set_state(1, 0.6);
+        ((p8).get_index(13)).set_parent((p4).get_member("Bip01 L Toe0"));
+        ((p8).get_index(13)).set_state(1, 0.6);
+        ((p8).get_index(14)).set_parent((p4).get_member("Bip01 R Toe0"));
+        ((p8).get_index(14)).set_state(1, 0.6);
+        ((p8).get_index(15)).set_parent((p4).get_member("Bip01 R Calf"));
+        ((p8).get_index(15)).set_rel_position(vector3d(-0.25, 0, 0));
+        ((p8).get_index(15)).set_state(1, 0.8);
+        ((p8).get_index(16)).set_parent((p4).get_member("Bip01 L Calf"));
+        ((p8).get_index(16)).set_rel_position(vector3d(-0.25, 0, 0));
+        ((p8).get_index(16)).set_state(1, 0.8);
+        ((p8).get_index(17)).set_parent((p4).get_member("Bip01 R Thigh"));
+        ((p8).get_index(17)).set_rel_position(vector3d(-0.3, 0, 0));
+        ((p8).get_index(17)).set_state(1, 1.5);
+        ((p8).get_index(18)).set_parent((p4).get_member("Bip01 L Thigh"));
+        ((p8).get_index(18)).set_rel_position(vector3d(-0.3, 0, 0));
+        ((p8).get_index(18)).set_state(1, 1.5);
+    }
+
+    void gg_effects::make_aura(entity p4)
+    {
+        (this).make_aura_generic(p4, field_4, "effects\\aeps\\fx_gg_aura");
+        field_12 = 1;
+    }
+
+    void gg_effects::make_smoke(entity p4)
+    {
+        (this).make_aura_generic(p4, field_16, "effects\\aeps\\fx_gg_aura_smoke");
+        field_20 = 1;
+    }
+
+    void gg_effects::aura_off()
+    {
+        if (field_12) {
+            (field_0).wait_scale_entities(field_4, 1, 0, 0.5);
+            (field_0).render_entities(field_4, (field_4).size(), 0);
+            field_12 = 0;
+        }
+    }
+
+    void gg_effects::smoke_off()
+    {
+        if (field_20) {
+            (field_0).wait_scale_entities(field_16, 1, 0, 0.5);
+            (field_0).render_entities(field_16, (field_16).size(), 0);
+            field_20 = 0;
+        }
+    }
+
+    void gg_effects::concrete_landing(vector3d p4)
+    {
+        create_decal("fx_decal_land", p4, -1, NULL_VECTOR);
+        if ((field_8 == entity("NULL"))) {
+            field_8 = create_entity("effects\\aeps\\fx_vnm_jumpimpact");
+            (field_8).set_state(2, 1);
+        }
+        (field_8).set_rel_position(p4);
+        (field_8).set_visible(1);
+        (field_0).filtered_impact_force(p4, 12, 5, 200);
+    }
+
+    camera_effects::camera_effects()
+    {
+        wait_frame();
+    }
+
+    void camera_effects::flash_cam(num p4, num p8)
+    {
+        num v0 = 0;
+        if ((field_0 == entity("NULL"))) {
+            field_0 = create_entity("fx\\entities\\fx_cam_flash", "camera_flash");
+            (field_0).set_parent(chase_cam());
+            (field_0).set_rel_position(vector3d(0, 0, 0.5));
+            (field_0).set_visible(0);
+        }
+        while ((v0 < p4)) {
+            (field_0).set_visible(1);
+            wait_frame();
+            (field_0).set_visible(0);
+            wait_frame();
+            v0++;
+        }
+        if ((p8 > 0)) {
+            (this).shake_cam(p8);
+        }
+    }
+
+    void camera_effects::shake_cam(num p4)
+    {
+        switch (p4) {
+        case 1:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        case 2:
+        {
+            spiderman_camera_add_shake(0.1, 16, 0.75);
+            spiderman_camera_add_shake(0.04, 20, 0.5);
+            spiderman_camera_add_shake(0.015, 24, 1.5);
+            break;
+        }
+        default:
+        {
+            spiderman_camera_add_shake(0.08, 16, 1);
+            break;
+        }
+        }
+    }
+
+    green_goblin_effects::green_goblin_effects()
+    {
+        field_8 = 3;
+        field_16 = 3;
+        field_20 = create_entity("effects\\aeps\\fx_gg_firestomp");
+        (field_20).set_state(2, 1);
+        field_24 = create_entity("effects\\aeps\\fx_gg_firejump");
+        (field_24).set_state(2, 1);
+    }
+
+    green_goblin_effects::~green_goblin_effects()
+    {
+        destroy_entity(field_20);
+        destroy_entity(field_24);
+        destroy_entity(field_4);
+        destroy_entity(field_12);
+    }
+
+    void green_goblin_effects::set_parent(entity p4)
+    {
+        if ((field_0 == entity("NULL"))) {
+            field_0 = p4;
+            field_4 = create_entity("effect\\aeps\\fx_gg_fireballchrgup", "Fire_hand_charge_r");
+            (field_4).set_state(2, 1);
+            (field_4).set_parent((field_0).get_member("Bip01 R Hand"));
+            (field_4).set_rel_position(vector3d(-0.3, 0, -0.3));
+            (field_4).set_visible(0);
+            field_12 = create_entity("effect\\aeps\\fx_gg_fireballchrgup", "Fire_hand_charge_l");
+            (field_12).set_state(2, 1);
+            (field_12).set_parent((field_0).get_member("Bip01 L Hand"));
+            (field_12).set_rel_position(vector3d(-0.3, 0, -0.3));
+            (field_12).set_visible(0);
+        }
+    }
+
+    void green_goblin_effects::set_chargeupL_scale(num p4)
+    {
+        field_16 = p4;
+    }
+
+    void green_goblin_effects::set_chargeupR_scale(num p4)
+    {
+        field_8 = p4;
+    }
+
+    void green_goblin_effects::spawn_activate_timer_chargeupL(num p4, num p8)
+    {
+        start_thread_on(this, (this).show_chargeupL(p4, p8));
+    }
+
+    void green_goblin_effects::spawn_activate_timer_chargeupR(num p4, num p8)
+    {
+        start_thread_on(this, (this).show_chargeupR(p4, p8));
+    }
+
+    void green_goblin_effects::spawn_deactivate_timer_chargeupL(num p4, num p8)
+    {
+        start_thread_on(this, (this).hide_chargeupL(p4, p8));
+    }
+
+    void green_goblin_effects::spawn_deactivate_timer_chargeupR(num p4, num p8)
+    {
+        start_thread_on(this, (this).hide_chargeupR(p4, p8));
+    }
+
+    void green_goblin_effects::spawn_hide_aura(num p4, num p8)
+    {
+        start_thread_on(this, (this).hide_aura(p4, p8));
+    }
+
+    void green_goblin_effects::spawn_hide_smoke()
+    {
+        start_thread_on(this, (this).hide_smoke());
+    }
+
+    void green_goblin_effects::show_chargeupL(num p4, num p8)
+    {
+        delay(p4);
+        kill_threads_on(this, green_goblin_effects::hide_chargeupL);
+        (field_12).set_visible(1);
+        (this).scale_effect(field_12, 0, field_16, (p8 - p4));
+    }
+
+    void green_goblin_effects::show_chargeupR(num p4, num p8)
+    {
+        delay(p4);
+        kill_threads_on(this, green_goblin_effects::hide_chargeupR);
+        (field_4).set_visible(1);
+        (this).scale_effect(field_4, 0, field_8, (p8 - p4));
+    }
+
+    void green_goblin_effects::show_aura(num p4, num p8)
+    {
+        if ((p4 > 0)) {
+            delay(p4);
+        }
+        kill_threads_on(this, green_goblin_effects::hide_aura);
+        (_green_goblin::my_goblin).aura_on(field_0);
+    }
+
+    void green_goblin_effects::show_smoke()
+    {
+        kill_threads_on(this, green_goblin_effects::hide_smoke);
+        (_green_goblin::my_goblin).smoke_on(field_0);
+    }
+
+    void green_goblin_effects::hide_aura(num p4, num p8)
+    {
+        delay(p4);
+        kill_threads_on(this, green_goblin_effects::show_aura);
+        if (((p8 - p4) > 0)) {
+        }
+        (_green_goblin::my_goblin).aura_off();
+    }
+
+    void green_goblin_effects::hide_smoke()
+    {
+        kill_threads_on(this, green_goblin_effects::show_smoke);
+        (_green_goblin::my_goblin).smoke_off();
+    }
+
+    void green_goblin_effects::hide_chargeupL(num p4, num p8)
+    {
+        delay(p4);
+        kill_threads_on(this, green_goblin_effects::show_chargeupL);
+        (field_12).set_visible(0);
+    }
+
+    void green_goblin_effects::hide_chargeupR(num p4, num p8)
+    {
+        delay(p4);
+        kill_threads_on(this, green_goblin_effects::show_chargeupR);
+        (field_4).set_visible(0);
+    }
+
+    void green_goblin_effects::left_fireball_gone()
+    {
+        kill_threads_on(this, green_goblin_effects::show_chargeupL);
+        kill_threads_on(this, green_goblin_effects::hide_chargeupL);
+        (field_12).set_visible(0);
+    }
+
+    void green_goblin_effects::right_fireball_gone()
+    {
+        kill_threads_on(this, green_goblin_effects::show_chargeupR);
+        kill_threads_on(this, green_goblin_effects::hide_chargeupR);
+        (field_4).set_visible(0);
+    }
+
+    void green_goblin_effects::scale_effect(entity p4, num p8, num p12, num p16)
+    {
+        num v0 = 0;
+        num v1 = p8;
+        while ((v0 < p16)) {
+            v1 = _green_goblin::lerp(p8, p12, (v0 / p16));
+            (p4).set_render_scale(vector3d(v1, v1, v1));
+            wait_frame();
+            v0 = (v0 + get_time_inc());
+        }
+        (p4).set_render_scale(vector3d(p12, p12, p12));
+    }
+
+    void green_goblin_effects::show_super_fire_jump_pound(vector3d p4)
+    {
+        p4 = (p4 + vector3d(0, -3, 0));
+        (field_24).set_rel_position(p4);
+        (field_24).set_visible(1);
+        start_thread_on(this, (_green_goblin::effects_cam).flash_cam(3, 2));
+    }
+
+    void green_goblin_effects::hide_super_fire_jump_pound()
+    {
+    }
+
+    void green_goblin_effects::show_fire_jump_pound(vector3d p4)
+    {
+        p4 = (p4 + vector3d(0, -1, 0));
+        (field_20).set_rel_position(p4);
+        (field_20).set_visible(1);
+    }
+
+    void green_goblin_effects::hide_fire_jump_pound()
+    {
+    }
+
+    _green_goblin::_green_goblin(num p0)
+    {
+    }
+
+    void _green_goblin::closeup_panel()
+    {
+        cut_scene v0 = create_cut_scene("cutscenes\\s07_green_goblin\\scripted\\s07_goblin_closeup");
+        (v0).wait_play();
+    }
+
+    void _green_goblin::chargeup_panel()
+    {
+        cut_scene v0 = create_cut_scene("cutscenes\\s07_green_goblin\\scripted\\s07_goblin_chargeup");
+        (v0).wait_play();
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        _green_goblin::global_8 = p4;
+        (_green_goblin::g_gg_effects).set_parent(p4);
+        start_thread_on(this, (this).init_delayed());
+        start_thread_on(this, (this).look_for_vulnerability());
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+    }
+
+    void ENX_MASTER_OBJECT::terrain_fx_event(vector3d p4, string_hash p16)
+    {
+        apply_radius_damage(p4, 3, 100, 0, 1);
+        if ((p16 == "CONCRETE")) {
+            (_green_goblin::my_goblinFx).concrete_landing(p4);
+        }
+    }
+
+    void ENX_MASTER_OBJECT::frame_advance(num p4)
+    {
+    }
+
+    void ENX_MASTER_OBJECT::look_for_vulnerability()
+    {
+        num v0 = 0;
+        while (1) {
+            wait_frame();
+            if ((_green_goblin::global_20 >= 0)) {
+                num v3 = get_time_inc();
+                _green_goblin::global_20 = (_green_goblin::global_20 - v3);
+                num v1 = (_green_goblin::global_8).get_ai_param_float("invulnerable_timer_set_absolute");
+                num v2 = (_green_goblin::global_8).get_ai_param_float("invulnerable_timer_set_delta");
+                if ((v2 > -1000)) {
+                    _green_goblin::global_20 = (_green_goblin::global_20 + v2);
+                    (_green_goblin::global_8).set_ai_param_float("invulnerable_timer_set_delta", -5000);
+                }
+                if ((v1 > -1000)) {
+                    _green_goblin::global_20 = v1;
+                    (_green_goblin::global_8).set_ai_param_float("invulnerable_timer_set_absolute", -5000);
+                }
+                if ((_green_goblin::global_20 > 2.25)) {
+                    v0 = 1;
+                }
+                if (((_green_goblin::global_20 < 1) && (v0 == 1))) {
+                    (_green_goblin::g_gg_effects).show_smoke();
+                    v0 = 0;
+                }
+                if ((_green_goblin::global_20 < 0)) {
+                    (_green_goblin::global_8).set_invulnerable(1);
+                    (_green_goblin::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+                    (_green_goblin::g_gg_effects).show_aura(0, 0);
+                    delay(0.75);
+                    v0 = 1;
+                    (_green_goblin::g_gg_effects).spawn_hide_smoke();
+                }
+            }
+        }
+    }
+
+    void ENX_MASTER_OBJECT::init_delayed()
+    {
+        wait_frame();
+        (_green_goblin::global_8).set_invulnerable(1);
+        (_green_goblin::g_gg_effects).show_aura(0, 0);
+        (_green_goblin::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 0);
+        (_green_goblin::global_8).set_inode_param_int("std_default_trans_inode", "hit_avoid_enabled", 0);
+    }
+
+    gg_fireball_1_charge::gg_fireball_1_charge(entity p4)
+    {
+    }
+
+    void gg_fireball_1_charge::activate()
+    {
+        (_green_goblin::g_gg_effects).set_chargeupR_scale(1.1);
+        (_green_goblin::g_gg_effects).spawn_activate_timer_chargeupR(0.25, 1.5);
+    }
+
+    void gg_fireball_1_charge::deactivate()
+    {
+        (_green_goblin::g_gg_effects).spawn_deactivate_timer_chargeupR(3, 5);
+    }
+
+    void gg_fireball_1_charge::frame_advance(num p4, num p8)
+    {
+    }
+
+    gg_fireball_1_fire::gg_fireball_1_fire(entity p4)
+    {
+    }
+
+    void gg_fireball_1_fire::activate()
+    {
+        bind_signal_once_on(this, signal_id(_green_goblin::global_8, "entity::ATTACK"), (this).broadcast_attack());
+        raise_signal("FIREBALL_FIRED");
+    }
+
+    void gg_fireball_1_fire::deactivate()
+    {
+    }
+
+    void gg_fireball_1_fire::frame_advance(num p4, num p8)
+    {
+    }
+
+    void gg_fireball_1_fire::broadcast_attack()
+    {
+        (_green_goblin::g_gg_effects).right_fireball_gone();
+    }
+
+    gg_fireball_2_charge::gg_fireball_2_charge(entity p4)
+    {
+    }
+
+    void gg_fireball_2_charge::activate()
+    {
+        if ((!_green_goblin::global_24)) {
+            start_thread_on(this, _green_goblin::chargeup_panel());
+            _green_goblin::global_24 = 1;
+        }
+        (_green_goblin::g_gg_effects).set_chargeupL_scale(1.1);
+        (_green_goblin::g_gg_effects).set_chargeupR_scale(1.1);
+        (_green_goblin::g_gg_effects).spawn_activate_timer_chargeupR(0.25, 2);
+        (_green_goblin::g_gg_effects).spawn_activate_timer_chargeupL(0.25, 2);
+        (_green_goblin::g_gg_effects).spawn_hide_aura(3.5, 0);
+        raise_signal(_green_goblin::global_8, "_green_goblin::GOBLIN_CHARGING");
+    }
+
+    void gg_fireball_2_charge::deactivate()
+    {
+        (_green_goblin::g_gg_effects).spawn_deactivate_timer_chargeupR(3, 5);
+        (_green_goblin::g_gg_effects).spawn_deactivate_timer_chargeupL(3, 5);
+    }
+
+    void gg_fireball_2_charge::frame_advance(num p4, num p8)
+    {
+    }
+
+    gg_fireball_2_fire_r::gg_fireball_2_fire_r(entity p4)
+    {
+    }
+
+    void gg_fireball_2_fire_r::activate()
+    {
+        bind_signal_once_on(this, signal_id(_green_goblin::global_8, "entity::ATTACK"), (this).broadcast_attack());
+        raise_signal("FIREBALL_FIRED");
+    }
+
+    void gg_fireball_2_fire_r::deactivate()
+    {
+    }
+
+    void gg_fireball_2_fire_r::frame_advance(num p4, num p8)
+    {
+    }
+
+    void gg_fireball_2_fire_r::broadcast_attack()
+    {
+        (_green_goblin::g_gg_effects).right_fireball_gone();
+    }
+
+    gg_fireball_2_fire_l::gg_fireball_2_fire_l(entity p4)
+    {
+    }
+
+    void gg_fireball_2_fire_l::activate()
+    {
+        (_green_goblin::global_8).set_invulnerable(0);
+        (_green_goblin::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 1);
+        _green_goblin::global_20 = 8;
+        bind_signal_once_on(this, signal_id(_green_goblin::global_8, "entity::ATTACK"), (this).broadcast_attack());
+    }
+
+    void gg_fireball_2_fire_l::deactivate()
+    {
+        _green_goblin::global_20 = _green_goblin::global_28;
+    }
+
+    void gg_fireball_2_fire_l::frame_advance(num p4, num p8)
+    {
+    }
+
+    void gg_fireball_2_fire_l::broadcast_attack()
+    {
+        (_green_goblin::g_gg_effects).left_fireball_gone();
+    }
+
+    gg_fireball_recover::gg_fireball_recover(entity p4)
+    {
+    }
+
+    void gg_fireball_recover::activate()
+    {
+        raise_signal(_green_goblin::global_8, "_green_goblin::GOBLIN_TIRED");
+    }
+
+    void gg_fireball_recover::deactivate()
+    {
+        _green_goblin::global_20 = 3;
+    }
+
+    void gg_fireball_recover::frame_advance(num p4, num p8)
+    {
+    }
+
+    gg_fire_jump_pound::gg_fire_jump_pound(entity p4)
+    {
+    }
+
+    gg_fire_jump_pound::~gg_fire_jump_pound()
+    {
+    }
+
+    void gg_fire_jump_pound::activate()
+    {
+        raise_signal(_green_goblin::global_8, "_green_goblin::GOBLIN_JUMPING");
+        start_thread_on(this, (this).delayed_pound());
+    }
+
+    void gg_fire_jump_pound::deactivate()
+    {
+        (_green_goblin::g_gg_effects).hide_fire_jump_pound();
+    }
+
+    void gg_fire_jump_pound::frame_advance(num p4, num p8)
+    {
+    }
+
+    void gg_fire_jump_pound::delayed_pound()
+    {
+        delay(0.1);
+        (_green_goblin::g_gg_effects).show_fire_jump_pound((_green_goblin::global_8).get_abs_position());
+        vector3d v0 = (_green_goblin::global_8).get_abs_position();
+        vector3d v1 = (hero()).get_abs_position();
+        if ((distance3d(v1, v0) < _green_goblin::global_32)) {
+            num v2 = ((v0).y() - (v1).y());
+            if ((v2 < 0)) {
+                v2 = (v2 * -1);
+            }
+            vector3d v3 = vector3d((v1).x(), (v2 * 3), (v1).z());
+            if ((distance3d(v3, v0) < _green_goblin::global_36)) {
+                (hero()).apply_directed_damage_cat(_green_goblin::global_40, (v1 - v0), "Wounded_Fireball_GG", 1);
+            }
+        }
+        (_green_goblin::gg_common).filtered_impact_force(v0, 3, 5, 50);
+    }
+
+    gg_super_fire_jump_pound::gg_super_fire_jump_pound(entity p4)
+    {
+    }
+
+    gg_super_fire_jump_pound::~gg_super_fire_jump_pound()
+    {
+    }
+
+    void gg_super_fire_jump_pound::activate()
+    {
+        start_thread_on(this, (this).delayed_pound());
+        (_green_goblin::global_8).set_invulnerable(0);
+        (_green_goblin::global_8).set_inode_param_int("std_default_trans_inode", "hit_react_enabled", 1);
+        _green_goblin::global_20 = _green_goblin::global_48;
+        (_green_goblin::g_gg_effects).spawn_hide_aura(0.5, 0);
+        raise_signal(_green_goblin::global_8, "_green_goblin::GOBLIN_TIRED");
+    }
+
+    void gg_super_fire_jump_pound::deactivate()
+    {
+        (_green_goblin::g_gg_effects).hide_super_fire_jump_pound();
+    }
+
+    void gg_super_fire_jump_pound::frame_advance(num p4, num p8)
+    {
+    }
+
+    void gg_super_fire_jump_pound::delayed_pound()
+    {
+        delay(0.15);
+        (_green_goblin::g_gg_effects).show_super_fire_jump_pound((_green_goblin::global_8).get_abs_position());
+        start_thread_on(this, (this).delayed_expanding_damage_radius());
+        vector3d v0 = (_green_goblin::global_8).get_abs_position();
+        (_green_goblin::gg_common).filtered_impact_force(v0, 3, 5, 50);
+    }
+
+    void gg_super_fire_jump_pound::delayed_expanding_damage_radius()
+    {
+        num retained_value338 = 16;
+        num v1 = 2;
+        num v3 = 0;
+        vector3d v0 = (_green_goblin::global_8).get_abs_position();
+        vector3d v2 = (hero()).get_abs_position();
+        while ((v3 == 0)) {
+            v2 = (hero()).get_abs_position();
+            num v6 = ((v0).y() - (v2).y());
+            if ((v6 < 0)) {
+                v6 = (v6 * -1);
+            }
+            if ((v6 < _green_goblin::global_52)) {
+                vector3d v7 = vector3d((v2).x(), (v0).y(), (v2).z());
+                num v4 = distance3d(v7, v0);
+                num v8 = ((_green_goblin::global_56 / retained_value338) * v1);
+                num v5 = (v8 - 3.5);
+                if ((v4 < v8)) {
+                    if ((v4 > v5)) {
+                        (hero()).apply_directed_damage_cat(_green_goblin::global_60, (v2 - v0), "Wounded_Fireball_GG", 1);
+                        v3 = 1;
+                    }
+                }
+            }
+            v1++;
+            if ((v1 == retained_value338)) {
+                v3 = 1;
+            }
+            delay(0.075);
+        }
+    }
+
+    gg_jump_grab::gg_jump_grab(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_0 = p4;
+    }
+
+    gg_jump_grab::~gg_jump_grab()
+    {
+    }
+
+    void gg_jump_grab::activate()
+    {
+        field_4 = (field_0).get_ifc_num("GRAVITY");
+        field_8 = (hero()).get_ifc_num("GRAVITY");
+        (field_0).set_ifc_num("GRAVITY", 0);
+        (hero()).set_ifc_num("GRAVITY", 0);
+        start_thread_on(this, (this).delayed_pound());
+    }
+
+    void gg_jump_grab::deactivate()
+    {
+        (field_0).set_ifc_num("GRAVITY", field_4);
+        (hero()).set_ifc_num("GRAVITY", field_8);
+        (_green_goblin::g_gg_effects).hide_fire_jump_pound();
+    }
+
+    void gg_jump_grab::frame_advance(num p4, num p8)
+    {
+        (field_0).set_ifc_num("GRAVITY", 0);
+        (hero()).set_ifc_num("GRAVITY", 0);
+        (field_0).physical_ifc_cancel_all_velocity();
+        (hero()).physical_ifc_cancel_all_velocity();
+    }
+
+    void gg_jump_grab::delayed_pound()
+    {
+        delay(2.85);
+        (_green_goblin::g_gg_effects).show_fire_jump_pound((field_0).get_abs_position());
+    }
+
+    str _green_goblin::global_104 = "";
+
+    str _green_goblin::global_108 = "";
+
+    str _green_goblin::global_216 = "";
+
+    str _green_goblin::global_220 = "";
+
+}

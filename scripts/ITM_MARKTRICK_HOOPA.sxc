@@ -1,0 +1,124 @@
+namespace ITM_MARKTRICK_HOOPA {
+    extern void _global_slc::delay(num);
+    extern void _global_slc::destroy_entity(entity);
+    extern void entity::apply_continuous_rotation(vector3d,num,num);
+    extern void entity::set_render_alpha(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _itm_marktrick_hoopa
+    {
+    public:
+        static num global_0 = 0;
+        static num global_4 = 0;
+        static num global_8 = 0;
+        static num global_12 = 0;
+        static str global_16;
+        static str global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        _itm_marktrick_hoopa(num p0);
+    };
+
+    class ENX_MASTER_OBJECT
+    {
+    public:
+        entity field_0;
+        num field_4;
+        num field_8;
+        ENX_MASTER_OBJECT(entity p4);
+        ~ENX_MASTER_OBJECT();
+        void spin_it();
+        void fade_it();
+    };
+
+    _itm_marktrick_hoopa::_itm_marktrick_hoopa(num p0)
+    {
+    }
+
+    ENX_MASTER_OBJECT::ENX_MASTER_OBJECT(entity p4)
+    {
+        field_4 = 0;
+        field_8 = 0;
+        field_8 = 1;
+        field_0 = p4;
+        bind_signal_on(this, signal_id(field_0, "entity::ENABLE_TRICK_WAYPOINT"), (this).spin_it());
+    }
+
+    ENX_MASTER_OBJECT::~ENX_MASTER_OBJECT()
+    {
+        if (field_4) {
+        }
+    }
+
+    void ENX_MASTER_OBJECT::spin_it()
+    {
+        (field_0).apply_continuous_rotation(vector3d(0, 0, 1), 1, 0);
+    }
+
+    void ENX_MASTER_OBJECT::fade_it()
+    {
+        num v0 = 1;
+        while ((v0 > 0)) {
+            (field_0).set_render_alpha(v0);
+            v0 = (v0 - 0.02);
+            delay(0.001);
+        }
+        destroy_entity(field_0);
+    }
+
+    str _itm_marktrick_hoopa::global_16 = "";
+
+    str _itm_marktrick_hoopa::global_20 = "";
+
+    str _itm_marktrick_hoopa::global_152 = "";
+
+    str _itm_marktrick_hoopa::global_156 = "";
+
+}

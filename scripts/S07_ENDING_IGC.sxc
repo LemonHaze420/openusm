@@ -1,0 +1,452 @@
+namespace S07_ENDING_IGC {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern void _global_slc::blackscreen_on(num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern entity_list _global_slc::create_entity_list();
+    extern polytube _global_slc::create_polytube();
+    extern void _global_slc::destroy_entity(entity);
+    extern num _global_slc::float_random(num);
+    extern entity _global_slc::hero();
+    extern num _global_slc::is_mission_active();
+    extern void _global_slc::unlock_district(num);
+    extern void _global_slc::wait_frame();
+    extern void entity::compute_sector();
+    extern vector3d entity::get_abs_position();
+    extern entity entity::get_member(str);
+    extern num entity::get_render_alpha();
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_alpha(num);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_visible(num);
+    extern void cut_scene::wait_play(entity_list);
+    extern void entity_list::add(entity);
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern void polytube::clear_simulations();
+    extern vector3d polytube::get_control_pt(num);
+    extern num polytube::get_num_control_pts();
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_max_length(num);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_random_pt_anim(num,num,num,num);
+    extern void polytube::set_tiles_per_meter(num);
+    extern void polytube::set_tube_radius(num);
+    extern void polytube::simulate_slack(vector3d,vector3d,num);
+    extern num vector3d::operator!=(vector3d);
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::operator/(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _s07_ending_igc
+    {
+    public:
+        static effects_common spidey_common = effects_common::create_named("spidey_common");
+        static entity_list global_4;
+        static polytube global_8;
+        static polytube global_12;
+        static polytube global_16;
+        static polytube global_20;
+        static entity global_24;
+        static spidey_effects web_hang = spidey_effects::create_named("web_hang");
+        static num global_32 = 0;
+        static num global_36;
+        static num global_40;
+        static num global_44;
+        static num global_48;
+        static num global_52;
+        static num global_56;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static str global_76;
+        static str global_80;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96;
+        static num global_100;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static num global_160 = 0;
+        static num global_164 = 0;
+        static num global_168 = 0;
+        static num global_172 = 0;
+        static num global_176 = 0;
+        static num global_180 = 0;
+        static num global_184 = 0;
+        static str global_188;
+        static str global_192;
+        static num global_196 = 0;
+        static num global_200;
+        static num global_204;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        static num global_232 = 0;
+        static num global_236 = 0;
+        static num global_240 = 0;
+        static num global_244;
+        static num global_248;
+        static num global_252;
+        static num global_256;
+        _s07_ending_igc(num p0);
+        ~_s07_ending_igc();
+        void appear(entity p0);
+        void igc4_effects();
+        void shield_rope(entity p0, entity p4, polytube p8);
+        void let_go_rope(polytube p0, vector3d p4);
+        void black_panel_web(entity p0);
+        void white_panel_web(entity p0);
+        void ceiling_web(entity p0);
+        void let_go_web(spidey_effects p0);
+        num pos_random_num(num p0);
+    };
+
+    class effects_common
+    {
+    public:
+        num field_0;
+        num field_4;
+        num field_8;
+        effects_common();
+        void adv_wait_fade_alpha(entity p4, num p8, num p12);
+    };
+
+    class spidey_effects
+    {
+    public:
+        polytube field_0;
+        num unused_4[2];
+        num field_12;
+        num field_16;
+        num unused_20[1];
+        spidey_effects();
+        void shoot_web(entity p4, entity p8, num p12);
+        void attach_web(entity p4, entity p8, num p12);
+        void drop_web();
+        void fade_and_kill_web(num p4);
+    };
+
+    void _s07_ending_igc::appear(entity p0)
+    {
+        (p0).set_visible(1);
+    }
+
+    effects_common::effects_common()
+    {
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        wait_frame();
+        field_0 = 0;
+        field_4 = 0;
+    }
+
+    void effects_common::adv_wait_fade_alpha(entity p4, num p8, num p12)
+    {
+        num v1 = 1;
+        num v0 = (p4).get_render_alpha();
+        num v2 = ((v0 - p12) / p8);
+        while ((v1 < p8)) {
+            (p4).set_render_alpha((v0 - (v2 * v1)));
+            wait_frame();
+            v1++;
+        }
+        if ((p12 == 0)) {
+            (p4).set_visible(0);
+        }
+    }
+
+    spidey_effects::spidey_effects()
+    {
+        field_12 = 1;
+        field_16 = 1;
+        wait_frame();
+    }
+
+    void spidey_effects::shoot_web(entity p4, entity p8, num p12)
+    {
+        if (field_16) {
+            num v1 = 0;
+            vector3d v0 = (((p8).get_abs_position() + (p4).get_abs_position()) / 2);
+            field_0 = create_polytube();
+            (field_0).set_rel_position((p4).get_abs_position());
+            (field_0).reserve_control_pts(5);
+            while ((v1 < 5)) {
+                (field_0).add_control_pt(vector3d(0, -10, 0));
+                v1++;
+            }
+            (field_0).set_tube_radius(p12);
+            (field_0).set_num_sides(2);
+            (field_0).set_material("common\\textures\\spideywebstring");
+            if ((p12 > 0.15)) {
+                (field_0).set_tiles_per_meter(3);
+            } else {
+                (field_0).set_tiles_per_meter(1);
+            }
+            (field_0).set_max_length(100);
+            (field_0).build(4, 2);
+            (field_0).set_render_color(vector3d(1, 1, 1));
+            (field_0).compute_sector();
+            (field_0).set_visible(1);
+            _s07_ending_igc::appear(field_0);
+            (field_0).set_control_pt(0, (p4).get_abs_position());
+            (field_0).set_control_pt(1, (((p4).get_abs_position() + v0) / 2));
+            (field_0).set_control_pt(2, v0);
+            (field_0).set_control_pt(3, ((v0 + (p8).get_abs_position()) / 2));
+            (field_0).set_control_pt(4, (p8).get_abs_position());
+            field_12 = 1;
+            start_thread_on(this, (this).attach_web(p4, p8, 1));
+        }
+    }
+
+    void spidey_effects::attach_web(entity p4, entity p8, num p12)
+    {
+        field_16 = 0;
+        while (field_12) {
+            wait_frame();
+            num v0 = ((field_0).get_num_control_pts() - 1);
+            if (((field_0).get_control_pt(0) != (p4).get_abs_position())) {
+                (field_0).set_control_pt(0, (p4).get_abs_position());
+                (field_0).set_control_pt(v0, (p8).get_abs_position());
+            }
+            if (p12) {
+                (field_0).simulate_slack((field_0).get_control_pt(0), (field_0).get_control_pt(v0), 10);
+            }
+        }
+    }
+
+    void spidey_effects::drop_web()
+    {
+        field_16 = 0;
+        field_12 = 0;
+        (field_0).clear_simulations();
+        start_thread_on(this, (this).fade_and_kill_web(15));
+    }
+
+    void spidey_effects::fade_and_kill_web(num p4)
+    {
+        (_s07_ending_igc::spidey_common).adv_wait_fade_alpha(field_0, p4, 0);
+        destroy_entity(field_0);
+        field_16 = 1;
+    }
+
+    _s07_ending_igc::_s07_ending_igc(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_mission_status = 7;
+            g_ambient_music_allowed = 0;
+            _s07_ending_igc::igc4_effects();
+            cut_scene v0 = create_cut_scene("cutscenes\\s07_green_goblin\\igc\\s07_green_goblin_igc4\\s07_gg_igc4");
+            (v0).wait_play(_s07_ending_igc::global_4);
+            blackscreen_on(0.01);
+            g_mission_status = 2;
+            g_ambient_music_allowed = 1;
+            raise_signal("MISSION_END");
+            while (is_mission_active()) {
+                wait_frame();
+            }
+            break;
+        }
+        }
+    }
+
+    _s07_ending_igc::~_s07_ending_igc()
+    {
+    }
+
+    void _s07_ending_igc::igc4_effects()
+    {
+        unlock_district(1014);
+        _s07_ending_igc::global_4 = create_entity_list();
+        _s07_ending_igc::global_8 = create_polytube();
+        _s07_ending_igc::global_12 = create_polytube();
+        _s07_ending_igc::global_16 = create_polytube();
+        _s07_ending_igc::global_20 = create_polytube();
+        (_s07_ending_igc::global_4).add(_s07_ending_igc::global_8);
+        (_s07_ending_igc::global_4).add(_s07_ending_igc::global_12);
+        (_s07_ending_igc::global_4).add(_s07_ending_igc::global_16);
+        (_s07_ending_igc::global_4).add(_s07_ending_igc::global_20);
+        _s07_ending_igc::global_24 = create_entity("effects\\entities\\entity_event", "Web_Silhouette");
+        entity v0 = create_entity("effects\\entities\\entity_event", "Web_Target");
+        entity v2 = create_entity("effects\\entities\\entity_event", "Rope_Source_1");
+        entity v1 = create_entity("effects\\entities\\entity_event", "Rope_Source_2");
+        entity v4 = create_entity("effects\\entities\\entity_event", "Rope_Target_1");
+        entity v3 = create_entity("effects\\entities\\entity_event", "Rope_Target_2");
+        bind_signal(signal_id(v2, "entity::ATTACK_BEGIN"), _s07_ending_igc::shield_rope(v4, v2, _s07_ending_igc::global_16));
+        bind_signal(signal_id(v1, "entity::ATTACK_BEGIN"), _s07_ending_igc::shield_rope(v3, v1, _s07_ending_igc::global_20));
+        bind_signal(signal_id(v2, "entity::ATTACK_END"), _s07_ending_igc::let_go_rope(_s07_ending_igc::global_16, (v2).get_abs_position()));
+        bind_signal(signal_id(v1, "entity::ATTACK_END"), _s07_ending_igc::let_go_rope(_s07_ending_igc::global_20, (v1).get_abs_position()));
+        bind_signal(signal_id(_s07_ending_igc::global_24, "entity::ANIM_ACTION"), _s07_ending_igc::black_panel_web(v0));
+        bind_signal(signal_id(_s07_ending_igc::global_24, "entity::ANIM_ACTION"), _s07_ending_igc::white_panel_web(v0));
+        bind_signal(signal_id(v0, "entity::ANIM_ACTION"), _s07_ending_igc::ceiling_web(v0));
+        bind_signal(signal_id(v0, "entity::ATTACK_END"), _s07_ending_igc::let_go_web(_s07_ending_igc::web_hang));
+    }
+
+    void _s07_ending_igc::black_panel_web(entity p0)
+    {
+        entity v0 = _s07_ending_igc::global_24;
+        vector3d v1 = (p0).get_abs_position();
+        num v3 = 0;
+        vector3d v2 = ((v1 + (v0).get_abs_position()) / 2);
+        (_s07_ending_igc::global_8).set_rel_position((v0).get_abs_position());
+        (_s07_ending_igc::global_8).reserve_control_pts(5);
+        while ((v3 < 5)) {
+            wait_frame();
+            (_s07_ending_igc::global_8).add_control_pt(vector3d(0, -10, 0));
+            v3++;
+        }
+        (_s07_ending_igc::global_8).set_tube_radius(0.075);
+        (_s07_ending_igc::global_8).set_num_sides(2);
+        (_s07_ending_igc::global_8).set_material("common\\textures\\spideywebstring_black");
+        (_s07_ending_igc::global_8).set_tiles_per_meter(3.5);
+        (_s07_ending_igc::global_8).set_max_length(100);
+        (_s07_ending_igc::global_8).build(4, 2);
+        (_s07_ending_igc::global_8).compute_sector();
+        (_s07_ending_igc::global_8).set_visible(1);
+        _s07_ending_igc::appear(_s07_ending_igc::global_8);
+        (_s07_ending_igc::global_8).set_control_pt(0, (v0).get_abs_position());
+        (_s07_ending_igc::global_8).set_control_pt(1, (((v0).get_abs_position() + v2) / 2));
+        (_s07_ending_igc::global_8).set_control_pt(2, v2);
+        (_s07_ending_igc::global_8).set_control_pt(3, ((v2 + v1) / 2));
+        (_s07_ending_igc::global_8).set_control_pt(4, v1);
+        while (1) {
+            wait_frame();
+            if (((_s07_ending_igc::global_8).get_control_pt(0) != (v0).get_abs_position())) {
+                (_s07_ending_igc::global_8).set_control_pt(0, (v0).get_abs_position());
+                (_s07_ending_igc::global_8).simulate_slack((_s07_ending_igc::global_8).get_control_pt(0), (_s07_ending_igc::global_8).get_control_pt(4), 10);
+            }
+        }
+    }
+
+    void _s07_ending_igc::white_panel_web(entity p0)
+    {
+        entity v0 = _s07_ending_igc::global_24;
+        vector3d v1 = (p0).get_abs_position();
+        num v3 = 0;
+        vector3d v2 = ((v1 + (v0).get_abs_position()) / 2);
+        (_s07_ending_igc::global_12).set_rel_position((v0).get_abs_position());
+        (_s07_ending_igc::global_12).reserve_control_pts(5);
+        while ((v3 < 5)) {
+            wait_frame();
+            (_s07_ending_igc::global_12).add_control_pt(vector3d(0, -10, 0));
+            v3++;
+        }
+        (_s07_ending_igc::global_12).set_tube_radius(0.075);
+        (_s07_ending_igc::global_12).set_num_sides(2);
+        (_s07_ending_igc::global_12).set_material("common\\textures\\spideywebstring_white");
+        (_s07_ending_igc::global_12).set_tiles_per_meter(3.5);
+        (_s07_ending_igc::global_12).set_max_length(100);
+        (_s07_ending_igc::global_12).build(4, 2);
+        (_s07_ending_igc::global_12).compute_sector();
+        (_s07_ending_igc::global_12).set_visible(1);
+        _s07_ending_igc::appear(_s07_ending_igc::global_12);
+        (_s07_ending_igc::global_12).set_control_pt(0, (v0).get_abs_position());
+        (_s07_ending_igc::global_12).set_control_pt(1, (((v0).get_abs_position() + v2) / 2));
+        (_s07_ending_igc::global_12).set_control_pt(2, v2);
+        (_s07_ending_igc::global_12).set_control_pt(3, ((v2 + v1) / 2));
+        (_s07_ending_igc::global_12).set_control_pt(4, v1);
+        while (1) {
+            wait_frame();
+            if (((_s07_ending_igc::global_12).get_control_pt(0) != (v0).get_abs_position())) {
+                (_s07_ending_igc::global_12).set_control_pt(0, (v0).get_abs_position());
+                (_s07_ending_igc::global_12).simulate_slack((_s07_ending_igc::global_12).get_control_pt(0), (_s07_ending_igc::global_12).get_control_pt(4), 10);
+            }
+        }
+    }
+
+    void _s07_ending_igc::let_go_web(spidey_effects p0)
+    {
+        (p0).drop_web();
+    }
+
+    void _s07_ending_igc::ceiling_web(entity p0)
+    {
+        (_s07_ending_igc::web_hang).shoot_web((hero()).get_member("Bip01 L Hand"), p0, 0.075);
+    }
+
+    void _s07_ending_igc::shield_rope(entity p0, entity p4, polytube p8)
+    {
+        _s07_ending_igc::global_32 = 1;
+        entity v0 = p0;
+        vector3d v1 = (p4).get_abs_position();
+        num v3 = 0;
+        vector3d v2 = ((v1 + (v0).get_abs_position()) / 2);
+        (p8).set_rel_position((v0).get_abs_position());
+        (p8).reserve_control_pts(5);
+        while ((v3 < 5)) {
+            wait_frame();
+            (p8).add_control_pt(vector3d(0, -10, 0));
+            v3++;
+        }
+        (p8).set_tube_radius(0.025);
+        (p8).set_num_sides(5);
+        (p8).set_material("levels\\shared\\textures\\obj_cable");
+        (p8).set_tiles_per_meter(3.5);
+        (p8).set_max_length(100);
+        (p8).build(4, 2);
+        (p8).compute_sector();
+        (p8).set_visible(1);
+        _s07_ending_igc::appear(p8);
+        (p8).set_control_pt(0, (v0).get_abs_position());
+        (p8).set_control_pt(1, (((v0).get_abs_position() + v2) / 2));
+        (p8).set_control_pt(2, v2);
+        (p8).set_control_pt(3, ((v2 + v1) / 2));
+        (p8).set_control_pt(4, v1);
+        while (_s07_ending_igc::global_32) {
+            wait_frame();
+            if (((p8).get_control_pt(0) != (v0).get_abs_position())) {
+                (p8).set_control_pt(0, (v0).get_abs_position());
+                (p8).simulate_slack((p8).get_control_pt(0), (p8).get_control_pt(4), 5);
+            }
+        }
+    }
+
+    void _s07_ending_igc::let_go_rope(polytube p0, vector3d p4)
+    {
+        _s07_ending_igc::global_32 = 0;
+        (p0).set_control_pt(0, (p4 + vector3d(0, -2, 0)));
+        (p0).set_random_pt_anim(0, _s07_ending_igc::pos_random_num(1), 1.5, 4);
+    }
+
+    num _s07_ending_igc::pos_random_num(num p0)
+    {
+        num v0 = 0;
+        while ((v0 == 0)) {
+            v0 = float_random(p0);
+            wait_frame();
+        }
+        return v0;
+    }
+
+    str _s07_ending_igc::global_76 = "";
+
+    str _s07_ending_igc::global_80 = "";
+
+    str _s07_ending_igc::global_188 = "";
+
+    str _s07_ending_igc::global_192 = "";
+
+}

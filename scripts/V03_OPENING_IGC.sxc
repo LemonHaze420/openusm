@@ -1,0 +1,125 @@
+namespace V03_OPENING_IGC {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern num g_enable_story;
+    extern num g_enable_sh;
+    extern num gv_num_current_story;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern void _global_slc::disable_subtitles();
+    extern void _global_slc::enable_subtitles();
+    extern num _global_slc::is_mission_active();
+    extern void _global_slc::subtitle(num,num,num,num,num,num);
+    extern void _global_slc::wait_frame();
+    extern void cut_scene::wait_play();
+
+    class _v03_opening_igc
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204 = 0;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _v03_opening_igc(num p0);
+        ~_v03_opening_igc();
+        void mission_called_from_debug_menu();
+    };
+
+    _v03_opening_igc::_v03_opening_igc(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_mission_status = 7;
+            g_ambient_music_allowed = 0;
+            cut_scene v1 = create_cut_scene("cutscenes\\v03_throw_down\\igc\\v03_thdn_igc1\\v03_thdn_igc1");
+            blackscreen_off(0.01);
+            enable_subtitles();
+            subtitle(328, 3.33, 7.33, 329, 19.17, 20.67);
+            (v1).wait_play();
+            disable_subtitles();
+            blackscreen_on(0.01);
+            g_mission_status = 2;
+            g_ambient_music_allowed = 1;
+            raise_signal("MISSION_END");
+            while (is_mission_active()) {
+                wait_frame();
+            }
+            break;
+        }
+        }
+    }
+
+    _v03_opening_igc::~_v03_opening_igc()
+    {
+    }
+
+    void _v03_opening_igc::mission_called_from_debug_menu()
+    {
+        g_enable_sh = 0;
+        g_enable_story = 1;
+        gv_num_current_story = 30;
+    }
+
+    str _v03_opening_igc::global_40 = "";
+
+    str _v03_opening_igc::global_44 = "";
+
+    str _v03_opening_igc::global_152 = "";
+
+    str _v03_opening_igc::global_156 = "";
+
+}

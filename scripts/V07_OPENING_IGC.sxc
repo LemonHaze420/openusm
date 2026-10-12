@@ -1,0 +1,163 @@
+namespace V07_OPENING_IGC {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern num g_enable_story;
+    extern num g_enable_sh;
+    extern num gv_num_current_story;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern void _global_slc::destroy_entity(entity);
+    extern num _global_slc::is_mission_active();
+    extern void _global_slc::wait_frame();
+    extern vector3d entity::get_abs_position();
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::wait_rotate(vector3d,num,num);
+    extern void cut_scene::wait_play();
+    extern vector3d vector3d::operator+(vector3d);
+    extern vector3d vector3d::vector3d(num,num,num);
+
+    class _v07_opening_igc
+    {
+    public:
+        static num global_0;
+        static num global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24 = 0;
+        static num global_28 = 0;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static str global_40;
+        static str global_44;
+        static num global_48 = 0;
+        static num global_52 = 0;
+        static num global_56 = 0;
+        static num global_60;
+        static num global_64;
+        static num global_68 = 0;
+        static num global_72 = 0;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static str global_152;
+        static str global_156;
+        static num global_160 = 0;
+        static num global_164;
+        static num global_168;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196 = 0;
+        static num global_200 = 0;
+        static num global_204 = 0;
+        static num global_208;
+        static num global_212;
+        static num global_216;
+        static num global_220;
+        _v07_opening_igc(num p0);
+        ~_v07_opening_igc();
+        void igc1_effects();
+        void turn_on_field(entity p0);
+        void turn_off_field(entity p0, entity p4, entity p8, entity p12, entity p16);
+        void mission_called_from_debug_menu();
+    };
+
+    _v07_opening_igc::_v07_opening_igc(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_mission_status = 7;
+            g_ambient_music_allowed = 0;
+            _v07_opening_igc::igc1_effects();
+            cut_scene v1 = create_cut_scene("cutscenes\\v07_electro_chase\\igc\\v07_electro_chase_igc1\\v07_elcs_igc1_01");
+            blackscreen_off(0.01);
+            (v1).wait_play();
+            blackscreen_on(0.01);
+            g_mission_status = 2;
+            g_ambient_music_allowed = 1;
+            raise_signal("MISSION_END");
+            while (is_mission_active()) {
+                wait_frame();
+            }
+            break;
+        }
+        }
+    }
+
+    _v07_opening_igc::~_v07_opening_igc()
+    {
+    }
+
+    void _v07_opening_igc::mission_called_from_debug_menu()
+    {
+        g_enable_sh = 0;
+        g_enable_story = 1;
+        gv_num_current_story = 31;
+    }
+
+    void _v07_opening_igc::igc1_effects()
+    {
+        entity v0 = create_entity("effects\\entities\\entity_event", "Shield_Center");
+        bind_signal(signal_id(v0, "entity::ATTACK_BEGIN"), _v07_opening_igc::turn_on_field(v0));
+    }
+
+    void _v07_opening_igc::turn_on_field(entity p0)
+    {
+        entity fx_traskfield01 = create_entity("effects\\entities\\fx_traskfield01");
+        entity fx_trask_cagewall = create_entity("effects\\aeps\\fx_trask_cagewall");
+        entity entity_local_v0 = create_entity("effects\\aeps\\fx_trask_cagewall");
+        entity entity_local_v1 = create_entity("effects\\aeps\\fx_trask_cagewall");
+        entity entity_local_v2 = create_entity("effects\\aeps\\fx_trask_cagewall");
+        (fx_traskfield01).set_rel_position((p0).get_abs_position());
+        (fx_trask_cagewall).set_rel_position(((p0).get_abs_position() + vector3d(0, 0, -4)));
+        (entity_local_v0).set_rel_position(((p0).get_abs_position() + vector3d(0, 0, 4)));
+        (entity_local_v1).set_rel_position(((p0).get_abs_position() + vector3d(-4, 0, 0)));
+        (entity_local_v2).set_rel_position(((p0).get_abs_position() + vector3d(4, 0, 0)));
+        (entity_local_v1).wait_rotate(vector3d(0, 1, 0), 1.57, 0);
+        (entity_local_v2).wait_rotate(vector3d(0, 1, 0), 1.57, 0);
+        bind_signal(signal_id(p0, "entity::ATTACK_END"), _v07_opening_igc::turn_off_field(fx_traskfield01, fx_trask_cagewall, entity_local_v0, entity_local_v1, entity_local_v2));
+    }
+
+    void _v07_opening_igc::turn_off_field(entity p0, entity p4, entity p8, entity p12, entity p16)
+    {
+        destroy_entity(p0);
+        destroy_entity(p4);
+        destroy_entity(p8);
+        destroy_entity(p12);
+        destroy_entity(p16);
+    }
+
+    str _v07_opening_igc::global_40 = "";
+
+    str _v07_opening_igc::global_44 = "";
+
+    str _v07_opening_igc::global_152 = "";
+
+    str _v07_opening_igc::global_156 = "";
+
+}

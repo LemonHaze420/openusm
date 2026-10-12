@@ -1,0 +1,253 @@
+namespace V01_OPENING_IGC {
+    extern num g_mission_status;
+    extern num g_ambient_music_allowed;
+    extern void _global_slc::blackscreen_off(num);
+    extern void _global_slc::blackscreen_on(num);
+    extern cut_scene _global_slc::create_cut_scene(str);
+    extern entity _global_slc::create_entity(str);
+    extern entity _global_slc::create_entity(str,str);
+    extern polytube _global_slc::create_polytube();
+    extern num _global_slc::entity_exists(str);
+    extern entity _global_slc::find_entity(str);
+    extern void _global_slc::malor(vector3d,num);
+    extern void _global_slc::pop_pack(str);
+    extern void _global_slc::push_pack(str);
+    extern void _global_slc::wait_frame();
+    extern void entity::compute_sector();
+    extern vector3d entity::get_abs_position();
+    extern void entity::set_parent(entity);
+    extern void entity::set_rel_position(vector3d);
+    extern void entity::set_render_color(vector3d);
+    extern void entity::set_visible(num);
+    extern void cut_scene::wait_play();
+    extern void polytube::add_control_pt(vector3d);
+    extern void polytube::build(num,num);
+    extern void polytube::reserve_control_pts(num);
+    extern void polytube::set_control_pt(num,vector3d);
+    extern void polytube::set_material(str);
+    extern void polytube::set_num_sides(num);
+    extern void polytube::set_tiles_per_meter(num);
+    extern void polytube::set_tube_radius(num);
+    extern vector3d vector3d::vector3d(num,num,num);
+    extern district district::district(str);
+    extern void district::wait_for_load();
+
+    class _v01_opening_igc
+    {
+    public:
+        static num global_0 = 0;
+        static polytube global_4;
+        static num global_8;
+        static num global_12;
+        static num global_16;
+        static num global_20;
+        static num global_24;
+        static num global_28;
+        static num global_32 = 0;
+        static num global_36 = 0;
+        static num global_40 = 0;
+        static num global_44 = 0;
+        static str global_48;
+        static str global_52;
+        static num global_56 = 0;
+        static num global_60 = 0;
+        static num global_64 = 0;
+        static num global_68;
+        static num global_72;
+        static num global_76 = 0;
+        static num global_80 = 0;
+        static num global_84 = 0;
+        static num global_88 = 0;
+        static num global_92 = 0;
+        static num global_96 = 0;
+        static num global_100 = 0;
+        static num global_104 = 0;
+        static num global_108 = 0;
+        static num global_112 = 0;
+        static num global_116 = 0;
+        static num global_120 = 0;
+        static num global_124 = 0;
+        static num global_128 = 0;
+        static num global_132 = 0;
+        static num global_136 = 0;
+        static num global_140 = 0;
+        static num global_144 = 0;
+        static num global_148 = 0;
+        static num global_152 = 0;
+        static num global_156 = 0;
+        static str global_160;
+        static str global_164;
+        static num global_168 = 0;
+        static num global_172;
+        static num global_176;
+        static num global_180;
+        static num global_184;
+        static num global_188;
+        static num global_192;
+        static num global_196;
+        static num global_200;
+        static num global_204 = 0;
+        static num global_208 = 0;
+        static num global_212 = 0;
+        static num global_216;
+        static num global_220;
+        static num global_224;
+        static num global_228;
+        _v01_opening_igc(num p0);
+        ~_v01_opening_igc();
+        void v01_igc1_effects_1();
+        void v01_igc1_effects_2();
+        void electric_spark(entity p0);
+        void make_cable(entity p0, entity p4, entity p8);
+        void shock_effect(entity p0);
+        void pistol_flash(entity p0);
+        void animate_cable(entity p0, entity p4, entity p8);
+        void place_leaves(entity p0);
+        void leaf_burst(entity p0);
+        void leaf_feeding(entity p0);
+    };
+
+    _v01_opening_igc::_v01_opening_igc(num p0)
+    {
+        switch (p0) {
+        case 0:
+        {
+            g_mission_status = 7;
+            g_ambient_music_allowed = 0;
+            malor(vector3d(-817.84, 0.782, -787), 1);
+            push_pack("v01_igc1_1_pack");
+            _v01_opening_igc::v01_igc1_effects_1();
+            cut_scene v0 = create_cut_scene("cutscenes\\v01_feeding_time\\igc\\v01_fdtm_igc1\\v01_fdtm_igc1_part1");
+            (district("FK")).wait_for_load();
+            if (entity_exists("FK_LM_ext")) {
+                entity v2 = find_entity("FK_LM_ext");
+                (v2).set_visible(0);
+            }
+            blackscreen_off(0.01);
+            (v0).wait_play();
+            blackscreen_on(0.01);
+            pop_pack("v01_igc1_1_pack");
+            push_pack("v01_igc1_2_pack");
+            cut_scene v3 = create_cut_scene("cutscenes\\v01_feeding_time\\igc\\v01_fdtm_igc1\\v01_fdtm_igc1_part2");
+            blackscreen_off(0.01);
+            _v01_opening_igc::v01_igc1_effects_2();
+            (v3).wait_play();
+            blackscreen_on(0.01);
+            g_mission_status = 2;
+            g_ambient_music_allowed = 1;
+            raise_signal("MISSION_END");
+            wait_frame();
+            break;
+        }
+        }
+    }
+
+    _v01_opening_igc::~_v01_opening_igc()
+    {
+    }
+
+    void _v01_opening_igc::v01_igc1_effects_1()
+    {
+        entity v0 = create_entity("effects\\entities\\entity_event", "fx_venom_shock");
+        entity v2 = create_entity("effects\\entities\\entity_event", "fx_powerline_0");
+        entity v3 = create_entity("effects\\entities\\entity_event", "fx_powerline_1");
+        entity v4 = create_entity("effects\\entities\\entity_event", "fx_powerline_2");
+        entity v1 = create_entity("effects\\entities\\entity_event", "Gun_Flash");
+        _v01_opening_igc::electric_spark(v2);
+        _v01_opening_igc::electric_spark(v4);
+        _v01_opening_igc::make_cable(v2, v3, v4);
+        bind_signal(signal_id(v0, "entity::ANIM_ACTION"), _v01_opening_igc::shock_effect(v0));
+        bind_signal(signal_id(v1, "entity::ATTACK"), _v01_opening_igc::pistol_flash(v1));
+    }
+
+    void _v01_opening_igc::pistol_flash(entity p0)
+    {
+        entity fx_muzpistol = create_entity("effects\\aeps\\fx_muzpistol");
+        (fx_muzpistol).set_rel_position((p0).get_abs_position());
+    }
+
+    void _v01_opening_igc::shock_effect(entity p0)
+    {
+        entity fx_shock = create_entity("effects\\aeps\\fx_shock");
+        (fx_shock).set_parent(p0);
+        _v01_opening_igc::global_0 = 0;
+    }
+
+    void _v01_opening_igc::make_cable(entity p0, entity p4, entity p8)
+    {
+        num v0 = 0;
+        _v01_opening_igc::global_4 = create_polytube();
+        (_v01_opening_igc::global_4).reserve_control_pts(3);
+        while ((v0 < 3)) {
+            (_v01_opening_igc::global_4).add_control_pt((p0).get_abs_position());
+            v0++;
+        }
+        (_v01_opening_igc::global_4).set_tube_radius(0.06);
+        (_v01_opening_igc::global_4).set_num_sides(6);
+        (_v01_opening_igc::global_4).set_material("levels\\shared\\textures\\obj_cable");
+        (_v01_opening_igc::global_4).set_render_color(vector3d(0.2, 0.2, 0.2));
+        (_v01_opening_igc::global_4).set_tiles_per_meter(14);
+        (_v01_opening_igc::global_4).build(8, 2);
+        (_v01_opening_igc::global_4).compute_sector();
+        start_thread(_v01_opening_igc::animate_cable(p0, p4, p8));
+    }
+
+    void _v01_opening_igc::animate_cable(entity p0, entity p4, entity p8)
+    {
+        _v01_opening_igc::global_0 = 1;
+        while (_v01_opening_igc::global_0) {
+            (_v01_opening_igc::global_4).set_control_pt(0, (p0).get_abs_position());
+            (_v01_opening_igc::global_4).set_control_pt(1, (p4).get_abs_position());
+            (_v01_opening_igc::global_4).set_control_pt(2, (p8).get_abs_position());
+            wait_frame();
+        }
+    }
+
+    void _v01_opening_igc::electric_spark(entity p0)
+    {
+        entity fx_sparks = create_entity("effects\\entites\\fx_sparks");
+        (fx_sparks).set_parent(p0);
+    }
+
+    void _v01_opening_igc::v01_igc1_effects_2()
+    {
+        entity v0 = create_entity("effects\\entities\\entity_event", "fx_venom_snack");
+        entity v1 = create_entity("effects\\entities\\entity_event", "fx_tree_leaves1");
+        entity v2 = create_entity("effects\\entities\\entity_event", "fx_tree_leaves2");
+        entity v3 = create_entity("effects\\entities\\entity_event", "fx_tree_leaves3");
+        entity v4 = create_entity("effects\\entities\\entity_event", "fx_tree_leaves4");
+        _v01_opening_igc::place_leaves(v1);
+        _v01_opening_igc::place_leaves(v2);
+        _v01_opening_igc::place_leaves(v3);
+        _v01_opening_igc::place_leaves(v4);
+        bind_signal(signal_id(v0, "entity::ANIM_ACTION"), _v01_opening_igc::leaf_burst(v0));
+    }
+
+    void _v01_opening_igc::place_leaves(entity p0)
+    {
+        entity fx_fallingleaves = create_entity("effects\\aeps\\fx_fallingleaves");
+        (fx_fallingleaves).set_parent(p0);
+    }
+
+    void _v01_opening_igc::leaf_burst(entity p0)
+    {
+        entity fx_bushshaking2 = create_entity("effects\\aeps\\fx_bushshaking2");
+        (fx_bushshaking2).set_parent(p0);
+        bind_signal(signal_id(p0, "entity::ANIM_ACTION"), _v01_opening_igc::leaf_feeding(p0));
+    }
+
+    void _v01_opening_igc::leaf_feeding(entity p0)
+    {
+        entity fx_bushshaking = create_entity("effects\\aeps\\fx_bushshaking");
+        (fx_bushshaking).set_parent(p0);
+    }
+
+    str _v01_opening_igc::global_48 = "";
+
+    str _v01_opening_igc::global_52 = "";
+
+    str _v01_opening_igc::global_160 = "";
+
+    str _v01_opening_igc::global_164 = "";
+
+}
