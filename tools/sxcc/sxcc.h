@@ -3,7 +3,6 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <windows.h>
 #include <cstddef>
 #include <cstdint>
 #include <array>
@@ -16,7 +15,8 @@
 #include <stdexcept>
 #include <optional>
 #include <iosfwd>
-#include "opcodes.h"
+#include "../../src/chuck/vm/opcodes.h"
+#include "pc_layout.h"
 
 namespace sxcc {
 
@@ -41,8 +41,6 @@ struct instruction_t {
     unsigned size() const;
     unsigned data_size() const;
 };
-
-
 
 
 struct function_t {
@@ -148,6 +146,8 @@ std::string opcode_name(opcode_t opcode);
 std::string argument_name(opcode_arg_t argument);
 opcode_t parse_opcode(std::string_view name);
 opcode_arg_t parse_argument(std::string_view name);
+enum class assembly_record_t { mash, image, object, function, initializer };
+std::span<const std::uint8_t> assembly_record_defaults(assembly_record_t kind);
 image_t decode_image(std::span<const std::uint8_t> bytes);
 bytes_t encode_image(const image_t &image);
 void validate_image(const image_t &image);
@@ -156,8 +156,6 @@ symbols_t load_symbols(const std::string &dictionary);
 function_analysis_t analyze_function(const function_t &function);
 std::string emit_assembly(const image_t &image);
 image_t assemble_source(std::string_view source);
-void emit_source_header(std::ostream &out, const image_t &image);
-void emit_source_record(std::ostream &out, const bytes_t &record, std::string_view name, std::string_view indent);
 std::string emit_decompiled_source(const image_t &image, const symbols_t &symbols);
 
 }

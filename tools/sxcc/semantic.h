@@ -26,7 +26,6 @@ struct stack_analysis_t {
 };
 
 
-
 stack_analysis_t analyze_stack(const image_t &image, const symbols_t &symbols);
 
 }

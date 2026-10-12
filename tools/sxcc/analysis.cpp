@@ -1,5 +1,4 @@
 #include "sxcc.h"
-#include "script_lib_vector3d.h"
 
 #include <algorithm>
 #include <charconv>
@@ -8,7 +7,6 @@
 
 namespace sxcc {
 namespace {
-
 
 
 struct native_class_record_t {
@@ -1190,7 +1188,11 @@ static constexpr native_function_record_t native_functions[] = {
     {42, 16, "wait_for_load()", 0, "void", 0x678880},
 };
 
-static constexpr struct { const char *name; unsigned game; unsigned offset; } native_variables[] = {
+static constexpr struct {
+    const char *name;
+    unsigned game;
+    unsigned offset;
+} native_variables[] = {
     {"real_world_timer", 1, 0},
     {"game_clock_timer", 1, 4},
     {"game_clock_rate", 1, 8},
@@ -1603,14 +1605,16 @@ function_analysis_t analyze_function(const function_t &function)
         if (is_branch(instruction.opcode)) {
             auto target = static_cast<std::int64_t>(offsets[i]) + instruction.size() +
                           static_cast<std::int16_t>(instruction.value);
-            if (target < 0 || target >= offset || instruction_at.find(static_cast<unsigned>(target)) == instruction_at.end()) {
-                result.diagnostics.push_back("Branch at " + hex(offsets[i]) + " does not target a function instruction");
+            if (target < 0 || target >= offset ||
+                instruction_at.find(static_cast<unsigned>(target)) == instruction_at.end()) {
+                result.diagnostics.push_back("Branch at " + hex(offsets[i]) +
+                                             " does not target a function instruction");
                 return result;
             }
             leaders.insert(instruction_at.at(static_cast<unsigned>(target)));
         }
-        if (is_branch(instruction.opcode) ||
-            instruction.opcode == OP_RET || instruction.opcode == OP_KIL || instruction.opcode == OP_DEL_THREADS) {
+        if (is_branch(instruction.opcode) || instruction.opcode == OP_RET || instruction.opcode == OP_KIL ||
+            instruction.opcode == OP_DEL_THREADS) {
             if (i + 1 < code.size())
                 leaders.insert(i + 1);
         }
@@ -1625,8 +1629,8 @@ function_analysis_t analyze_function(const function_t &function)
         auto &block = result.blocks[i];
         const auto &last = code[block.end - 1];
         if (is_branch(last.opcode)) {
-            auto target = static_cast<std::int64_t>(offsets[block.end - 1]) + last.size() +
-                          static_cast<std::int16_t>(last.value);
+            auto target =
+                static_cast<std::int64_t>(offsets[block.end - 1]) + last.size() + static_cast<std::int16_t>(last.value);
             block.successors.push_back(result.block_at.at(instruction_at.at(static_cast<unsigned>(target))));
         }
         bool terminates = last.opcode == OP_RET || last.opcode == OP_BRA ||
@@ -1657,7 +1661,8 @@ symbols_t load_symbols(const std::string &dictionary)
         symbols.type_sizes.emplace(type.name, type.size);
         symbols.class_ids.emplace(type.name, i);
         symbols.type_evidence.emplace(type.name, type.registration);
-        if (*type.parent) symbols.parents.emplace(type.name, type.parent);
+        if (*type.parent)
+            symbols.parents.emplace(type.name, type.parent);
     }
     for (const auto &record : native_functions) {
         native_t native;
@@ -1666,8 +1671,10 @@ symbols_t load_symbols(const std::string &dictionary)
         native.class_name = native_classes[record.class_id].name;
         native.signature = record.signature;
         native.implementation = record.implementation;
-        if (record.result_size >= 0) native.result_bytes = static_cast<unsigned>(record.result_size);
-        if (*record.result_type) native.result = record.result_type;
+        if (record.result_size >= 0)
+            native.result_bytes = static_cast<unsigned>(record.result_size);
+        if (*record.result_type)
+            native.result = record.result_type;
         auto opening = native.signature.find('(');
         auto function_name = native.signature.substr(0, opening);
         if (record.class_id != 0 && function_name != native.class_name)
@@ -1677,9 +1684,12 @@ symbols_t load_symbols(const std::string &dictionary)
         while (!parameters.empty()) {
             auto comma = parameters.find(',');
             auto parameter = parameters.substr(0, comma);
-            if (parameter == "...") native.variadic = true;
-            else native.parameters.emplace_back(parameter);
-            if (comma == std::string_view::npos) break;
+            if (parameter == "...")
+                native.variadic = true;
+            else
+                native.parameters.emplace_back(parameter);
+            if (comma == std::string_view::npos)
+                break;
             parameters.remove_prefix(comma + 1);
         }
         for (const auto &parameter : native.parameters)

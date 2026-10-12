@@ -1,9 +1,4 @@
 #include "sxcc.h"
-#include "script_executable.h"
-#include "script_object.h"
-#include "vm_executable.h"
-#include "script_var_container.h"
-#include "parse_generic_mash.h"
 
 #include <algorithm>
 #include <cstring>
@@ -26,7 +21,7 @@ struct script_var_container_access {
     using entry_t = script_var_container::script_var_to_addr_t;
 };
 
-static_assert(sizeof(void *) == 4);
+static_assert(sizeof(pc_pointer_t) == 4);
 static_assert(sizeof(script_executable) == 0x5c);
 static_assert(sizeof(script_object) == 0x34);
 static_assert(sizeof(vm_executable) == 0x24);
@@ -109,7 +104,7 @@ struct writer_t {
 
     void slots(const bytes_t &preserved, std::size_t count)
     {
-        auto size = count_bytes(static_cast<std::uint32_t>(count), sizeof(void *), UINT32_MAX);
+        auto size = count_bytes(static_cast<std::uint32_t>(count), sizeof(pc_pointer_t), UINT32_MAX);
         auto copy = std::min(size, preserved.size());
         append(std::span(preserved).first(copy));
         bytes.insert(bytes.end(), size - copy, 0);
@@ -122,8 +117,7 @@ struct code_range_t {
     std::uint32_t size;
 };
 
-function_t read_function(reader_t &reader, std::vector<code_range_t> &ranges,
-                         std::span<const std::uint8_t> code)
+function_t read_function(reader_t &reader, std::vector<code_range_t> &ranges, std::span<const std::uint8_t> code)
 {
     function_t function;
     function.preserved = reader.take(sizeof(vm_executable));
@@ -141,10 +135,50 @@ function_t read_function(reader_t &reader, std::vector<code_range_t> &ranges,
     function.code = decode_code(code.subspan(offset, words * sizeof(std::uint16_t)));
     function.code_order = offset;
     function.name = "function_" + hex(function.fullname_hash).substr(2);
-    ranges.push_back({nullptr, offset, words * sizeof(std::uint16_t)});
+    ranges.push_back({nullptr, offset, static_cast<std::uint32_t>(words * sizeof(std::uint16_t))});
     return function;
 }
 
+}
+
+std::span<const std::uint8_t> assembly_record_defaults(assembly_record_t kind)
+{
+    static constexpr auto mash = [] {
+        std::array<std::uint8_t, sizeof(generic_mash_header)> bytes{};
+        bytes[offsetof(generic_mash_header, class_id)] = 0xff;
+        bytes[offsetof(generic_mash_header, class_id) + 1] = 0xff;
+        return bytes;
+    }();
+    static constexpr auto image = [] {
+        std::array<std::uint8_t, sizeof(script_executable)> bytes{};
+        bytes[offsetof(script_executable, flags)] = script_executable::SCRIPT_EXECUTABLE_FLAG_FROM_MASH;
+        return bytes;
+    }();
+    static constexpr auto object = [] {
+        std::array<std::uint8_t, sizeof(script_object)> bytes{};
+        bytes[offsetof(script_object, static_data) + data_block_access::flags_offset] = SO_DATA_BLOCK_FLAG_FROM_MASH;
+        return bytes;
+    }();
+    static constexpr auto function = [] {
+        std::array<std::uint8_t, sizeof(vm_executable)> bytes{};
+        for (unsigned i = 0; i < sizeof(vm_executable::field_20); ++i)
+            bytes[offsetof(vm_executable, field_20) + i] = 0xcd;
+        return bytes;
+    }();
+    static constexpr std::array<std::uint8_t, sizeof(script_executable::info_t)> initializer{};
+    switch (kind) {
+    case assembly_record_t::mash:
+        return mash;
+    case assembly_record_t::image:
+        return image;
+    case assembly_record_t::object:
+        return object;
+    case assembly_record_t::function:
+        return function;
+    case assembly_record_t::initializer:
+        return initializer;
+    }
+    throw error_t("Unknown assembly record kind");
 }
 
 image_t decode_image(std::span<const std::uint8_t> bytes)
@@ -159,7 +193,6 @@ image_t decode_image(std::span<const std::uint8_t> bytes)
         static_cast<std::size_t>(header.field_8) > bytes.size() || header.class_id != UINT16_MAX)
         throw error_t("Not an unlinked retail PC script mash");
     put_word(image.mash_preserved, offsetof(generic_mash_header, safety_key), 0);
-
 
 
     if (static_cast<std::size_t>(header.field_8) == bytes.size())
@@ -179,7 +212,7 @@ image_t decode_image(std::span<const std::uint8_t> bytes)
     reader.align(4);
     auto code = reader.take(code_size);
     reader.align(4);
-    image.object_slots = reader.array(object_count, sizeof(script_object *));
+    image.object_slots = reader.array(object_count, sizeof(pc_pointer_t));
     image.objects.reserve(object_count);
     std::vector<code_range_t> ranges;
     for (unsigned i = 0; i < object_count; ++i) {
@@ -200,7 +233,7 @@ image_t decode_image(std::span<const std::uint8_t> bytes)
         reader.align(4);
         object.static_data = reader.take(static_size);
         reader.align(4);
-        object.function_slots = reader.array(function_count, sizeof(vm_executable *));
+        object.function_slots = reader.array(function_count, sizeof(pc_pointer_t));
         object.functions.reserve(function_count);
         for (unsigned j = 0; j < function_count; ++j) {
             reader.align(4);
@@ -209,11 +242,11 @@ image_t decode_image(std::span<const std::uint8_t> bytes)
         image.objects.push_back(std::move(object));
     }
     reader.align(4);
-    auto order = reader.array(object_count, sizeof(script_object *));
+    auto order = reader.array(object_count, sizeof(pc_pointer_t));
     for (unsigned i = 0; i < object_count; ++i)
-        image.object_order.push_back(read_word(order, i * sizeof(script_object *)));
+        image.object_order.push_back(read_word(order, i * sizeof(pc_pointer_t)));
     reader.align(4);
-    image.string_slots = reader.array(string_count, sizeof(char *));
+    image.string_slots = reader.array(string_count, sizeof(pc_pointer_t));
     image.strings.reserve(string_count);
     for (unsigned i = 0; i < string_count; ++i) {
         reader.align(4);
@@ -283,8 +316,9 @@ bytes_t encode_image(const image_t &image)
         auto bytes = encode_code(function->code);
         if (bytes.size() > UINT32_MAX - code.size())
             throw error_t("Combined bytecode exceeds 32 bits");
-        locations.emplace(function, std::pair(static_cast<std::uint32_t>(code.size()),
-                                              static_cast<std::uint32_t>(bytes.size() / sizeof(std::uint16_t))));
+        locations.emplace(function,
+                          std::pair(static_cast<std::uint32_t>(code.size()),
+                                    static_cast<std::uint32_t>(bytes.size() / sizeof(std::uint16_t))));
         code.insert(code.end(), bytes.begin(), bytes.end());
     }
     auto root = record_bytes(image.preserved, sizeof(script_executable));
@@ -295,7 +329,9 @@ bytes_t encode_image(const image_t &image)
         root[offsetof(script_executable, field_0) + image.name.size()] = 0;
     put_word(root, offsetof(script_executable, sx_exe_image_size), static_cast<std::uint32_t>(code.size()));
     put_word(root, offsetof(script_executable, total_script_objects), static_cast<std::uint32_t>(image.objects.size()));
-    put_word(root, offsetof(script_executable, permanent_string_table_size), static_cast<std::uint32_t>(image.strings.size()));
+    put_word(root,
+             offsetof(script_executable, permanent_string_table_size),
+             static_cast<std::uint32_t>(image.strings.size()));
     put_word(root, offsetof(script_executable, field_58), static_cast<std::uint32_t>(image.initializers.size()));
     if (image.preserved.empty())
         put_word(root, offsetof(script_executable, flags), script_executable::SCRIPT_EXECUTABLE_FLAG_FROM_MASH);
@@ -326,7 +362,9 @@ bytes_t encode_image(const image_t &image)
         put_word(record, static_size_offset, static_cast<std::uint32_t>(object.static_data.size()));
         put_word(record, offsetof(script_object, total_funcs), static_cast<std::uint32_t>(object.functions.size()));
         if (object.preserved.empty())
-            put_word(record, offsetof(script_object, static_data) + data_block_access::flags_offset, SO_DATA_BLOCK_FLAG_FROM_MASH);
+            put_word(record,
+                     offsetof(script_object, static_data) + data_block_access::flags_offset,
+                     SO_DATA_BLOCK_FLAG_FROM_MASH);
         writer.append(record);
         writer.align(4);
         writer.append(object.static_data);
@@ -338,9 +376,9 @@ bytes_t encode_image(const image_t &image)
         }
     }
     writer.align(4);
-    bytes_t order(image.object_order.size() * sizeof(script_object *));
+    bytes_t order(image.object_order.size() * sizeof(pc_pointer_t));
     for (std::size_t i = 0; i < image.object_order.size(); ++i)
-        put_word(order, i * sizeof(script_object *), image.object_order[i]);
+        put_word(order, i * sizeof(pc_pointer_t), image.object_order[i]);
     writer.append(order);
     writer.align(4);
     writer.slots(image.string_slots, image.strings.size());
@@ -411,7 +449,9 @@ void validate_image(const image_t &image)
                 if (instruction.argument == OP_ARG_SDR && second >= object.static_data.size())
                     throw error_t("Reference addresses an absent static data field");
             }
-            if ((instruction.argument == OP_ARG_STR || instruction.argument == OP_ARG_SIG || instruction.argument == OP_ARG_PSIG) && first >= image.strings.size())
+            if ((instruction.argument == OP_ARG_STR || instruction.argument == OP_ARG_SIG ||
+                 instruction.argument == OP_ARG_PSIG) &&
+                first >= image.strings.size())
                 throw error_t("Reference addresses an absent permanent string");
             if (instruction.argument == OP_ARG_CLV && second >= image.strings.size())
                 throw error_t("Class value references an absent permanent string");
@@ -420,7 +460,8 @@ void validate_image(const image_t &image)
     for (const auto &object : image.objects) {
         if (object.functions.size() > UINT16_MAX || object.instance_size > INT32_MAX)
             throw error_t("Object exceeds engine layout limits");
-        if (object.destructor != -1 && (object.destructor < 0 || static_cast<std::size_t>(object.destructor) >= object.functions.size()))
+        if (object.destructor != -1 &&
+            (object.destructor < 0 || static_cast<std::size_t>(object.destructor) >= object.functions.size()))
             throw error_t("Invalid destructor function index");
         for (const auto &function : object.functions)
             validate_function(function);

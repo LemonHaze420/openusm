@@ -1,5 +1,4 @@
 #include "sxcc.h"
-#include "string_hash.h"
 
 #include <algorithm>
 #include <charconv>
@@ -27,7 +26,7 @@ void write_file(const std::string &path, std::span<const std::uint8_t> bytes)
 {
     std::ofstream file(path, std::ios::binary | std::ios::trunc);
     if (!file || (!bytes.empty() && !file.write(reinterpret_cast<const char *>(bytes.data()),
-                                               static_cast<std::streamsize>(bytes.size()))))
+                                                static_cast<std::streamsize>(bytes.size()))))
         throw error_t("Cannot write " + path);
     file.close();
     if (!file)
@@ -47,11 +46,21 @@ std::string quote(std::string_view text)
     std::string result = "\"";
     for (unsigned char c : text) {
         switch (c) {
-        case '\\': result += "\\\\"; break;
-        case '"': result += "\\\""; break;
-        case '\n': result += "\\n"; break;
-        case '\r': result += "\\r"; break;
-        case '\t': result += "\\t"; break;
+        case '\\':
+            result += "\\\\";
+            break;
+        case '"':
+            result += "\\\"";
+            break;
+        case '\n':
+            result += "\\n";
+            break;
+        case '\r':
+            result += "\\r";
+            break;
+        case '\t':
+            result += "\\t";
+            break;
         default:
             if (c < 32 || c >= 127) {
                 result += "\\x";
@@ -83,9 +92,12 @@ bytes_t decode_bytes(std::string_view text)
     if (text.size() % 2 != 0)
         throw error_t("Hex byte string must have an even length");
     auto digit = [](char c) -> unsigned {
-        if (c >= '0' && c <= '9') return static_cast<unsigned>(c - '0');
-        if (c >= 'a' && c <= 'f') return static_cast<unsigned>(c - 'a' + 10);
-        if (c >= 'A' && c <= 'F') return static_cast<unsigned>(c - 'A' + 10);
+        if (c >= '0' && c <= '9')
+            return static_cast<unsigned>(c - '0');
+        if (c >= 'a' && c <= 'f')
+            return static_cast<unsigned>(c - 'a' + 10);
+        if (c >= 'A' && c <= 'F')
+            return static_cast<unsigned>(c - 'A' + 10);
         throw error_t("Invalid hex byte string");
     };
     bytes_t result;
@@ -172,8 +184,8 @@ void validate_instruction(const instruction_t &instruction)
     argument_size(instruction.argument);
     if (instruction.argument == OP_ARG_NULL && instruction.value != 0)
         throw error_t("A no-operand instruction cannot encode a payload");
-    if (is_branch(instruction.opcode) && instruction.argument != OP_ARG_PCR &&
-        instruction.argument != OP_ARG_WORD && instruction.argument != OP_ARG_NUM && instruction.argument != OP_ARG_NUMR)
+    if (is_branch(instruction.opcode) && instruction.argument != OP_ARG_PCR && instruction.argument != OP_ARG_WORD &&
+        instruction.argument != OP_ARG_NUM && instruction.argument != OP_ARG_NUMR)
         throw error_t("Branch operand is not a fixed displacement");
     if (argument_size(instruction.argument) == 2 && instruction.value > UINT16_MAX)
         throw error_t("Word operand exceeds 16 bits");
@@ -219,8 +231,7 @@ bytes_t encode_code(std::span<const instruction_t> code)
     bytes.resize(static_cast<std::size_t>(total));
     std::size_t offset = 0;
     for (const auto &instruction : code) {
-        auto word = (static_cast<unsigned>(instruction.opcode) << 8) |
-                    static_cast<unsigned>(instruction.argument) |
+        auto word = (static_cast<unsigned>(instruction.opcode) << 8) | static_cast<unsigned>(instruction.argument) |
                     (instruction.size_override ? OP_DSIZE_FLAG : 0);
         put_word(bytes, offset, word, 2);
         offset += 2;

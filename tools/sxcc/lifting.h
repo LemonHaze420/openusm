@@ -20,8 +20,18 @@ struct lifted_address_t {
 };
 struct lifted_value_t {
     enum class kind_t {
-        parameter, uninitialized, merge, constant, string, class_value,
-        signal, operation, native_call, script_call, load, indexed_store
+        parameter,
+        uninitialized,
+        merge,
+        constant,
+        string,
+        class_value,
+        signal,
+        operation,
+        native_call,
+        script_call,
+        load,
+        indexed_store
     } kind = kind_t::uninitialized;
     unsigned instruction = UINT32_MAX;
     unsigned width = 4;
@@ -29,11 +39,22 @@ struct lifted_value_t {
     std::uint32_t immediate = 0;
     std::vector<std::vector<value_ref_t>> arguments;
     std::optional<lifted_address_t> address;
+    std::optional<unsigned> local_read_home;
+    bool ambiguous_read_home = false;
 };
 
 
 struct lifted_effect_t {
-    enum class kind_t { value, store, branch, return_value, thread, callback, signal, termination } kind = kind_t::value;
+    enum class kind_t {
+        value,
+        store,
+        branch,
+        return_value,
+        thread,
+        callback,
+        signal,
+        termination
+    } kind = kind_t::value;
     unsigned instruction = 0;
     unsigned value = UINT32_MAX;
     std::optional<lifted_address_t> address;
@@ -63,8 +84,7 @@ struct lifted_function_t {
 };
 
 
-
 std::vector<lifted_function_t> lift_values(const image_t &image, const symbols_t &symbols,
-                                         const stack_analysis_t &stack);
+                                           const stack_analysis_t &stack);
 
 }

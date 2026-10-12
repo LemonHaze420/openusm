@@ -10,8 +10,19 @@ enum class access_t { public_member, protected_member, private_member };
 
 struct expression_t {
     enum class kind_t {
-        number, string, name, member, index, call, unary, binary,
-        assignment, conditional, postfix, bit_cast, aggregate
+        number,
+        string,
+        name,
+        member,
+        index,
+        call,
+        unary,
+        binary,
+        assignment,
+        conditional,
+        postfix,
+        bit_cast,
+        aggregate
     } kind = kind_t::name;
     std::string text;
     std::uint32_t bits = 0;
@@ -31,8 +42,20 @@ struct declaration_t {
 
 struct statement_t {
     enum class kind_t {
-        block, declaration, expression, conditional, while_loop, do_loop,
-        for_loop, return_value, break_loop, continue_loop, jump, label
+        block,
+        declaration,
+        expression,
+        conditional,
+        while_loop,
+        do_loop,
+        for_loop,
+        return_value,
+        break_loop,
+        continue_loop,
+        jump,
+        label,
+        switch_statement,
+        switch_case
     } kind = kind_t::block;
     unsigned line = 0;
     std::string name;
@@ -73,6 +96,7 @@ struct program_t {
     std::vector<native_t> natives;
     std::map<std::string, declaration_t> native_variables;
     std::vector<initialization_t> initializations;
+    std::map<std::string, std::string> string_objects;
 };
 
 program_t parse(std::string_view source);
